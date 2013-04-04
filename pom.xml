@@ -2,11 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ixa</groupId>
-	<artifactId>ixa-opennlp-tok</artifactId>
+	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0</version>
-	<name>ixa-opennlp-tok</name>
-	<description>Tokenizer module of the ixa-opennlp multilingual Natural Language Processing Pipeline based on Apache OpenNLP API.
+	<name>ixa-pipe-tok</name>
+	<description>Tokenizer module of the IXA-pipeline, a multilingual Natural Language Processing Pipeline based on Apache OpenNLP API.
 	All models have been trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es). 
         </description>
 	<developers>
@@ -84,7 +84,7 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
-										<Main-Class>ixa.opennlp.tok.CLI</Main-Class>
+										<Main-Class>ixa.pipe.tok.CLI</Main-Class>
 										<!-- <Class-Path>../models/models.jar</Class-Path> -->
 									</manifestEntries>
 								</transformer>
@@ -102,7 +102,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>ixa.opennlp.tok.CLI</mainClass>
+					<mainClass>ixa.pipe.tok.CLI</mainClass>
 				</configuration>
 			</plugin>
 

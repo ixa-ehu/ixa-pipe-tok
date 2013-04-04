@@ -1,9 +1,9 @@
-IXA-OpenNLP-tok
+IXA-pipe-tok
 ===============
 
-This module provides a simple wrapper that uses Apache OpenNLP
-programatically to perform Segmentation and Tokenization.
-Models have been trained by the IXA NLP Group (ixa.si.ehu.es).
+This module uses Apache OpenNLP programatically to perform Sentence Segmentation
+and Tokenization. The module is part of IXA-Pipeline ("is a pipeline"), a multilingual
+NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
 
 
 Contents
@@ -21,7 +21,7 @@ The contents of the module are the following:
 INSTALLATION
 ============
 
-Installing the ixa-opennlp-tok requires the following steps:
+Installing the ixa-pipe-tok requires the following steps:
 
 If you already have installed in your machine JDK6 and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
@@ -86,20 +86,20 @@ You should see reference to the MAVEN version you have just installed plus the J
 ----------------------------
 
 ````shell
-hg clone ssh://hg@bitbucket.org/ragerri/ixa-opennlp-tok
+hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-tok
 ````
 
 4. Move into main directory
 ---------------------------
 
 ````shell
-cd ixa-opennlp-tok
+cd ixa-pipe-tok
 ````
 
 5. Copy models to resources
 ---------------------------
 
-You need to copy four models to ixa-opennlp-tok/src/main/resources/ for the module to work:
+You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module to work:
 
 1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
 2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
@@ -107,7 +107,7 @@ You need to copy four models to ixa-opennlp-tok/src/main/resources/ for the modu
 Download the models from
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-opennlp-models/
+http://ixa2.si.ehu.es/ragerri/ixa-pipe-models/
 ````
 
 If you change the name of the models you will need to modify also the source code in Models.java
@@ -130,7 +130,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-opennlp-tok-1.0.jar
+ixa-pipe-tok-1.0.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.6 installed.
@@ -141,7 +141,7 @@ To install the module as in the maven's user local repository, located in ~/.m2/
 mvn clean install
 ````
 
-7. USING ixa-opennlp-tok
+7. USING ixa-pipe-tok
 ========================
 
 The program accepts standard input and outputs tokenized text in KAF.
@@ -149,7 +149,7 @@ The program accepts standard input and outputs tokenized text in KAF.
 To run the program execute:
 
 ````shell
-cat file.txt | java -jar $PATH/target/ixa-opennlp-tok-1.0.jar -l $lang
+cat file.txt | java -jar $PATH/target/ixa-pipe-tok-1.0.jar -l $lang
 ````
 
 GENERATING JAVADOC
@@ -161,7 +161,7 @@ You can also generate the javadoc of the module by executing:
 mvn javadoc:jar
 ````
 
-Which will create a jar file core/target/ixa-opennlp-tok-1.0-javadoc.jar
+Which will create a jar file core/target/ixa-pipe-tok-1.0-javadoc.jar
 
 
 Contact information
