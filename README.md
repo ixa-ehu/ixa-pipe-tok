@@ -1,7 +1,5 @@
-<<<<<<< local
-
 IXA-OpenNLP-tok
-===========
+===============
 
 This module provides a simple wrapper that uses Apache OpenNLP
 programatically to perform Segmentation and Tokenization.
@@ -18,8 +16,6 @@ The contents of the module are the following:
     + src/                    java source code of the module
     + Furthermore, the installation process, as described in the README.md, will generate another directory:
     target/                 it contains binary executable and other directories
-
-- README.md: This README
 
 
 INSTALLATION
@@ -87,7 +83,7 @@ mvn -version
 You should see reference to the MAVEN version you have just installed plus the JDK 6 that is using.
 
 3. Get module from bitbucket
--------------------------
+----------------------------
 
 ````shell
 hg clone ssh://hg@bitbucket.org/ragerri/ixa-opennlp-tok
@@ -100,7 +96,31 @@ hg clone ssh://hg@bitbucket.org/ragerri/ixa-opennlp-tok
 cd ixa-opennlp-tok
 ````
 
-5. Install module using maven
+5. Copy models to resources
+---------------------------
+
+You need to copy four models to ixa-opennlp-tok/src/main/resources/ for the module to work:
+
+1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
+2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
+
+Download the models from
+
+````shell
+http://ixa2.si.ehu.es/ragerri/ixa-opennlp-models/
+````
+
+If you change the name of the models you will need to modify also the source code in Models.java
+
+````shell
+cp en-sent.bin $repo/src/main/resources/
+cp es-sent.bin $repo/src/main/resources/
+cp en-token.bin $repo/src/main/resources/
+cp es-token.bin $repo/src/main/resources/
+````
+
+
+6. Install module using maven
 -----------------------------
 
 ````shell
@@ -115,14 +135,14 @@ ixa-opennlp-tok-1.0.jar
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.6 installed.
 
-To install the module as in the maven's user local repository, located in ~/.m2/repository, do this: 
+To install the module as in the maven's user local repository, located in ~/.m2/repository, do this:
 
 ````shell
 mvn clean install
 ````
 
-6. USING ixa-opennlp-tok
-------------------------
+7. USING ixa-opennlp-tok
+========================
 
 The program accepts standard input and outputs tokenized text in KAF.
 
@@ -154,6 +174,4 @@ University of the Basque Country (UPV/EHU)
 E-20018 Donostia-San Sebastián
 rodrigo.agerri@ehu.es
 ````
-=======
-ixa-opennlp-tok
-===============>>>>>>> other
+
