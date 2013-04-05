@@ -152,7 +152,9 @@ mvn clean install
 7. USING ixa-pipe-tok
 ========================
 
-The program accepts standard input and outputs tokenized text in KAF.
+The program accepts standard input and outputs tokenized text in KAF:
+
+http://kyoto-project.eu/www2.let.vu.nl/twiki/pub/Kyoto/TechnicalPapers/WP002_TR009_KAF_Framework.pdf
 
 To run the program execute:
 
