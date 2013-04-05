@@ -82,11 +82,19 @@ mvn -version
 
 You should see reference to the MAVEN version you have just installed plus the JDK 6 that is using.
 
-3. Get module from bitbucket
-----------------------------
+3. Get module source code
+--------------------------
+
+ixa-pipe-tok original repo is hosted at Bitbucket, and can be cloned as follows:
 
 ````shell
 hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-tok
+````
+
+If you are a github user, we provide a github mirror of the original repo:
+
+````shell
+git clone git@github.com:ragerri/ixa-pipe-tok.git
 ````
 
 4. Move into main directory
@@ -107,7 +115,7 @@ You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module 
 Download the models from
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-pipe-models/
+http://ixa3.si.ehu.es/~ragerri/ixa-pipeline-models/
 ````
 
 If you change the name of the models you will need to modify also the source code in Models.java
