@@ -115,7 +115,7 @@ You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module 
 Download the models from
 
 ````shell
-http://ixa3.si.ehu.es/~ragerri/ixa-pipeline-models/
+http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/
 ````
 
 If you change the name of the models you will need to modify also the source code in Models.java
