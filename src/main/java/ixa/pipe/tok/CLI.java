@@ -18,6 +18,8 @@
 
 package ixa.pipe.tok;
 
+import ixa.kaflib.KAFDocument;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -59,9 +61,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-opennlp-tok-1.0.jar")
+        .newArgumentParser("ixa-pipe-tok-1.0.jar")
         .description(
-            "ixa-opennlp-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group based on Apache OpenNLP.\n");
+            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group based on Apache OpenNLP.\n");
 
     // specify language
     parser
@@ -69,7 +71,7 @@ public class CLI {
         .choices("en", "es")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with IXA-OpenNLP");
+            "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
     // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
     // +
     // "Apache OpenNLP format or in KAF format. The default is KAF");
@@ -85,7 +87,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-opennlp-tok-1.0.jar -help for details");
+          .println("Run java -jar target/ixa-pipe-tok-1.0.jar -help for details");
       System.exit(1);
     }
 
@@ -98,7 +100,7 @@ public class CLI {
 	  Annotate annotator = new Annotate(lang);
 	  BufferedReader breader = null;
 	  BufferedWriter bwriter = null;
-	  KAF kaf = new KAF(lang);
+	  KAFDocument kaf = new KAFDocument(lang, "v1.opener");
 	  try {
 	  breader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out,"UTF-8"));
@@ -107,10 +109,10 @@ public class CLI {
     	annotator.annotateTokensToKAF(line, kaf);
       }
       // add kaf header
-      kaf.addlps("tokens", "ixa-opennlp-tok-"+ lang, kaf.getTimestamp(), "1.0");
-      XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
-      xout.output(kaf.createKAFDoc(), bwriter);
+      kaf.addLinguisticProcessor("tokens", "ixa-pipe-tok","1.0");
+      bwriter.write(kaf.toString());
       bwriter.close();
+      
    }
 	  catch (IOException e){ 
 		  e.printStackTrace();

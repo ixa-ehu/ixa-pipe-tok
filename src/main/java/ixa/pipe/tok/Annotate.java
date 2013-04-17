@@ -17,6 +17,9 @@
 
 package ixa.pipe.tok;
 
+import ixa.kaflib.KAFDocument;
+import ixa.kaflib.WF;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -51,8 +54,9 @@ public class Annotate {
    */
 
   int noSents = 0;
-   
-  public void annotateTokensToKAF(String line, KAF kaf) throws IOException {
+  Integer offsetCounter = 0;
+  
+  public void annotateTokensToKAF(String line, KAFDocument kaf) throws IOException {
 	  
     String sentences[] = sentDetector.segmentSentence(line);
     
@@ -63,15 +67,26 @@ public class Annotate {
   
       // get sentence counter
       noSents = noSents + 1;
-      String sid = Integer.toString(noSents);
       
       // Add tokens in the sentence to kaf object
-      int numTokensInKaf = kaf.getNumWfs();
-      int nextTokenInd = numTokensInKaf + 1;
-      for (int i = 0; i < tokens.length; i++) {
-        String id = "w" + Integer.toString(nextTokenInd++);
-        String tokenStr = tokens[i];
-        kaf.addWf(id, sid, tokenStr);
+      
+      for (int i=0;i<tokens.length;i++) {
+    	  // get offsets 
+    	  if (i != 0) {
+    		  offsetCounter = offsetCounter + tokens[i-1].length() + 1;
+    	  }
+    	  if (i==0 && offsetCounter != 0) {
+    		  offsetCounter = offsetCounter + 2;
+    		  
+    	  }
+    	  else { 
+    		  offsetCounter = offsetCounter + 0;
+    	  }
+    	// create wf elements and their attributes 
+        WF newWF = kaf.createWF(tokens[i]);
+        newWF.setSent((short)noSents);
+        newWF.setOffset(offsetCounter);
+        newWF.setLength(tokens[i].length());
       }
    }
     
