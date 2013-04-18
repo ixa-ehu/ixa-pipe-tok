@@ -17,13 +17,7 @@
 
 package ixa.pipe.tok;
 
-<<<<<<< local
 import ixa.pipe.kaf.KAF;
-import ixa.pipe.kaf.KAFUtils;
-=======
-import ixa.kaflib.KAFDocument;
-import ixa.kaflib.WF;
->>>>>>> other
 
 import java.io.IOException;
 import java.io.InputStream;
