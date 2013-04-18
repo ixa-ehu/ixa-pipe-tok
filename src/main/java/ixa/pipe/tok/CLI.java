@@ -18,7 +18,6 @@
 
 package ixa.pipe.tok;
 
-
 import ixa.pipe.kaf.KAF;
 
 import java.io.BufferedReader;
