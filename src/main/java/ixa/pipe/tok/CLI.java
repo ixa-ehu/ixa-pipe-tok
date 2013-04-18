@@ -18,6 +18,7 @@
 
 package ixa.pipe.tok;
 
+
 import ixa.pipe.kaf.KAF;
 
 import java.io.BufferedReader;
@@ -71,7 +72,7 @@ public class CLI {
         .choices("en", "es")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with IXA-OpenNLP");
+            "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
     // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
     // +
     // "Apache OpenNLP format or in KAF format. The default is KAF");
@@ -113,6 +114,7 @@ public class CLI {
       XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
       xout.output(kaf.createKAFDoc(), bwriter);
       bwriter.close();
+      
    }
 	  catch (IOException e){ 
 		  e.printStackTrace();
