@@ -17,6 +17,9 @@
 
 package ixa.pipe.tok;
 
+import ixa.pipe.kaf.KAF;
+import ixa.pipe.kaf.KAFUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -24,7 +27,6 @@ public class Annotate {
 
   private Segmenter sentDetector;
   private TokTokenizer toker;
-  
 
   public Annotate(String cmdOption) {
     Models modelRetriever = new Models();
@@ -51,6 +53,7 @@ public class Annotate {
    */
 
   int noSents = 0;
+  int offsetCounter = 0;
    
   public void annotateTokensToKAF(String line, KAF kaf) throws IOException {
 	  
@@ -68,12 +71,22 @@ public class Annotate {
       // Add tokens in the sentence to kaf object
       int numTokensInKaf = kaf.getNumWfs();
       int nextTokenInd = numTokensInKaf + 1;
+      int current_index = 0;
+      int previous_index = 0;
       for (int i = 0; i < tokens.length; i++) {
-        String id = "w" + Integer.toString(nextTokenInd++);
+    	int realWfCounter = i + nextTokenInd;
+        String id = "w" + Integer.toString(realWfCounter);
         String tokenStr = tokens[i];
-        kaf.addWf(id, sid, tokenStr);
+        //get offsets  
+  	    current_index = line.indexOf(tokens[i],previous_index);
+  	    int offset = offsetCounter + current_index;
+        String tokLength = Integer.toString(tokens[i].length());
+        String para = "";
+        kaf.addWf(id, sid, Integer.toString(offset), tokLength, para, tokenStr);
+        previous_index = current_index + tokens[i].length();
       }
    }
+     offsetCounter += line.length();
     
   }
 

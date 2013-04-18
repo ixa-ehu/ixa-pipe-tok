@@ -18,6 +18,8 @@
 
 package ixa.pipe.tok;
 
+import ixa.pipe.kaf.KAF;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -59,9 +61,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-opennlp-tok-1.0.jar")
+        .newArgumentParser("ixa-pipe-tok-1.0.jar")
         .description(
-            "ixa-opennlp-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group based on Apache OpenNLP.\n");
+            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group based on Apache OpenNLP.\n");
 
     // specify language
     parser
@@ -85,7 +87,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-opennlp-tok-1.0.jar -help for details");
+          .println("Run java -jar target/ixa-pipe-tok-1.0.jar -help for details");
       System.exit(1);
     }
 
@@ -107,7 +109,7 @@ public class CLI {
     	annotator.annotateTokensToKAF(line, kaf);
       }
       // add kaf header
-      kaf.addlps("tokens", "ixa-opennlp-tok-"+ lang, kaf.getTimestamp(), "1.0");
+      kaf.addlps("tokens", "ixa-pipe-tok-"+ lang, kaf.getTimestamp(), "1.0");
       XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
       xout.output(kaf.createKAFDoc(), bwriter);
       bwriter.close();
