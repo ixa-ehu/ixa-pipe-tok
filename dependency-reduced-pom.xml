@@ -58,18 +58,6 @@
       </plugin>
     </plugins>
   </build>
-<<<<<<< local
-=======
-  <repositories>
-    <repository>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <id>zbeloki.github</id>
-      <url>https://raw.github.com/zbeloki/mvn-repo/master</url>
-    </repository>
-  </repositories>
->>>>>>> other
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
