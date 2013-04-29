@@ -47,7 +47,7 @@ public class Annotate {
    * <wf> corresponding to each of the tokens.
    * 
    * @param line of string
-   * @param KAF bject. This object is used to take the output data and convert it
+   * @param KAF object. This object is used to take the output data and convert it
    *          to KAF, returning an XML document in a string.
    */
 

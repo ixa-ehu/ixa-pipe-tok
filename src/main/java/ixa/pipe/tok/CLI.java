@@ -19,6 +19,7 @@
 package ixa.pipe.tok;
 
 import ixa.pipe.kaf.KAF;
+import ixa.pipe.tok.Formats;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -97,6 +98,7 @@ public class CLI {
      */
 
       String lang = parsedArguments.getString("lang");
+      Formats formatter = new Formats();
 	  Annotate annotator = new Annotate(lang);
 	  BufferedReader breader = null;
 	  BufferedWriter bwriter = null;
@@ -106,6 +108,7 @@ public class CLI {
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out,"UTF-8"));
       String line;
       while ((line = breader.readLine()) != null) {
+    	line = formatter.cleanWeirdChars(line);  
     	annotator.annotateTokensToKAF(line, kaf);
       }
       // add kaf header
