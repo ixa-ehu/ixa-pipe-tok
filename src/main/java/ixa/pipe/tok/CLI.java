@@ -18,8 +18,7 @@
 
 package ixa.pipe.tok;
 
-import ixa.pipe.kaf.KAF;
-import ixa.pipe.tok.Formats;
+import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,9 +30,6 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 
 
 /**
@@ -73,7 +69,7 @@ public class CLI {
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
-    // parser.addArgument("-f","--format").choices("kaf","plain").setDefault("kaf").help("output annotation in plain native "
+    // parser.addArgument("-f","--format").choices("kaf","conll").setDefault("kaf").help("output annotation in plain native "
     // +
     // "Apache OpenNLP format or in KAF format. The default is KAF");
 
@@ -102,7 +98,8 @@ public class CLI {
 	  Annotate annotator = new Annotate(lang);
 	  BufferedReader breader = null;
 	  BufferedWriter bwriter = null;
-	  KAF kaf = new KAF(lang);
+	  KAFDocument kaf = new KAFDocument(lang,"v1.opener");
+	  kaf.addLinguisticProcessor("text","ixa-pipe-tok-"+lang,"1.0");
 	  try {
 	  breader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out,"UTF-8"));
@@ -111,10 +108,9 @@ public class CLI {
     	line = formatter.cleanWeirdChars(line);  
     	annotator.annotateTokensToKAF(line, kaf);
       }
-      // add kaf header
-      kaf.addlps("tokens", "ixa-pipe-tok-"+ lang, kaf.getTimestamp(), "1.0");
-      XMLOutputter xout = new XMLOutputter(Format.getPrettyFormat());
-      xout.output(kaf.createKAFDoc(), bwriter);
+      // write kaf document
+      
+      bwriter.write(kaf.toString());
       bwriter.close();
       
    }
