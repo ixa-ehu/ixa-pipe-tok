@@ -112,21 +112,14 @@ You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module 
 1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
 2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
 
-Download the models from
+Download the models from and tar the archive in the src/main/resources directory:
 
 ````shell
-http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/
+cd ixa-pipe-tok/src/main/resources
+wget http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/tok-resources.tgz
+tar xvzf tok-resources.tgz
 ````
-
 If you change the name of the models you will need to modify also the source code in Models.java
-
-````shell
-cp en-sent.bin $repo/src/main/resources/
-cp es-sent.bin $repo/src/main/resources/
-cp en-token.bin $repo/src/main/resources/
-cp es-token.bin $repo/src/main/resources/
-````
-
 
 6. Install module using maven
 -----------------------------
