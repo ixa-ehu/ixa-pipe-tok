@@ -85,16 +85,8 @@ You should see reference to the MAVEN version you have just installed plus the J
 3. Get module source code
 --------------------------
 
-ixa-pipe-tok original repo is hosted at Bitbucket, and can be cloned as follows:
-
 ````shell
-hg clone ssh://hg@bitbucket.org/ragerri/ixa-pipe-tok
-````
-
-If you are a github user, we provide a github mirror of the original repo:
-
-````shell
-git clone git@github.com:ragerri/ixa-pipe-tok.git
+git clone git@github.com:ixa-ehu/ixa-pipe-tok.git
 ````
 
 4. Move into main directory
@@ -112,7 +104,7 @@ You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module 
 1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
 2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
 
-Download the models from and tar the archive in the src/main/resources directory:
+Download the models from and untar the archive into the src/main/resources directory:
 
 ````shell
 cd ixa-pipe-tok/src/main/resources
