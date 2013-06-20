@@ -18,21 +18,21 @@ package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
+import ixa.pipe.resources.Resources;
+import ixa.pipe.seg.Segmenter;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+
 public class Annotate {
 
   private Segmenter sentDetector;
-  private TokTokenizer toker;
 
   public Annotate(String cmdOption) {
-    Models modelRetriever = new Models();
+    Resources modelRetriever = new Resources();
     InputStream segModel = modelRetriever.getSegModel(cmdOption);
     sentDetector = new Segmenter(segModel);
-    InputStream tokModel = modelRetriever.getTokModel(cmdOption);
-    toker = new TokTokenizer(tokModel);
   }
 
   /**
@@ -45,17 +45,15 @@ public class Annotate {
    * It fills the kaf object with the word forms element <wf> corresponding to
    * each of the tokens.
    * 
-   * @param line
-   *          of string
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF, returning an XML document in a string.
+   * @param line of string
+   * @param KAF object. This object is used to take the output data and convert it
+   *        to KAF, returning an XML document in a string.
    */
 
   int noSents = 0;
   int offsetCounter = 0;
 
-  public void annotateTokensToKAF(String line, KAFDocument kaf)
+  public void annotateTokensToKAF(String line, TokTokenizer toker, KAFDocument kaf)
       throws IOException {
 
     String sentences[] = sentDetector.segmentSentence(line);
@@ -63,7 +61,7 @@ public class Annotate {
     // get linguistic annotations
     for (String sent : sentences) {
 
-      String tokens[] = toker.toker(sent);
+      String tokens[] = toker.tokenize(sent);
 
       // get sentence counter
       noSents = noSents + 1;

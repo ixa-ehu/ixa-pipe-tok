@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package ixa.pipe.seg;
 
 import java.io.IOException;
 import java.io.InputStream;

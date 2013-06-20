@@ -14,11 +14,11 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package ixa.pipe.resources;
 
 import java.io.InputStream;
 
-public class Models {
+public class Resources {
 
   private InputStream segModel;
   private InputStream tokModel;

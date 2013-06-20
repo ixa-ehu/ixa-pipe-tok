@@ -1,4 +1,4 @@
-package ixa.pipe.tok;
+package ixa.pipe.resources;
 
 public class Formats {
 	
@@ -7,6 +7,8 @@ public class Formats {
 	    line = line.replace("‘","'");
 	    line = line.replace('“','"');
 	    line = line.replace('”','"');
+	    line = line.replace("`","'");
+	    
 	    return line; 
 	    
 	  }
