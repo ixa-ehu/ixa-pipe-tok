@@ -1,0 +1,266 @@
+After three failed attempts, North Korea, though struggling to feed its people, is now one of the few countries to have successfully launched a satellite into space from its own soil. Bitter rival South Korea is not on the list, although it has tried. North Korean space officials insist the rocket is meant to send a satellite into orbit that can study crops and weather patterns. But Western experts note that the technology involved in a satellite launch is similar to that needed to develop a very long-range missile. The launch of a rocket similar in design to one capable of carrying an atomic-tipped warhead as far as California raises the stakes in the international standoff over North Korea's expanding atomic arsenal. 
+After
+three
+failed
+attempts ,
+North
+Korea ,
+though
+struggling
+to
+feed
+its
+people ,
+is
+now
+one
+of
+the
+few
+countries
+to
+have
+successfully
+launched
+a
+satellite
+into
+space
+from
+its
+own
+soil .
+Bitter
+rival
+South
+Korea
+is
+not
+on
+the
+list ,
+although
+it
+has
+tried .
+North
+Korean
+space
+officials
+insist
+the
+rocket
+is
+meant
+to
+send
+a
+satellite
+into
+orbit
+that
+can
+study
+crops
+and
+weather
+patterns .
+But
+Western
+experts
+note
+that
+the
+technology
+involved
+in
+a
+satellite
+launch
+is
+similar
+to
+that
+needed
+to
+develop
+a
+very
+long-range
+missile .
+The
+launch
+of
+a
+rocket
+similar
+in
+design
+to
+one
+capable
+of
+carrying
+an
+atomic-tipped
+warhead
+as
+far
+as
+California
+raises
+the
+stakes
+in
+the
+international
+standoff
+over
+North
+Korea 's
+expanding
+atomic
+arsenal .
+<?xml version="1.0" encoding="UTF-8"?>
+<KAF xml:lang="en" version="v1.opener">
+  <kafHeader>
+    <linguisticProcessors layer="text">
+      <lp name="ixa-pipe-tok-en" timestamp="2013-06-20 18:45:34" version="1.0" />
+    </linguisticProcessors>
+  </kafHeader>
+  <text>
+    <wf wid="w1" sent="1" offset="0" length="5">After</wf>
+    <wf wid="w2" sent="2" offset="6" length="5">three</wf>
+    <wf wid="w3" sent="3" offset="12" length="6">failed</wf>
+    <wf wid="w4" sent="4" offset="19" length="8">attempts</wf>
+    <wf wid="w5" sent="4" offset="27" length="1">,</wf>
+    <wf wid="w6" sent="5" offset="29" length="5">North</wf>
+    <wf wid="w7" sent="6" offset="35" length="5">Korea</wf>
+    <wf wid="w8" sent="6" offset="40" length="1">,</wf>
+    <wf wid="w9" sent="7" offset="42" length="6">though</wf>
+    <wf wid="w10" sent="8" offset="49" length="10">struggling</wf>
+    <wf wid="w11" sent="9" offset="60" length="2">to</wf>
+    <wf wid="w12" sent="10" offset="63" length="4">feed</wf>
+    <wf wid="w13" sent="11" offset="68" length="3">its</wf>
+    <wf wid="w14" sent="12" offset="72" length="6">people</wf>
+    <wf wid="w15" sent="12" offset="78" length="1">,</wf>
+    <wf wid="w16" sent="13" offset="80" length="2">is</wf>
+    <wf wid="w17" sent="14" offset="83" length="3">now</wf>
+    <wf wid="w18" sent="15" offset="87" length="3">one</wf>
+    <wf wid="w19" sent="16" offset="91" length="2">of</wf>
+    <wf wid="w20" sent="17" offset="94" length="3">the</wf>
+    <wf wid="w21" sent="18" offset="98" length="3">few</wf>
+    <wf wid="w22" sent="19" offset="102" length="9">countries</wf>
+    <wf wid="w23" sent="20" offset="60" length="2">to</wf>
+    <wf wid="w24" sent="21" offset="115" length="4">have</wf>
+    <wf wid="w25" sent="22" offset="120" length="12">successfully</wf>
+    <wf wid="w26" sent="23" offset="133" length="8">launched</wf>
+    <wf wid="w27" sent="24" offset="13" length="1">a</wf>
+    <wf wid="w28" sent="25" offset="144" length="9">satellite</wf>
+    <wf wid="w29" sent="26" offset="154" length="4">into</wf>
+    <wf wid="w30" sent="27" offset="159" length="5">space</wf>
+    <wf wid="w31" sent="28" offset="165" length="4">from</wf>
+    <wf wid="w32" sent="29" offset="68" length="3">its</wf>
+    <wf wid="w33" sent="30" offset="174" length="3">own</wf>
+    <wf wid="w34" sent="31" offset="178" length="4">soil</wf>
+    <wf wid="w35" sent="31" offset="182" length="1">.</wf>
+    <wf wid="w36" sent="32" offset="185" length="6">Bitter</wf>
+    <wf wid="w37" sent="33" offset="192" length="5">rival</wf>
+    <wf wid="w38" sent="34" offset="198" length="5">South</wf>
+    <wf wid="w39" sent="35" offset="35" length="5">Korea</wf>
+    <wf wid="w40" sent="36" offset="80" length="2">is</wf>
+    <wf wid="w41" sent="37" offset="213" length="3">not</wf>
+    <wf wid="w42" sent="38" offset="87" length="2">on</wf>
+    <wf wid="w43" sent="39" offset="94" length="3">the</wf>
+    <wf wid="w44" sent="40" offset="224" length="4">list</wf>
+    <wf wid="w45" sent="40" offset="228" length="1">,</wf>
+    <wf wid="w46" sent="41" offset="230" length="8">although</wf>
+    <wf wid="w47" sent="42" offset="68" length="2">it</wf>
+    <wf wid="w48" sent="43" offset="242" length="3">has</wf>
+    <wf wid="w49" sent="44" offset="246" length="5">tried</wf>
+    <wf wid="w50" sent="44" offset="251" length="1">.</wf>
+    <wf wid="w51" sent="45" offset="29" length="5">North</wf>
+    <wf wid="w52" sent="46" offset="259" length="6">Korean</wf>
+    <wf wid="w53" sent="47" offset="159" length="5">space</wf>
+    <wf wid="w54" sent="48" offset="272" length="9">officials</wf>
+    <wf wid="w55" sent="49" offset="282" length="6">insist</wf>
+    <wf wid="w56" sent="50" offset="94" length="3">the</wf>
+    <wf wid="w57" sent="51" offset="293" length="6">rocket</wf>
+    <wf wid="w58" sent="52" offset="80" length="2">is</wf>
+    <wf wid="w59" sent="53" offset="303" length="5">meant</wf>
+    <wf wid="w60" sent="54" offset="60" length="2">to</wf>
+    <wf wid="w61" sent="55" offset="312" length="4">send</wf>
+    <wf wid="w62" sent="56" offset="13" length="1">a</wf>
+    <wf wid="w63" sent="57" offset="144" length="9">satellite</wf>
+    <wf wid="w64" sent="58" offset="154" length="4">into</wf>
+    <wf wid="w65" sent="59" offset="334" length="5">orbit</wf>
+    <wf wid="w66" sent="60" offset="340" length="4">that</wf>
+    <wf wid="w67" sent="61" offset="345" length="3">can</wf>
+    <wf wid="w68" sent="62" offset="349" length="5">study</wf>
+    <wf wid="w69" sent="63" offset="355" length="5">crops</wf>
+    <wf wid="w70" sent="64" offset="361" length="3">and</wf>
+    <wf wid="w71" sent="65" offset="365" length="7">weather</wf>
+    <wf wid="w72" sent="66" offset="373" length="8">patterns</wf>
+    <wf wid="w73" sent="66" offset="381" length="1">.</wf>
+    <wf wid="w74" sent="67" offset="384" length="3">But</wf>
+    <wf wid="w75" sent="68" offset="388" length="7">Western</wf>
+    <wf wid="w76" sent="69" offset="396" length="7">experts</wf>
+    <wf wid="w77" sent="70" offset="404" length="4">note</wf>
+    <wf wid="w78" sent="71" offset="340" length="4">that</wf>
+    <wf wid="w79" sent="72" offset="94" length="3">the</wf>
+    <wf wid="w80" sent="73" offset="418" length="10">technology</wf>
+    <wf wid="w81" sent="74" offset="429" length="8">involved</wf>
+    <wf wid="w82" sent="75" offset="56" length="2">in</wf>
+    <wf wid="w83" sent="76" offset="13" length="1">a</wf>
+    <wf wid="w84" sent="77" offset="144" length="9">satellite</wf>
+    <wf wid="w85" sent="78" offset="133" length="6">launch</wf>
+    <wf wid="w86" sent="79" offset="80" length="2">is</wf>
+    <wf wid="w87" sent="80" offset="463" length="7">similar</wf>
+    <wf wid="w88" sent="81" offset="60" length="2">to</wf>
+    <wf wid="w89" sent="82" offset="340" length="4">that</wf>
+    <wf wid="w90" sent="83" offset="479" length="6">needed</wf>
+    <wf wid="w91" sent="84" offset="60" length="2">to</wf>
+    <wf wid="w92" sent="85" offset="489" length="7">develop</wf>
+    <wf wid="w93" sent="86" offset="13" length="1">a</wf>
+    <wf wid="w94" sent="87" offset="499" length="4">very</wf>
+    <wf wid="w95" sent="88" offset="504" length="10">long-range</wf>
+    <wf wid="w96" sent="89" offset="515" length="7">missile</wf>
+    <wf wid="w97" sent="89" offset="522" length="1">.</wf>
+    <wf wid="w98" sent="90" offset="525" length="3">The</wf>
+    <wf wid="w99" sent="91" offset="133" length="6">launch</wf>
+    <wf wid="w100" sent="92" offset="91" length="2">of</wf>
+    <wf wid="w101" sent="93" offset="13" length="1">a</wf>
+    <wf wid="w102" sent="94" offset="293" length="6">rocket</wf>
+    <wf wid="w103" sent="95" offset="463" length="7">similar</wf>
+    <wf wid="w104" sent="96" offset="56" length="2">in</wf>
+    <wf wid="w105" sent="97" offset="559" length="6">design</wf>
+    <wf wid="w106" sent="98" offset="60" length="2">to</wf>
+    <wf wid="w107" sent="99" offset="87" length="3">one</wf>
+    <wf wid="w108" sent="100" offset="573" length="7">capable</wf>
+    <wf wid="w109" sent="101" offset="91" length="2">of</wf>
+    <wf wid="w110" sent="102" offset="584" length="8">carrying</wf>
+    <wf wid="w111" sent="103" offset="263" length="2">an</wf>
+    <wf wid="w112" sent="104" offset="596" length="13">atomic-tipped</wf>
+    <wf wid="w113" sent="105" offset="610" length="7">warhead</wf>
+    <wf wid="w114" sent="106" offset="243" length="2">as</wf>
+    <wf wid="w115" sent="107" offset="621" length="3">far</wf>
+    <wf wid="w116" sent="108" offset="243" length="2">as</wf>
+    <wf wid="w117" sent="109" offset="628" length="10">California</wf>
+    <wf wid="w118" sent="110" offset="639" length="6">raises</wf>
+    <wf wid="w119" sent="111" offset="94" length="3">the</wf>
+    <wf wid="w120" sent="112" offset="650" length="6">stakes</wf>
+    <wf wid="w121" sent="113" offset="56" length="2">in</wf>
+    <wf wid="w122" sent="114" offset="94" length="3">the</wf>
+    <wf wid="w123" sent="115" offset="664" length="13">international</wf>
+    <wf wid="w124" sent="116" offset="678" length="8">standoff</wf>
+    <wf wid="w125" sent="117" offset="687" length="4">over</wf>
+    <wf wid="w126" sent="118" offset="29" length="5">North</wf>
+    <wf wid="w127" sent="119" offset="35" length="5">Korea</wf>
+    <wf wid="w128" sent="119" offset="703" length="2">'s</wf>
+    <wf wid="w129" sent="120" offset="706" length="9">expanding</wf>
+    <wf wid="w130" sent="121" offset="596" length="6">atomic</wf>
+    <wf wid="w131" sent="122" offset="723" length="7">arsenal</wf>
+    <wf wid="w132" sent="122" offset="730" length="1">.</wf>
+  </text>
+  <features />
+</KAF>

@@ -17,6 +17,8 @@
 
 package ixa.pipe.tok;
 
+import ixa.pipe.resources.Resources;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,7 +42,10 @@ public class TokenizerOpenNLP implements TokTokenizer {
    * This constructor loads a tokenization model, it initializes and creates a
    * tokDetector using such a model.
    */
-  public TokenizerOpenNLP(InputStream trainedModel) {
+  public TokenizerOpenNLP(String lang) {
+	  
+	 Resources modelRetriever = new Resources();
+	 InputStream trainedModel = modelRetriever.getTokModel(lang);
 
     // InputStream trainedModel =
     // getClass().getResourceAsStream("/en-token.bin");

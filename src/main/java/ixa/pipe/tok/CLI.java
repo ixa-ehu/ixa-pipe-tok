@@ -21,6 +21,9 @@ package ixa.pipe.tok;
 import ixa.kaflib.KAFDocument;
 import ixa.pipe.resources.Formats;
 import ixa.pipe.resources.Resources;
+import ixa.pipe.seg.SegmenterMoses;
+import ixa.pipe.seg.SegmenterOpenNLP;
+import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -104,24 +106,26 @@ public class CLI {
       String lang = parsedArguments.getString("lang");
       String method = parsedArguments.getString("method");
       
+      Resources resourceRetriever = new Resources();
       Formats formatter = new Formats();
-	  Annotate annotator = new Annotate(lang);
+	  Annotate annotator = new Annotate();
 	  BufferedReader breader = null;
 	  BufferedWriter bwriter = null;
 	  KAFDocument kaf = new KAFDocument(lang,"v1.opener");
 	  
-	  // choosing tokenizer and language 
+	  // choosing tokenizer and and resources by language 
 	  
-	  Resources resourceRetriever = new Resources();
 	  TokTokenizer tokenizer = null;
-	  
-	  if (method.equalsIgnoreCase("ml")) { 
-    	  InputStream tokModel = resourceRetriever.getTokModel(lang);
-    	  tokenizer = new TokenizerOpenNLP(tokModel);
+	  SentenceSegmenter segmenter = null;
+	  if (method.equalsIgnoreCase("ml")) {
+		  segmenter = new SegmenterOpenNLP(lang);
+    	  tokenizer = new TokenizerOpenNLP(lang);
       }
       
-      else { 
-    	  tokenizer = new TokenizerMoses();
+      else {
+    	  InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
+    	  segmenter = new SegmenterMoses(nonBreaker);
+    	  tokenizer = new TokenizerMoses(nonBreaker);
       }
 	  
 	  // reading standard input and tokenize
@@ -131,9 +135,10 @@ public class CLI {
             
       String line;
       while ((line = breader.readLine()) != null) {
-    	line = formatter.cleanWeirdChars(line);  
-    	annotator.annotateTokensToKAF(line, tokenizer, kaf);
+    	  formatter.cleanWeirdChars(line);
+          annotator.annotateTokensToKAF(line, segmenter, tokenizer, kaf);
       }
+      
       
       // write kaf document
       kaf.addLinguisticProcessor("text","ixa-pipe-tok-"+lang,"1.0");

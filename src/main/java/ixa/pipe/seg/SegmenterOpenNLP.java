@@ -16,6 +16,8 @@
 
 package ixa.pipe.seg;
 
+import ixa.pipe.resources.Resources;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,7 +32,7 @@ import opennlp.tools.util.Span;
  * @author ragerri
  * 
  */
-public class Segmenter {
+public class SegmenterOpenNLP implements SentenceSegmenter {
 
   private SentenceModel segModel;
   private SentenceDetector sentDetector;
@@ -42,7 +44,10 @@ public class Segmenter {
    * @param cmd
    */
 
-  public Segmenter(InputStream trainedModel) {
+  public SegmenterOpenNLP(String lang) {
+	  
+	Resources modelRetriever = new Resources();
+	InputStream trainedModel = modelRetriever.getSegModel(lang);
 
     // InputStream trainedModel =
     // getClass().getResourceAsStream("/en-sent.bin");

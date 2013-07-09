@@ -22,6 +22,7 @@ public class Resources {
 
   private InputStream segModel;
   private InputStream tokModel;
+  private InputStream nonBreaker;
 
   public InputStream getSegModel(String cmdOption) {
 
@@ -47,4 +48,15 @@ public class Resources {
     return tokModel;
   }
 
+  public InputStream getNonBreakingPrefixes(String cmdOption) {
+	  if (cmdOption.equalsIgnoreCase("en")) {
+		  nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.en");
+	  }
+
+	  if (cmdOption.equalsIgnoreCase("es")) {
+		  nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.es");
+	  }
+	  return nonBreaker;
+  } 
+  
 }

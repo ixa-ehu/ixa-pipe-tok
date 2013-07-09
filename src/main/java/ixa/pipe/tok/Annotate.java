@@ -18,22 +18,14 @@ package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
-import ixa.pipe.resources.Resources;
-import ixa.pipe.seg.Segmenter;
+import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 
 public class Annotate {
 
-  private Segmenter sentDetector;
 
-  public Annotate(String cmdOption) {
-    Resources modelRetriever = new Resources();
-    InputStream segModel = modelRetriever.getSegModel(cmdOption);
-    sentDetector = new Segmenter(segModel);
-  }
 
   /**
    * This method uses the Apache OpenNLP Sentence Detector and Tokenizer to
@@ -53,7 +45,7 @@ public class Annotate {
   int noSents = 0;
   int offsetCounter = 0;
 
-  public void annotateTokensToKAF(String line, TokTokenizer toker, KAFDocument kaf)
+  public void annotateTokensToKAF(String line, SentenceSegmenter sentDetector, TokTokenizer toker, KAFDocument kaf)
       throws IOException {
 
     String sentences[] = sentDetector.segmentSentence(line);
