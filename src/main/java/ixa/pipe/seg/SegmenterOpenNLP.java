@@ -45,9 +45,9 @@ public class SegmenterOpenNLP implements SentenceSegmenter {
    */
 
   public SegmenterOpenNLP(String lang) {
-	  
-	Resources modelRetriever = new Resources();
-	InputStream trainedModel = modelRetriever.getSegModel(lang);
+
+    Resources modelRetriever = new Resources();
+    InputStream trainedModel = modelRetriever.getSegModel(lang);
 
     // InputStream trainedModel =
     // getClass().getResourceAsStream("/en-sent.bin");
@@ -79,10 +79,10 @@ public class SegmenterOpenNLP implements SentenceSegmenter {
     return sentences;
 
   }
-  
-  public Span[] segmentPosSentence(String line) { 
+
+  public Span[] segmentPosSentence(String line) {
     Span sentences[] = sentDetector.sentPosDetect(line);
     return sentences;
   }
- 
+
 }

@@ -14,8 +14,6 @@
    limitations under the License.
  */
 
-
-
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
@@ -37,7 +35,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
-
 /**
  * IXA-OpenNLP tokenization using Apache OpenNLP.
  * 
@@ -49,18 +46,17 @@ import net.sourceforge.argparse4j.inf.Namespace;
 public class CLI {
 
   /**
-   * BufferedReader (from standard input) and BufferedWriter are opened. The module 
-   * takes plain text from standard input and produces tokenized text by sentences. The 
-   * tokens are then placed into the <wf> elements of KAF document. The KAF document 
-   * is passed via standard output.
+   * BufferedReader (from standard input) and BufferedWriter are opened. The
+   * module takes plain text from standard input and produces tokenized text by
+   * sentences. The tokens are then placed into the <wf> elements of KAF
+   * document. The KAF document is passed via standard output.
    * 
    * @param args
    * @throws IOException
    */
 
   public static void main(String[] args) throws IOException {
-    
-	  
+
     Namespace parsedArguments = null;
 
     // create Argument Parser
@@ -76,14 +72,18 @@ public class CLI {
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
-    
-// specify tokenization method
-    
-    parser.addArgument("-m","--method").choices("moses","ml").setDefault("moses").help("Tokenization method." +
-    		"Choose 'moses' for a re-implementation of the Moses MT system tokenizer (this is the default) " +
-    		"; 'ml' for OpenNLP trained statistical models. ");
-    
-      
+
+    // specify tokenization method
+
+    parser
+        .addArgument("-m", "--method")
+        .choices("moses", "ml")
+        .setDefault("moses")
+        .help(
+            "Tokenization method."
+                + "Choose 'moses' for a re-implementation of the Moses MT system tokenizer (this is the default) "
+                + "; 'ml' for OpenNLP trained statistical models. ");
+
     /*
      * Parse the command line arguments
      */
@@ -99,56 +99,58 @@ public class CLI {
     }
 
     /*
-     * Load language and tokenizer method parameters and construct annotators, read
-     * and write kaf
+     * Load language and tokenizer method parameters and construct annotators,
+     * read and write kaf
      */
 
-      String lang = parsedArguments.getString("lang");
-      String method = parsedArguments.getString("method");
-      
-      Resources resourceRetriever = new Resources();
-      Formats formatter = new Formats();
-	  Annotate annotator = new Annotate();
-	  BufferedReader breader = null;
-	  BufferedWriter bwriter = null;
-	  KAFDocument kaf = new KAFDocument(lang,"v1.opener");
-	  
-	  // choosing tokenizer and and resources by language 
-	  
-	  TokTokenizer tokenizer = null;
-	  SentenceSegmenter segmenter = null;
-	  if (method.equalsIgnoreCase("ml")) {
-		  segmenter = new SegmenterOpenNLP(lang);
-    	  tokenizer = new TokenizerOpenNLP(lang);
-      }
-      
-      else {
-    	  InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    	  segmenter = new SegmenterMoses(nonBreaker);
-    	  tokenizer = new TokenizerMoses(nonBreaker);
-      }
-	  
-	  // reading standard input and tokenize
-	  try {
-	  breader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
-      bwriter = new BufferedWriter(new OutputStreamWriter(System.out,"UTF-8"));
-            
+    String lang = parsedArguments.getString("lang");
+    String method = parsedArguments.getString("method");
+
+    Resources resourceRetriever = new Resources();
+    Formats formatter = new Formats();
+    Annotate annotator = new Annotate();
+    BufferedReader breader = null;
+    BufferedWriter bwriter = null;
+    KAFDocument kaf = new KAFDocument(lang, "v1.opener");
+
+    // choosing tokenizer and and resources by language
+
+    TokTokenizer tokenizer = null;
+    SentenceSegmenter segmenter = null;
+    if (method.equalsIgnoreCase("ml")) {
+      segmenter = new SegmenterOpenNLP(lang);
+      tokenizer = new TokenizerOpenNLP(lang);
+    }
+
+    else {
+      InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
+      segmenter = new SegmenterMoses(nonBreaker);
+      tokenizer = new TokenizerMoses(nonBreaker);
+    }
+
+    // reading standard input and tokenize
+    try {
+      breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+      bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+
       String line;
       while ((line = breader.readLine()) != null) {
-    	  formatter.cleanWeirdChars(line);
-          annotator.annotateTokensToKAF(line, segmenter, tokenizer, kaf);
+        if (line.length() == 0) { 
+          line = "\n";
+        }
+        line = formatter.cleanWeirdChars(line);
+        annotator.annotateTokensToKAF(line, segmenter, tokenizer, kaf);
+        
       }
       
-      
       // write kaf document
-      kaf.addLinguisticProcessor("text","ixa-pipe-tok-"+lang,"1.0");
+      kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
       bwriter.write(kaf.toString());
       bwriter.close();
-      
-   }
-	  catch (IOException e){ 
-		  e.printStackTrace();
-	  }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
   }
 }

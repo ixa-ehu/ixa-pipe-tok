@@ -49,14 +49,14 @@ public class Resources {
   }
 
   public InputStream getNonBreakingPrefixes(String cmdOption) {
-	  if (cmdOption.equalsIgnoreCase("en")) {
-		  nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.en");
-	  }
+    if (cmdOption.equalsIgnoreCase("en")) {
+      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.en");
+    }
 
-	  if (cmdOption.equalsIgnoreCase("es")) {
-		  nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.es");
-	  }
-	  return nonBreaker;
-  } 
-  
+    if (cmdOption.equalsIgnoreCase("es")) {
+      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.es");
+    }
+    return nonBreaker;
+  }
+
 }

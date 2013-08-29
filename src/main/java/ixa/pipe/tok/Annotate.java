@@ -22,10 +22,7 @@ import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.IOException;
 
-
 public class Annotate {
-
-
 
   /**
    * This method uses the Apache OpenNLP Sentence Detector and Tokenizer to
@@ -37,16 +34,18 @@ public class Annotate {
    * It fills the kaf object with the word forms element <wf> corresponding to
    * each of the tokens.
    * 
-   * @param line of string
-   * @param KAF object. This object is used to take the output data and convert it
-   *        to KAF, returning an XML document in a string.
+   * @param line
+   *          of string
+   * @param KAF
+   *          object. This object is used to take the output data and convert it
+   *          to KAF, returning an XML document in a string.
    */
 
   int noSents = 0;
   int offsetCounter = 0;
 
-  public void annotateTokensToKAF(String line, SentenceSegmenter sentDetector, TokTokenizer toker, KAFDocument kaf)
-      throws IOException {
+  public void annotateTokensToKAF(String line, SentenceSegmenter sentDetector,
+      TokTokenizer toker, KAFDocument kaf) throws IOException {
 
     String sentences[] = sentDetector.segmentSentence(line);
 
@@ -57,14 +56,14 @@ public class Annotate {
 
       // get sentence counter
       noSents = noSents + 1;
-      // offsets counters 
+      // offsets counters
       int current_index = 0;
       int previous_index = 0;
       for (int i = 0; i < tokens.length; i++) {
-    	//get offsets  
-        current_index = line.indexOf(tokens[i],previous_index);
+        // get offsets
+        current_index = line.indexOf(tokens[i], previous_index);
         int offset = offsetCounter + current_index;
-        WF wf = kaf.createWF(tokens[i],offset);
+        WF wf = kaf.newWF(tokens[i], offset);
         wf.setSent(noSents);
         previous_index = current_index + tokens[i].length();
       }

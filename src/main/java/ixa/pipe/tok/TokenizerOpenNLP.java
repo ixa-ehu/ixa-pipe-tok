@@ -14,7 +14,6 @@
    limitations under the License.
  */
 
-
 package ixa.pipe.tok;
 
 import ixa.pipe.resources.Resources;
@@ -43,9 +42,9 @@ public class TokenizerOpenNLP implements TokTokenizer {
    * tokDetector using such a model.
    */
   public TokenizerOpenNLP(String lang) {
-	  
-	 Resources modelRetriever = new Resources();
-	 InputStream trainedModel = modelRetriever.getTokModel(lang);
+
+    Resources modelRetriever = new Resources();
+    InputStream trainedModel = modelRetriever.getTokModel(lang);
 
     // InputStream trainedModel =
     // getClass().getResourceAsStream("/en-token.bin");
