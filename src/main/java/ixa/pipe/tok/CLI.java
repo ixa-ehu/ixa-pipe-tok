@@ -79,10 +79,8 @@ public class CLI {
         .addArgument("-m", "--method")
         .choices("moses", "ml")
         .setDefault("moses")
-        .help(
-            "Tokenization method."
-                + "Choose 'moses' for a re-implementation of the Moses MT system tokenizer (this is the default) "
-                + "; 'ml' for OpenNLP trained statistical models. ");
+        .help("Tokenization method: Choose 'moses' for a re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
+                + "'ml' for Apache OpenNLP trained probabilistic models. ");
 
     /*
      * Parse the command line arguments
@@ -94,7 +92,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar target/ixa-pipe-tok-1.0.jar -help for details");
+          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-1.0.jar -help for details");
       System.exit(1);
     }
 
@@ -113,7 +111,7 @@ public class CLI {
     BufferedWriter bwriter = null;
     KAFDocument kaf = new KAFDocument(lang, "v1.opener");
 
-    // choosing tokenizer and and resources by language
+    // choosing tokenizer and resources by language
 
     TokTokenizer tokenizer = null;
     SentenceSegmenter segmenter = null;
@@ -128,20 +126,20 @@ public class CLI {
       tokenizer = new TokenizerMoses(nonBreaker);
     }
 
-    // reading standard input and tokenize
+    // reading standard input, segment and tokenize
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
+      StringBuilder sb = new StringBuilder();
       String line;
       while ((line = breader.readLine()) != null) {
-        if (line.length() == 0) { 
-          line = "\n";
-        }
         line = formatter.cleanWeirdChars(line);
-        annotator.annotateTokensToKAF(line, segmenter, tokenizer, kaf);
-        
+        sb.append(line).append("<JA>");
       }
+      
+      String text = sb.toString();
+      annotator.annotateTokensToKAF(text, segmenter, tokenizer, kaf);
       
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");

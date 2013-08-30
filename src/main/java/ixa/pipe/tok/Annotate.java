@@ -22,11 +22,22 @@ import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.IOException;
 
+
+
 public class Annotate {
 
+  
+  public String buildText(String text) {
+    text = text.replaceAll("(<JA><JA>)+","<P>");
+    text = text.replaceAll("<JA>"," ");
+    text = text.replaceAll("\\s+"," ");
+    text = text.trim();
+    return text;
+  }
+  
   /**
-   * This method uses the Apache OpenNLP Sentence Detector and Tokenizer to
-   * produce tokenized text by sentences.
+   * This method performs Sentence Detection and Tokenization to produce
+   * tokenized text by sentences represented in KAF format.
    * 
    * For every line of text the method receives, it creates an array of
    * segmented sentences, and an array of Tokens.
@@ -41,34 +52,40 @@ public class Annotate {
    *          to KAF, returning an XML document in a string.
    */
 
-  int noSents = 0;
-  int offsetCounter = 0;
-
-  public void annotateTokensToKAF(String line, SentenceSegmenter sentDetector,
+  
+  public void annotateTokensToKAF(String text, SentenceSegmenter sentDetector,
       TokTokenizer toker, KAFDocument kaf) throws IOException {
 
-    String sentences[] = sentDetector.segmentSentence(line);
+    int noSents = 0;
+    int offsetCounter = 0;
 
-    // get linguistic annotations
-    for (String sent : sentences) {
+    text = this.buildText(text);
+    String lines[] = text.split("<P>");
+    
+    for (String line : lines) {
+      
+      String sentences[] = sentDetector.segmentSentence(line);
+      // get linguistic annotations
+      for (String sent : sentences) {
 
-      String tokens[] = toker.tokenize(sent);
+        String tokens[] = toker.tokenize(sent);
 
-      // get sentence counter
-      noSents = noSents + 1;
-      // offsets counters
-      int current_index = 0;
-      int previous_index = 0;
-      for (int i = 0; i < tokens.length; i++) {
-        // get offsets
-        current_index = line.indexOf(tokens[i], previous_index);
-        int offset = offsetCounter + current_index;
-        WF wf = kaf.newWF(tokens[i], offset);
-        wf.setSent(noSents);
-        previous_index = current_index + tokens[i].length();
+        // get sentence counter
+        noSents = noSents + 1;
+        // offsets counters
+        int current_index = 0;
+        int previous_index = 0;
+        for (int i = 0; i < tokens.length; i++) {
+          // get offsets
+          current_index = line.indexOf(tokens[i], previous_index);
+          int offset = offsetCounter + current_index;
+          WF wf = kaf.newWF(tokens[i], offset);
+          wf.setSent(noSents);
+          previous_index = current_index + tokens[i].length();
+        }
       }
+      offsetCounter += line.length();
     }
-    offsetCounter += line.length();
   }
 
 }

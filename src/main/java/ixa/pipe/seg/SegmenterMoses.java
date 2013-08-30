@@ -3,8 +3,6 @@ package ixa.pipe.seg;
 import ixa.pipe.resources.NonPrefixBreaker;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
@@ -24,26 +22,19 @@ public class SegmenterMoses implements SentenceSegmenter {
   }
   
   public String[] segmentSentence(String line) {
-    line = this.buildText(line);
-    String [] tokens = new String[line.length()];
-    if (!line.startsWith("<P>")) { 
-      //line = this.preprocess(line);
-      // create final array of tokens
-      System.out.println("TEXT: " + line);
-      tokens = line.split(" ");
-      }
-    return tokens;
+    String[] sentences = this.sentenceSplitter(line);
+    return sentences;
     
   }
   
-  public String buildText(String line) {
-    line = line.replaceAll("\\s+", " ");
-    if (line.matches("^\\s*$")) { 
-      line = "<P>";
-    }
-    return line;
+  public String[] sentenceSplitter(String line) {
+    line = this.preprocess(line);
+    String[] sentences = line.split("\n");
+    System.out.println(line);  
+    return sentences;
   }
   
+ 
   public String preprocess(String line) {
     
     // clean extra spaces
@@ -59,8 +50,7 @@ public class SegmenterMoses implements SentenceSegmenter {
     // end of sentence inside quotes or brackets
     text = END_INSIDE_QUOTES.matcher(text).replaceAll("$1\n$2");
     // add breaks for sentences that end with some sort of punctuation are
-    // followed
-    // by a sentence starter punctuation and upper case
+    // followed by a sentence starter punctuation and upper case
     text = NOPERIOD_END_SPACE.matcher(text).replaceAll("$1\n$2");
 
     // //////////////////////////////////
@@ -68,8 +58,7 @@ public class SegmenterMoses implements SentenceSegmenter {
     // //////////////////////////////////
 
     // non prefix breaker
-    text = nonBreaker.SegmenterNonBreaker(text);
-
+    //text = nonBreaker.SegmenterNonBreaker(text);
     return text;
   }
 

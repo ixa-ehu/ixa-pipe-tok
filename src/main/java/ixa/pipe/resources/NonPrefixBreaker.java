@@ -17,14 +17,17 @@ public class NonPrefixBreaker {
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
       .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
+
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
       .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
+
   // add breaks for sentences that end with some sort of punctuation inside a
   // quote or parenthetical and are
   // followed by a possible sentence starter punctuation and upper case
   public static Pattern END_INSIDE_QUOTES = Pattern
       .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\p{Punct}]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\ ]*[\\p{Upper}])");
+
   // add breaks for sentences that end with some sort of punctuation are
   // followed
   // by a sentence starter punctuation and upper case
