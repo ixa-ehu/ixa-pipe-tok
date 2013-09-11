@@ -8,9 +8,7 @@ import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
 import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
-import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END_SPACE;
-import static ixa.pipe.resources.NonPrefixBreaker.STRING_ALPHANUM_PUNCT;
-import static ixa.pipe.resources.NonPrefixBreaker.ALPHANUM_PUNCT;
+import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 
 public class SegmenterMoses implements SentenceSegmenter {
 
@@ -24,19 +22,10 @@ public class SegmenterMoses implements SentenceSegmenter {
   public String[] segmentSentence(String line) {
     String[] sentences = this.sentenceSplitter(line);
     return sentences;
-    
   }
   
-  public String[] sentenceSplitter(String line) {
-    line = this.preprocess(line);
-    String[] sentences = line.split("\n");
-    System.out.println(line);  
-    return sentences;
-  }
   
- 
-  public String preprocess(String line) {
-    
+  private String[] sentenceSplitter(String line) {  
     // clean extra spaces
     String text = line.trim();
     Matcher m = MULTI_SPACE.matcher(text);
@@ -51,15 +40,17 @@ public class SegmenterMoses implements SentenceSegmenter {
     text = END_INSIDE_QUOTES.matcher(text).replaceAll("$1\n$2");
     // add breaks for sentences that end with some sort of punctuation are
     // followed by a sentence starter punctuation and upper case
-    text = NOPERIOD_END_SPACE.matcher(text).replaceAll("$1\n$2");
+    text = PUNCT_UPPER.matcher(text).replaceAll("$1\n$2");
 
     // //////////////////////////////////
     // // language dependent rules //////
     // //////////////////////////////////
 
     // non prefix breaker
-    //text = nonBreaker.SegmenterNonBreaker(text);
-    return text;
+    text = nonBreaker.SegmenterNonBreaker(text);
+    //System.out.println(text);
+    String[] sentences = text.split("\n");
+    return sentences;
   }
 
 }

@@ -17,25 +17,33 @@ public class NonPrefixBreaker {
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
       .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
-
+  
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
       .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
 
-  // add breaks for sentences that end with some sort of punctuation inside a
-  // quote or parenthetical and are
-  // followed by a possible sentence starter punctuation and upper case
+  // some sort of punctuation inside a quote or parenthetical followed 
+  // by a possible sentence starter punctuation and upper case
   public static Pattern END_INSIDE_QUOTES = Pattern
       .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\p{Punct}]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\ ]*[\\p{Upper}])");
 
-  // add breaks for sentences that end with some sort of punctuation are
-  // followed
-  // by a sentence starter punctuation and upper case
-  public static Pattern NOPERIOD_END_SPACE = Pattern
-      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]+[\\ ]*[\\p{Upper}])");
+  // end with some sort of punctuation and followed by a sentence 
+  // starter punctuation and upper case 
+  public static Pattern PUNCT_UPPER = Pattern
+      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]+[\\ ]*[\\p{Upper}])");
+  
+  // SPECIAL PUNCTUATION CASES COVERED. CHECK FOR REMAINING PERIODS
+  
   public static Pattern ALPHANUM_PUNCT = Pattern
-      .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)");
-  public static String STRING_ALPHANUM_PUNCT = "([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)";
+      .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)$");
+  
+  public static String STRING_ALPHANUM_PUNCT = 
+      "([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)$";
+  
+  public static String UPPER_CASE_ACRONYM = "(\\.)[\\p{Upper}\\-]+(\\.+)$";
+  
+  public static String QUOTE_SPACE_UPPER_NUMBER = 
+      "^([ ]*[\'\"\\(\\[\\¿\\¡\\p{Punct}]*[ ]*[\\p{Upper}0-9])";
 
   // / Tokenizer Patterns
 
@@ -97,55 +105,44 @@ public class NonPrefixBreaker {
   public String SegmenterNonBreaker(String line) {
     String segmentedText = null;
     String[] words = line.split(" ");
+    int i;
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < words.length; i++) {
-      String word = words[i];
+    for (i = 0; i < (words.length-1); i++) {
 
-      if (word.matches(STRING_ALPHANUM_PUNCT)) {
-        String pre = ALPHANUM_PUNCT.matcher(word).replaceAll("$1");
-        String startPunct = ALPHANUM_PUNCT.matcher(word).replaceAll("$2");
-
-        if (word.matches(pre) && dictMap.containsKey(pre)
-            && (dictMap.get(pre) == "1") && !word.matches(startPunct)) {
+      if (words[i].matches(STRING_ALPHANUM_PUNCT)) {
+        String pre = ALPHANUM_PUNCT.matcher(words[i]).replaceAll("$1");
+        String startPunct = ALPHANUM_PUNCT.matcher(words[i]).replaceAll("$2");
+        if (words[i].matches(pre) && dictMap.containsKey(pre)
+            && (dictMap.get(pre) == "1") && !words[i].matches(startPunct)) {
           // not breaking
-          return word;
-        } else if (word.matches("(\\.)[\\p{Upper}\\-]+(\\.+)$")) {
+          return words[i];
+        }
+        
+        else if (words[i].matches(UPPER_CASE_ACRONYM)) {
           // non-breaking, upper case acronym
-          return word;
-        } else if (word
-            .matches("^([ ]*[\'\"\\(\\[\\¿\\¡\\p{Punct}]*[ ]*[\\p{Upper}0-9])")) {
+          return words[i];
+        }
+        // TODO this regex is not working properly
+        else if (words[i+1].matches(QUOTE_SPACE_UPPER_NUMBER)) {
+          System.out.println("JAJAJA" + words[i]);
           // the next word has a bunch of initial quotes, maybe a space,
           // then either upper case or a number
-          while (word.matches(pre) && dictMap.containsKey(pre)
-              && (dictMap.get(pre) == "2") && !word.matches(startPunct)
-              && words[i + 1].matches("^[0-9]+")) {
-            word = word + "\n";
+          if (!words[i].matches(pre) && !dictMap.containsKey(pre)
+              && (dictMap.get(pre) != "2") && words[i].matches(startPunct)
+              && !words[i+1].matches("^[0-9]+")) {
+            words[i] = words[i] + ".\n";
           }
           // we always add a return for these unless we have a numeric
           // non-breaker and a number start
         }
       }
-      sb.append(word).append(" ");
+      sb.append(words[i]).append(" ");
       segmentedText = sb.toString();
     }
+    // add last index of words array removed for easy look ahead
+    segmentedText = segmentedText + words[i];
     return segmentedText;
   }
 
-  /*
-   * public String nonPrefixBreaker(String line) {
-   * 
-   * String[] words = line.split(" "); StringBuilder sb = new StringBuilder();
-   * for (int i=0; i < words.length; i++) { String word = words[i];
-   * 
-   * if (word.matches("^(\\S+)\\.$")) { String pre =
-   * WORD_DOT.matcher(word).replaceAll("$1");
-   * 
-   * if ((!pre.equalsIgnoreCase(".") && pre.matches("[A-Za-z]")) ||
-   * //this.nonNumeric.contains(pre) || (i < (words.length)-1 &&
-   * words[i+1].matches("[^a-z]"))) { return word; } else if
-   * (this.numericOnly.contains(pre) && (i < (words.length)-1) &&
-   * words[i+1].matches("^[0-9]+")) { return word; } else { word = pre + " ."; }
-   * } sb.append(word).append(" "); line = sb.toString(); } return line; }
-   */
 
 }

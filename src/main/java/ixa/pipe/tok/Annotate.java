@@ -23,9 +23,17 @@ import ixa.pipe.seg.SentenceSegmenter;
 import java.io.IOException;
 
 
-
 public class Annotate {
 
+  
+  /**
+   * This function takes the original input text and cleans extra
+   * newlines and spaces creating the input text for the sentence
+   * segmenter and the tokenizer 
+   * 
+   * @param String text
+   * @return String text
+   */
   
   public String buildText(String text) {
     text = text.replaceAll("(<JA><JA>)+","<P>");
@@ -45,9 +53,10 @@ public class Annotate {
    * It fills the kaf object with the word forms element <wf> corresponding to
    * each of the tokens.
    * 
-   * @param line
-   *          of string
-   * @param KAF
+   * @param String text
+   * @param SentenceSegmenter sentDetector
+   * @param TokTokenizer toker 
+   * @param KAF 
    *          object. This object is used to take the output data and convert it
    *          to KAF, returning an XML document in a string.
    */
@@ -60,15 +69,17 @@ public class Annotate {
     int offsetCounter = 0;
 
     text = this.buildText(text);
-    String lines[] = text.split("<P>");
+    
+    // this creates the actual paragraphs to be passed to the sentence detector
+    String[] lines = text.split("<P>");
     
     for (String line : lines) {
       
-      String sentences[] = sentDetector.segmentSentence(line);
+      String[] sentences = sentDetector.segmentSentence(line);
       // get linguistic annotations
       for (String sent : sentences) {
 
-        String tokens[] = toker.tokenize(sent);
+        String[] tokens = toker.tokenize(sent);
 
         // get sentence counter
         noSents = noSents + 1;
@@ -87,5 +98,4 @@ public class Annotate {
       offsetCounter += line.length();
     }
   }
-
 }

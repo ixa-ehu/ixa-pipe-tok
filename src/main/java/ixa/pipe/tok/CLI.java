@@ -36,7 +36,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * IXA-OpenNLP tokenization using Apache OpenNLP.
+ * ixa-pipe tokenization using Apache OpenNLP.
  * 
  * @author ragerri
  * @version 1.0
@@ -79,8 +79,8 @@ public class CLI {
         .addArgument("-m", "--method")
         .choices("moses", "ml")
         .setDefault("moses")
-        .help("Tokenization method: Choose 'moses' for a re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
-                + "'ml' for Apache OpenNLP trained probabilistic models. ");
+        .help("Tokenization method: Choose 'moses' for a (slightly modified) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
+                + " 'ml' for Apache OpenNLP trained probabilistic models. ");
 
     /*
      * Parse the command line arguments
