@@ -36,7 +36,14 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * ixa-pipe tokenization using Apache OpenNLP.
+ * ixa-pipe tokenization
+ * 
+ * This module implements two sentence segmenters and tokenizers: 
+ * 1. Rule-based loosely inspired by the moses tokenizer 
+ * (https://github.com/moses-smt/mosesdecoder)
+ * 
+ * 2. Machine learning based with models trained using Apache OpenNLP API 
+ * (on CoNLL 2002 and 2003 corpora)
  * 
  * @author ragerri
  * @version 1.0
@@ -63,7 +70,7 @@ public class CLI {
     ArgumentParser parser = ArgumentParsers
         .newArgumentParser("ixa-pipe-tok-1.0.jar")
         .description(
-            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group based on Apache OpenNLP.\n");
+            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group.\n");
 
     // specify language
     parser
@@ -139,6 +146,7 @@ public class CLI {
       }
       
       String text = sb.toString();
+      // tokenize and create KAF 
       annotator.annotateTokensToKAF(text, segmenter, tokenizer, kaf);
       
       // write kaf document

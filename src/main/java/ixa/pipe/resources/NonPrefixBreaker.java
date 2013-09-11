@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NonPrefixBreaker {
@@ -16,34 +17,32 @@ public class NonPrefixBreaker {
 
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
-      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
+      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Lu}])");
   
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
-      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Upper}])");
+      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\p{Lu}])");
 
   // some sort of punctuation inside a quote or parenthetical followed 
   // by a possible sentence starter punctuation and upper case
   public static Pattern END_INSIDE_QUOTES = Pattern
-      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\p{Punct}]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\ ]*[\\p{Upper}])");
+      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\p{Punct}]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]*[\\ ]*[\\p{Lu}])");
 
   // end with some sort of punctuation and followed by a sentence 
   // starter punctuation and upper case 
   public static Pattern PUNCT_UPPER = Pattern
-      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]+[\\ ]*[\\p{Upper}])");
+      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\\p{Punct}]+[\\ ]*[\\p{Lu}])");
   
   // SPECIAL PUNCTUATION CASES COVERED. CHECK FOR REMAINING PERIODS
   
   public static Pattern ALPHANUM_PUNCT = Pattern
       .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)$");
   
-  public static String STRING_ALPHANUM_PUNCT = 
-      "([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\\p{Punct}]*)(\\.+)$";
+  public static Pattern UPPER_CASE_ACRONYM = Pattern.compile("(\\.)[\\p{Lu}\\-]+(\\.+)$");
   
-  public static String UPPER_CASE_ACRONYM = "(\\.)[\\p{Upper}\\-]+(\\.+)$";
+  public static Pattern QUOTE_SPACE_UPPER_NUMBER = Pattern.
+      compile("^ *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d]");
   
-  public static String QUOTE_SPACE_UPPER_NUMBER = 
-      "^([ ]*[\'\"\\(\\[\\¿\\¡\\p{Punct}]*[ ]*[\\p{Upper}0-9])";
 
   // / Tokenizer Patterns
 
@@ -103,35 +102,47 @@ public class NonPrefixBreaker {
   }
 
   public String SegmenterNonBreaker(String line) {
+    
     String segmentedText = null;
     String[] words = line.split(" ");
     int i;
     StringBuilder sb = new StringBuilder();
     for (i = 0; i < (words.length-1); i++) {
-
-      if (words[i].matches(STRING_ALPHANUM_PUNCT)) {
-        String pre = ALPHANUM_PUNCT.matcher(words[i]).replaceAll("$1");
-        String startPunct = ALPHANUM_PUNCT.matcher(words[i]).replaceAll("$2");
+      
+      Matcher alphanum = ALPHANUM_PUNCT.matcher(words[i]);
+      Matcher upperAcro = UPPER_CASE_ACRONYM.matcher(words[i]);
+      Matcher upper = QUOTE_SPACE_UPPER_NUMBER.matcher(words[i+1]);
+      
+      if (alphanum.find()) {
+        String pre = alphanum.replaceAll("$1");
+        String startPunct = alphanum.replaceAll("$2");
         if (words[i].matches(pre) && dictMap.containsKey(pre)
             && (dictMap.get(pre) == "1") && !words[i].matches(startPunct)) {
           // not breaking
           return words[i];
         }
         
-        else if (words[i].matches(UPPER_CASE_ACRONYM)) {
+        else if (upperAcro.find()) {
           // non-breaking, upper case acronym
           return words[i];
         }
-        // TODO this regex is not working properly
-        else if (words[i+1].matches(QUOTE_SPACE_UPPER_NUMBER)) {
-          System.out.println("JAJAJA" + words[i]);
-          // the next word has a bunch of initial quotes, maybe a space,
-          // then either upper case or a number
-          if (!words[i].matches(pre) && !dictMap.containsKey(pre)
-              && (dictMap.get(pre) != "2") && words[i].matches(startPunct)
-              && !words[i+1].matches("^[0-9]+")) {
-            words[i] = words[i] + ".\n";
+        
+        // the next word has a bunch of initial quotes, maybe a space,
+        // then either upper case or a number
+        else if (upper.find()) {
+          
+          // literal implementation from unless in perl:
+          /*if (!(words[i].matches(pre) && dictMap.containsKey(pre) && (dictMap.get(pre) == "2") 
+              && words[i+1].matches("^\\d+") && !words[i].matches(startPunct))) {
+            words[i] = words[i] + "\n";
+          }*/
+          // equivalent if-then applying De Morgan theorem:
+          if (!words[i].matches(pre) || !dictMap.containsKey(pre)
+              || (dictMap.get(pre) != "2") || words[i].matches(startPunct)
+              || !words[i+1].matches("^\\d+")) {
+            words[i] = words[i] + "\n";
           }
+          
           // we always add a return for these unless we have a numeric
           // non-breaker and a number start
         }

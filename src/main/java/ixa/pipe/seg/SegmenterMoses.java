@@ -10,6 +10,10 @@ import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
 import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
 import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 
+/**
+ * @author ragerri
+ *
+ */
 public class SegmenterMoses implements SentenceSegmenter {
 
   NonPrefixBreaker nonBreaker;
@@ -19,12 +23,34 @@ public class SegmenterMoses implements SentenceSegmenter {
 
   }
   
+  
+  /**
+   * 
+   * Rule-based sentence segmenter implements SentenceSegmenter method
+   * and calls to the sentenceSplitter function to do the actual segmentation
+   * Each line is a paragraph of the original input text
+   * 
+   * @param line
+   * @return an array of segmented sentences, each element in the array corresponds
+   * to a sentence
+   */
   public String[] segmentSentence(String line) {
     String[] sentences = this.sentenceSplitter(line);
     return sentences;
   }
   
   
+  /**
+   * 
+   * Rule-based sentence segmenter loosely inspired by moses segmenter 
+   * https://github.com/moses-smt/mosesdecoder
+   * 
+   * Each line is a paragraph of the original input text
+   * 
+   * @param line
+   * @return an array of segmented senteces, each element in the array corresponds
+   * to a sentence
+   */
   private String[] sentenceSplitter(String line) {  
     // clean extra spaces
     String text = line.trim();
