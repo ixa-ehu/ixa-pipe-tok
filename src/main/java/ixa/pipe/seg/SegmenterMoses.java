@@ -39,7 +39,6 @@ public class SegmenterMoses implements SentenceSegmenter {
     return sentences;
   }
   
-  
   /**
    * 
    * Rule-based sentence segmenter loosely inspired by moses segmenter 
@@ -74,7 +73,6 @@ public class SegmenterMoses implements SentenceSegmenter {
 
     // non prefix breaker
     text = nonBreaker.SegmenterNonBreaker(text);
-    //System.out.println(text);
     String[] sentences = text.split("\n");
     return sentences;
   }

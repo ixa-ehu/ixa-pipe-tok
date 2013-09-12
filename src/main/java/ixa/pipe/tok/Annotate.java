@@ -78,7 +78,12 @@ public class Annotate {
       String[] sentences = sentDetector.segmentSentence(line);
       // get linguistic annotations
       for (String sent : sentences) {
+        // clean extra spaces
+        sent = sent.trim();
+        sent = sent.replaceAll("\\s+"," ");
+        //System.out.println(sent);
 
+        //tokenize each sentence
         String[] tokens = toker.tokenize(sent);
 
         // get sentence counter
