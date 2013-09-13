@@ -62,7 +62,7 @@ public class Annotate {
    */
 
   
-  public void annotateTokensToKAF(String text, SentenceSegmenter sentDetector,
+  public void annotateTokensToKAF(String text, String lang, SentenceSegmenter sentDetector,
       TokTokenizer toker, KAFDocument kaf) throws IOException {
 
     int noSents = 0;
@@ -75,6 +75,7 @@ public class Annotate {
     
     for (String line : lines) {
       
+      line = line.trim();
       String[] sentences = sentDetector.segmentSentence(line);
       // get linguistic annotations
       for (String sent : sentences) {
@@ -84,8 +85,8 @@ public class Annotate {
         //System.out.println(sent);
 
         //tokenize each sentence
-        String[] tokens = toker.tokenize(sent);
-
+        String[] tokens = toker.tokenize(sent, lang);
+        
         // get sentence counter
         noSents = noSents + 1;
         // offsets counters

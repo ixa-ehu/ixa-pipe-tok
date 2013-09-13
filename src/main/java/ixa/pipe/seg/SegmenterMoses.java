@@ -1,3 +1,19 @@
+/*
+ *Copyright 2013 Rodrigo Agerri
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package ixa.pipe.seg;
 
 import ixa.pipe.resources.NonPrefixBreaker;
@@ -11,6 +27,10 @@ import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
 import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 
 /**
+ * 
+ * Sentence segmenter loosely inspired by the moses decoder
+ * sentence segmenter https://github.com/moses-smt/mosesdecoder
+ * 
  * @author ragerri
  *
  */
@@ -22,7 +42,6 @@ public class SegmenterMoses implements SentenceSegmenter {
     nonBreaker = new NonPrefixBreaker(nonBreakingFile);
 
   }
-  
   
   /**
    * 
@@ -71,7 +90,7 @@ public class SegmenterMoses implements SentenceSegmenter {
     // // language dependent rules //////
     // //////////////////////////////////
 
-    // non prefix breaker
+    // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);
     String[] sentences = text.split("\n");
     return sentences;

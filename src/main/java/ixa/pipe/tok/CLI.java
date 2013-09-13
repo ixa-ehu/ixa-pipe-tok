@@ -130,7 +130,7 @@ public class CLI {
     else {
       InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
       segmenter = new SegmenterMoses(nonBreaker);
-      tokenizer = new TokenizerMoses(nonBreaker);
+      tokenizer = new TokenizerMoses(nonBreaker,lang);
     }
 
     // reading standard input, segment and tokenize
@@ -147,7 +147,7 @@ public class CLI {
       
       String text = sb.toString();
       // tokenize and create KAF 
-      annotator.annotateTokensToKAF(text, segmenter, tokenizer, kaf);
+      annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
       
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");

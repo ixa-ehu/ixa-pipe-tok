@@ -27,7 +27,7 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
 /**
- * Sentence Segmentation using Apache OpenNLP Model trained by IXA NLP Group
+ * Sentence Segmentation using Apache OpenNLP Models trained by IXA NLP Group
  * 
  * @author ragerri
  * 

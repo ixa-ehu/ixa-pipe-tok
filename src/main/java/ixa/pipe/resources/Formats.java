@@ -9,6 +9,7 @@ public class Formats {
     line = line.replaceAll("“", "\"");
     line = line.replaceAll("”", "\"");
     line = line.replaceAll("`", "'");
+    line = line.replace("''","\"");
     return line;
 
   }

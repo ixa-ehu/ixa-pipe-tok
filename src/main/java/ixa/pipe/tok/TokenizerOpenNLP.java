@@ -71,7 +71,7 @@ public class TokenizerOpenNLP implements TokTokenizer {
    * @param sentence
    * @return an array of tokenized tokens
    */
-  public String[] tokenize(String sentence) {
+  public String[] tokenize(String sentence, String lang) {
     String tokens[] = tokDetector.tokenize(sentence);
     return tokens;
 

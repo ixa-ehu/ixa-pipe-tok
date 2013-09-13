@@ -45,7 +45,7 @@ Dra
 EE.UU
 Excmo
 FF.CC
-Fil 
+Fil
 Gral
 J.C
 Let
@@ -93,21 +93,21 @@ entlo
 esq
 etc
 f.c
-gr 
+gr
 grs
 izq
 kg
 km
 mg
 mm
-nÃºm
+núm
 núm
 p
 p.a
 p.ej
 ptas
-pÃ¡g 
-pÃ¡gs
+pág
+págs
 pág
 págs
 q.e.g.e
@@ -116,3 +116,13 @@ s
 s.s.s
 vid
 vol
+
+#Numbers only. These should only induce breaks when not followed by a numeric sequence
+# add NUMERIC_ONLY after the word for this function
+#if followed by a number, a non-breaking prefix
+al #NUMERIC_ONLY#
+No #NUMERIC_ONLY#
+Nos
+Art #NUMERIC_ONLY#
+Nr
+pp #NUMERIC_ONLY#
