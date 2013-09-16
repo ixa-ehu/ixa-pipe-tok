@@ -90,15 +90,18 @@ public class NonPrefixBreaker {
   // every control character not "printable"
   public static Pattern ASCII_HEX = Pattern.compile("[^\\x20-\\x7E]");
   public static Pattern SPECIALS = Pattern
-      .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-])");
+      .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])");
+  //question and exclamation marks (do not separate if multiple) 
+  public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
+ 
+  //TODO - and _ and --
   // multidots
   public static Pattern MULTI_DOTS = Pattern.compile("\\.([\\.]+)");
   public static Pattern DOTMULTI_DOT = Pattern.compile("DOTMULTI\\.");
   public static Pattern DOTMULTI_DOT_ANY = Pattern
       .compile("DOTMULTI\\.([^\\.])");
   
-  // TODO multiquestions and admirations marks
- 
+  
   public static Pattern NODIGIT_COMMA_NODIGIT = Pattern
       .compile("([^\\d])[,]([^\\d])");
   // separate "," pre and post number

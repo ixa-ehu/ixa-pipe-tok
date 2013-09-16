@@ -4,6 +4,7 @@ import ixa.pipe.resources.NonPrefixBreaker;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
 import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
+import static ixa.pipe.resources.NonPrefixBreaker.QEXC;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT_ANY;
@@ -37,15 +38,14 @@ public class TokenizerMoses implements TokTokenizer {
     
     //line = line.replace(line, " " + line + " ");
     // remove extra spaces and ASCII stuff
-   
-    Matcher multiSpace = MULTI_SPACE.matcher(line);
-    Matcher asciiHex = ASCII_HEX.matcher(line);
-    Matcher specials = SPECIALS.matcher(line);
     
-    line = multiSpace.replaceAll(" ");
-    line = asciiHex.replaceAll("");
-    // separate out other special characters [^\p{Alnum}s.'`,-]
-    line = specials.replaceAll(" $1 ");
+    line = MULTI_SPACE.matcher(line).replaceAll(" ");
+    line = ASCII_HEX.matcher(line).replaceAll("");
+    //separate question and exclamation marks 
+    line = QEXC.matcher(line).replaceAll(" $1 ");
+    // separate out other special characters [^\p{Alnum}s.'`,-?!]
+    line = SPECIALS.matcher(line).replaceAll(" $1 ");
+    
     // do not separate multidots
     line = this.generateMultidots(line);
     
@@ -72,7 +72,7 @@ public class TokenizerMoses implements TokTokenizer {
     line = this.restoreMultidots(line);
 
     // create final array of tokens
-    //System.out.println(line);
+    System.out.println(line);
     String[] tokens = line.split(" ");
 
     // ensure final line break
