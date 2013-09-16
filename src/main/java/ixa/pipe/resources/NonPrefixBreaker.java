@@ -21,12 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * This class implements exceptions for periods as sentence breakers. It decides
- * when a period induces a new sentence or not.
+ * when a period induces a new sentence or a new token or when it does not.
  * 
  * @author ragerri
  * 
@@ -91,17 +92,19 @@ public class NonPrefixBreaker {
   public static Pattern ASCII_HEX = Pattern.compile("[^\\x20-\\x7E]");
   public static Pattern SPECIALS = Pattern
       .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])");
-  //question and exclamation marks (do not separate if multiple) 
+  // question and exclamation marks (do not separate if multiple)
   public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
- 
-  //TODO - and _ and --
+
+  // tokenize dash only when before or after a space
+  public static Pattern DASH = Pattern.compile("( \\-|\\- )");
+
   // multidots
   public static Pattern MULTI_DOTS = Pattern.compile("\\.([\\.]+)");
   public static Pattern DOTMULTI_DOT = Pattern.compile("DOTMULTI\\.");
   public static Pattern DOTMULTI_DOT_ANY = Pattern
       .compile("DOTMULTI\\.([^\\.])");
-  
-  
+
+  // commas and digits
   public static Pattern NODIGIT_COMMA_NODIGIT = Pattern
       .compile("([^\\d])[,]([^\\d])");
   // separate "," pre and post number
@@ -110,17 +113,24 @@ public class NonPrefixBreaker {
   public static Pattern NODIGIT_COMMA_DIGIT = Pattern
       .compile("([^\\d])[,](\\d)");
 
+  // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
+  // PREFIXES FILES
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
+  public static Pattern LOWER = Pattern.compile("^\\p{Lower}");
+
+  // links
+  public static Pattern LINK = Pattern
+      .compile("http\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|]");
 
   // english contractions patterns
   public static Pattern NOALPHA_APOS_NOALPHA = Pattern
-      .compile("([^a-zA-Z])[']([^a-zA-Z])");
-  public static Pattern NOALPHA_DIGIT_APOS_NOALPHA = Pattern
-      .compile("([^A-Za-z]\\d])[\']([a-zA-Z])");
+      .compile("([^\\p{Alpha}])[']([^\\p{Alpha}])");
+  public static Pattern NOALPHA_DIGIT_APOS_ALPHA = Pattern
+      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})");
   public static Pattern ALPHA_APOS_NOALPHA = Pattern
-      .compile("([a-zA-Z])[']([^A-Za-z])");
+      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])");
   public static Pattern ALPHA_APOS_ALPHA = Pattern
-      .compile("([a-zA-Z])[']([a-zA-Z])");
+      .compile("([\\p{Alpha}])[']([\\p{Alpha}])");
   // special case for "1990's"
   public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])");
 
@@ -149,7 +159,6 @@ public class NonPrefixBreaker {
             dictMap.put(pre, "2");
           } else {
             dictMap.put(line, "1");
-
           }
         }
       }
@@ -225,8 +234,28 @@ public class NonPrefixBreaker {
     String segmentedText = "";
     int i;
     String[] words = line.split(" ");
-    for (i=0; i< words.length; i++) { 
-      
+
+    for (i = 0; i < words.length; i++) {
+      Matcher wordDot = WORD_DOT.matcher(words[i]);
+
+      if (wordDot.find()) {
+
+        String prefix = wordDot.replaceAll("$1");
+
+        if ((prefix.contains(".") && prefix.matches("\\p{Alpha}+"))
+            || (dictMap.containsKey(prefix) && dictMap.get(prefix) == "1")
+            || (i < (words.length - 1) && LOWER.matcher(words[i + 1]).find())) {
+          // do not tokenize
+        } else if ((dictMap.containsKey(prefix) && dictMap.get(prefix) == "2")
+            && (i < (words.length - 1) && START_DIGITS.matcher(words[i + 1])
+                .find())) {
+          // do not tokenize
+        } else {
+          words[i] = prefix + " .";
+        }
+      }
+      sb.append(words[i]).append(" ");
+      segmentedText = sb.toString();
     }
     return segmentedText;
   }

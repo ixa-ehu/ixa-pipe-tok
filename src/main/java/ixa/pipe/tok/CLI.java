@@ -130,6 +130,7 @@ public class CLI {
     else {
       InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
       segmenter = new SegmenterMoses(nonBreaker);
+      nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
       tokenizer = new TokenizerMoses(nonBreaker,lang);
     }
 
