@@ -39,6 +39,7 @@ public class TokenizerMoses implements TokTokenizer {
 
     // remove extra spaces and ASCII stuff
 
+    line = " " + line + " ";
     line = MULTI_SPACE.matcher(line).replaceAll(" ");
     line = ASCII_HEX.matcher(line).replaceAll("");
     // separate question and exclamation marks
@@ -73,9 +74,10 @@ public class TokenizerMoses implements TokTokenizer {
     // restore multidots
     line = this.restoreMultidots(line);
 
-    // TODO urls and single quotes issues 
+    // TODO urls and single quotes issues
+    Matcher link = LINK.matcher(line);
+    //line = link.replaceAll("LINK!!");
     //StringBuffer sb = new StringBuffer();
-    //Matcher link = LINK.matcher(line);
     //while (link.find()) { 
     //  link.appendReplacement(sb, link.group().replaceAll("\\s",""));
     //}
@@ -93,7 +95,7 @@ public class TokenizerMoses implements TokTokenizer {
 
   private String generateMultidots(String line) {
 
-    line = MULTI_DOTS.matcher(line).replaceAll(" DOTMULTI$1");
+    line = MULTI_DOTS.matcher(line).replaceAll(" DOTMULTI$1 ");
     Matcher dotMultiDot = DOTMULTI_DOT.matcher(line);
 
     while (dotMultiDot.find()) {
