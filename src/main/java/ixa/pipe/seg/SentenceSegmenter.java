@@ -20,7 +20,7 @@ package ixa.pipe.seg;
  * Interface for a Sentence Segmenter
  * 
  * @author ragerri
- *
+ * 
  */
 public interface SentenceSegmenter {
 

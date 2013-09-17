@@ -22,27 +22,25 @@ import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.IOException;
 
-
 public class Annotate {
 
-  
   /**
-   * This function takes the original input text and cleans extra
-   * newlines and spaces creating the input text for the sentence
-   * segmenter and the tokenizer 
+   * This function takes the original input text and cleans extra newlines and
+   * spaces creating the input text for the sentence segmenter and the tokenizer
    * 
-   * @param String text
+   * @param String
+   *          text
    * @return String text
    */
-  
+
   public String buildText(String text) {
-    text = text.replaceAll("(<JA><JA>)+","<P>");
-    text = text.replaceAll("<JA>"," ");
-    text = text.replaceAll("\\s+"," ");
+    text = text.replaceAll("(<JA><JA>)+", "<P>");
+    text = text.replaceAll("<JA>", " ");
+    text = text.replaceAll("\\s+", " ");
     text = text.trim();
     return text;
   }
-  
+
   /**
    * This method performs Sentence Detection and Tokenization to produce
    * tokenized text by sentences represented in KAF format.
@@ -53,40 +51,43 @@ public class Annotate {
    * It fills the kaf object with the word forms element <wf> corresponding to
    * each of the tokens.
    * 
-   * @param String text
-   * @param SentenceSegmenter sentDetector
-   * @param TokTokenizer toker 
-   * @param KAF 
+   * @param String
+   *          text
+   * @param SentenceSegmenter
+   *          sentDetector
+   * @param TokTokenizer
+   *          toker
+   * @param KAF
    *          object. This object is used to take the output data and convert it
    *          to KAF, returning an XML document in a string.
    */
 
-  
-  public void annotateTokensToKAF(String text, String lang, SentenceSegmenter sentDetector,
-      TokTokenizer toker, KAFDocument kaf) throws IOException {
+  public void annotateTokensToKAF(String text, String lang,
+      SentenceSegmenter sentDetector, TokTokenizer toker, KAFDocument kaf)
+      throws IOException {
 
     int noSents = 0;
     int offsetCounter = 0;
 
     text = this.buildText(text);
-    
+
     // this creates the actual paragraphs to be passed to the sentence detector
     String[] lines = text.split("<P>");
-    
+
     for (String line : lines) {
-      
+
       line = line.trim();
       String[] sentences = sentDetector.segmentSentence(line);
       // get linguistic annotations
       for (String sent : sentences) {
         // clean extra spaces
         sent = sent.trim();
-        sent = sent.replaceAll("\\s+"," ");
-        //System.out.println(sent);
+        sent = sent.replaceAll("\\s+", " ");
+        // System.out.println(sent);
 
-        //tokenize each sentence
+        // tokenize each sentence
         String[] tokens = toker.tokenize(sent, lang);
-        
+
         // get sentence counter
         noSents = noSents + 1;
         // offsets counters

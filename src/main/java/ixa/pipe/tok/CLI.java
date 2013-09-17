@@ -38,12 +38,12 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * ixa-pipe tokenization
  * 
- * This module implements two sentence segmenters and tokenizers: 
- * 1. Rule-based loosely inspired by the moses tokenizer 
+ * This module implements two sentence segmenters and tokenizers: 1. Rule-based
+ * loosely inspired by the moses tokenizer
  * (https://github.com/moses-smt/mosesdecoder)
  * 
- * 2. Machine learning based with models trained using Apache OpenNLP API 
- * (on CoNLL 2002 and 2003 corpora)
+ * 2. Machine learning based with models trained using Apache OpenNLP API (on
+ * CoNLL 2002 and 2003 corpora)
  * 
  * @author ragerri
  * @version 1.0
@@ -86,7 +86,8 @@ public class CLI {
         .addArgument("-m", "--method")
         .choices("moses", "ml")
         .setDefault("moses")
-        .help("Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
+        .help(
+            "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
                 + " 'ml' for Apache OpenNLP trained probabilistic models. ");
 
     /*
@@ -131,7 +132,7 @@ public class CLI {
       InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
       segmenter = new SegmenterMoses(nonBreaker);
       nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-      tokenizer = new TokenizerMoses(nonBreaker,lang);
+      tokenizer = new TokenizerMoses(nonBreaker, lang);
     }
 
     // reading standard input, segment and tokenize
@@ -145,11 +146,11 @@ public class CLI {
         line = formatter.cleanWeirdChars(line);
         sb.append(line).append("<JA>");
       }
-      
+
       String text = sb.toString();
-      // tokenize and create KAF 
+      // tokenize and create KAF
       annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
-      
+
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
       bwriter.write(kaf.toString());

@@ -28,11 +28,11 @@ import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 
 /**
  * 
- * Sentence segmenter loosely inspired by the moses decoder
- * sentence segmenter https://github.com/moses-smt/mosesdecoder
+ * Sentence segmenter loosely inspired by the moses decoder sentence segmenter
+ * https://github.com/moses-smt/mosesdecoder
  * 
  * @author ragerri
- *
+ * 
  */
 public class SegmenterMoses implements SentenceSegmenter {
 
@@ -42,39 +42,39 @@ public class SegmenterMoses implements SentenceSegmenter {
     nonBreaker = new NonPrefixBreaker(nonBreakingFile);
 
   }
-  
+
   /**
    * 
-   * Rule-based sentence segmenter implements SentenceSegmenter method
-   * and calls to the sentenceSplitter function to do the actual segmentation
-   * Each line is a paragraph of the original input text
+   * Rule-based sentence segmenter implements SentenceSegmenter method and calls
+   * to the sentenceSplitter function to do the actual segmentation Each line is
+   * a paragraph of the original input text
    * 
    * @param line
-   * @return an array of segmented sentences, each element in the array corresponds
-   * to a sentence
+   * @return an array of segmented sentences, each element in the array
+   *         corresponds to a sentence
    */
   public String[] segmentSentence(String line) {
     String[] sentences = this.sentenceSplitter(line);
     return sentences;
   }
-  
+
   /**
    * 
-   * Rule-based sentence segmenter loosely inspired by moses segmenter 
+   * Rule-based sentence segmenter loosely inspired by moses segmenter
    * https://github.com/moses-smt/mosesdecoder
    * 
    * Each line is a paragraph of the original input text
    * 
    * @param line
-   * @return an array of segmented senteces, each element in the array corresponds
-   * to a sentence
+   * @return an array of segmented senteces, each element in the array
+   *         corresponds to a sentence
    */
-  private String[] sentenceSplitter(String line) {  
+  private String[] sentenceSplitter(String line) {
     // clean extra spaces
     String text = line.trim();
     Matcher m = MULTI_SPACE.matcher(text);
     text = m.replaceAll(" ");
-    //text = text.replaceAll("(\\.)\\s+([A-Z])","$1\n$2");
+    // text = text.replaceAll("(\\.)\\s+([A-Z])","$1\n$2");
 
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = NOPERIOD_END.matcher(text).replaceAll("$1\n$2");

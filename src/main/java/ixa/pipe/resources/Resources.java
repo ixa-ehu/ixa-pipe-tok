@@ -58,6 +58,5 @@ public class Resources {
     }
     return nonBreaker;
   }
-  
 
 }

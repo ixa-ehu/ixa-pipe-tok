@@ -25,8 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class implements exceptions for periods as sentence breakers and tokens. It decides
- * when a period induces a new sentence or a new token and when it does not.
+ * This class implements exceptions for periods as sentence breakers and tokens.
+ * It decides when a period induces a new sentence or a new token and when it
+ * does not.
  * 
  * @author ragerri
  * 
@@ -117,7 +118,7 @@ public class NonPrefixBreaker {
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
   public static Pattern LOWER = Pattern.compile("^\\p{Lower}");
 
-  // detect url links 
+  // detect url links
   public static Pattern LINK = Pattern
       .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
@@ -237,7 +238,7 @@ public class NonPrefixBreaker {
     for (i = 0; i < words.length; i++) {
       Matcher wordDot = WORD_DOT.matcher(words[i]);
 
-      // find anything non-whitespace finishing with a period 
+      // find anything non-whitespace finishing with a period
       if (wordDot.find()) {
 
         String prefix = wordDot.replaceAll("$1");

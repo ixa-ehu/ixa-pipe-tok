@@ -30,19 +30,19 @@ public class TokenizerMoses implements TokTokenizer {
     nonBreaker = new NonPrefixBreaker(nonBreakingFile);
   }
 
-
   public String[] tokenize(String line, String lang) {
     String[] tokens = this.tokDetector(line, lang);
     return tokens;
   }
 
   /**
-   * Main tokenizer function. It applies the tokenizing rules and treats with 
-   * language-dependent periods plus url links. 
+   * Main tokenizer function. It applies the tokenizing rules and treats with
+   * language-dependent periods plus url links.
    * 
    * @param line
    * @param lang
-   * @return String[] containing where each member is a token of the input sentence 
+   * @return String[] containing where each member is a token of the input
+   *         sentence
    */
   private String[] tokDetector(String line, String lang) {
 
@@ -79,15 +79,15 @@ public class TokenizerMoses implements TokTokenizer {
     // clean up extraneous spaces
     line = line.replaceAll("\\s+", " ");
     line = line.trim();
-    
+
     // restore multidots
     line = this.restoreMultidots(line);
 
     // TODO urls and single quotes issues
     line = this.detokenizeURLs(line);
-   
+
     // create final array of tokens
-    //System.out.println(line);
+    // System.out.println(line);
     String[] tokens = line.split(" ");
 
     // ensure final line break
@@ -97,11 +97,11 @@ public class TokenizerMoses implements TokTokenizer {
 
   /**
    * 
-   * This function normalizes multi-period expressions (...) to make 
+   * This function normalizes multi-period expressions (...) to make
    * tokenization easier; it also keeps multidots together
    * 
    * @param line
-   * @return string 
+   * @return string
    */
   private String generateMultidots(String line) {
 
@@ -118,10 +118,11 @@ public class TokenizerMoses implements TokTokenizer {
   }
 
   /**
-   * restores the normalized multidots to its original state and it tokenizes them  
+   * restores the normalized multidots to its original state and it tokenizes
+   * them
    * 
    * @param line
-   * @return tokenized multidots 
+   * @return tokenized multidots
    */
   private String restoreMultidots(String line) {
 
@@ -134,8 +135,8 @@ public class TokenizerMoses implements TokTokenizer {
 
   /**
    * 
-   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on 
-   * the input language 
+   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on the
+   * input language
    * 
    * @param line
    * @param lang
@@ -154,19 +155,19 @@ public class TokenizerMoses implements TokTokenizer {
     }
     return line;
   }
-  
+
   /**
-   * It detects (wrongly tokenized) URLs and de-tokenizes them 
+   * It detects (wrongly tokenized) URLs and de-tokenizes them
    * 
    * @param line
    * @param lang
-   * @return detokenized URL 
+   * @return detokenized URL
    */
-  private String detokenizeURLs(String line) { 
+  private String detokenizeURLs(String line) {
     Matcher link = LINK.matcher(line);
     StringBuffer sb = new StringBuffer();
-    while (link.find()) { 
-      link.appendReplacement(sb, link.group().replaceAll("\\s",""));
+    while (link.find()) {
+      link.appendReplacement(sb, link.group().replaceAll("\\s", ""));
     }
     link.appendTail(sb);
     line = sb.toString();
