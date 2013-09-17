@@ -86,7 +86,7 @@ public class CLI {
         .addArgument("-m", "--method")
         .choices("moses", "ml")
         .setDefault("moses")
-        .help("Tokenization method: Choose 'moses' for a (slightly modified) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
+        .help("Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
                 + " 'ml' for Apache OpenNLP trained probabilistic models. ");
 
     /*
