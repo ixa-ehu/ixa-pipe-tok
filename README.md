@@ -1,9 +1,14 @@
 IXA-pipe-tok
 ===============
 
-This module uses Apache OpenNLP programatically to perform Sentence Segmentation
-and Tokenization. The module is part of IXA-Pipeline ("is a pipeline"), a multilingual
-NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
+This module provides Sentence Segmentation and Tokenization for English and Spanish via two methods:
+
+1. Rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
+tokenizer but with few additions and modifications. This is the default.
+2. Probabilistic models trained using the Apache OpenNLP API (http://opennlp.apache.org/) based on the
+CoNLL 2003 and 2002 datasets.
+
+ixa-pipe-tok is part of IXA-Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
 
 
 Contents
@@ -99,7 +104,8 @@ cd ixa-pipe-tok
 5. Copy models to resources
 ---------------------------
 
-You need to copy four models to ixa-pipe-tok/src/main/resources/ for the module to work:
+You need to copy four models to ixa-pipe-tok/src/main/resources/ for the probabilistic segmenter/tokenizer
+to work:
 
 1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
 2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
@@ -141,10 +147,16 @@ The program accepts standard input and outputs tokenized text in KAF:
 
 http://kyoto-project.eu/www2.let.vu.nl/twiki/pub/Kyoto/TechnicalPapers/WP002_TR009_KAF_Framework.pdf
 
-To run the program execute:
+To run the program execute (using the default rule-based segmenter/tokenizer):
 
 ````shell
 cat file.txt | java -jar $PATH/target/ixa-pipe-tok-1.0.jar -l $lang
+````
+
+For a summary of options available, run:
+
+````shell
+java -jar $PATH/target/ixa-pipe-tok-1.0.jar -help
 ````
 
 GENERATING JAVADOC
