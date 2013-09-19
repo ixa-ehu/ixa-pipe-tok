@@ -145,7 +145,7 @@ mvn clean install
 
 The program accepts standard input and outputs tokenized text in KAF:
 
-http://kyoto-project.eu/www2.let.vu.nl/twiki/pub/Kyoto/TechnicalPapers/WP002_TR009_KAF_Framework.pdf
+https://github.com/opener-project/kaf/wiki/KAF-structure-overview
 
 To run the program execute (using the default rule-based segmenter/tokenizer):
 
