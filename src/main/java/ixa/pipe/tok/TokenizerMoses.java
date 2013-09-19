@@ -83,11 +83,11 @@ public class TokenizerMoses implements TokTokenizer {
     // restore multidots
     line = this.restoreMultidots(line);
 
-    // TODO urls and single quotes issues
+    // urls 
     line = this.detokenizeURLs(line);
 
     // create final array of tokens
-    // System.out.println(line);
+    //System.out.println(line);
     String[] tokens = line.split(" ");
 
     // ensure final line break

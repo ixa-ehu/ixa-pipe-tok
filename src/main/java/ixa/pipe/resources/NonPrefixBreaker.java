@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class NonPrefixBreaker {
 
   // Parse nonbreaking_prefix.$lang file for non breaking exceptions
-
+  
   public static Pattern DOT_SPACE_NUMERIC_ONLY = Pattern
       .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
 
@@ -52,16 +52,14 @@ public class NonPrefixBreaker {
 
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
-      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])");
+      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
 
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
-      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])");
+      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
 
   // some sort of punctuation inside a quote or parenthetical followed
   // by a possible sentence starter punctuation and upper case
-  // public static Pattern END_INSIDE_QUOTES = Pattern
-  // .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\p{Punct}]+)\\s+([\'\"\\(\\[\\¿\\¡\\p{IsPunct}]*[\\ ]*[\\p{Lu}])");
   public static Pattern END_INSIDE_QUOTES = Pattern
       .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\ ]*[\\p{Lu}])");
 
@@ -79,9 +77,9 @@ public class NonPrefixBreaker {
   public static Pattern UPPER_CASE_ACRONYM = Pattern
       .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$");
 
-  public static Pattern START_DIGITS = Pattern.compile("^\\d+");
+  public static Pattern START_DIGITS = Pattern.compile("^\\d+",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern QUOTE_SPACE_UPPER_NUMBER = Pattern
-      .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])");
+      .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])",Pattern.UNICODE_CHARACTER_CLASS);
 
   // //////////////////////////
   // // Tokenizer Patterns ////
@@ -89,9 +87,11 @@ public class NonPrefixBreaker {
 
   public static Pattern MULTI_SPACE = Pattern.compile("\\s+");
   // every control character not "printable"
-  public static Pattern ASCII_HEX = Pattern.compile("[^\\x20-\\x7E]");
+  public static Pattern ASCII_HEX = Pattern.compile("[\\x00-\\x19]");
+
+
   public static Pattern SPECIALS = Pattern
-      .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])");
+      .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])", Pattern.UNICODE_CHARACTER_CLASS);
   // question and exclamation marks (do not separate if multiple)
   public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
 
@@ -106,17 +106,17 @@ public class NonPrefixBreaker {
 
   // commas and digits
   public static Pattern NODIGIT_COMMA_NODIGIT = Pattern
-      .compile("([^\\d])[,]([^\\d])");
+      .compile("([^\\d])[,]([^\\d])",Pattern.UNICODE_CHARACTER_CLASS);
   // separate "," pre and post number
   public static Pattern DIGIT_COMMA_NODIGIT = Pattern
-      .compile("([\\d])[,]([^\\d])");
+      .compile("([\\d])[,]([^\\d])",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern NODIGIT_COMMA_DIGIT = Pattern
-      .compile("([^\\d])[,](\\d)");
+      .compile("([^\\d])[,](\\d)",Pattern.UNICODE_CHARACTER_CLASS);
 
   // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
   // PREFIXES FILES
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
-  public static Pattern LOWER = Pattern.compile("^\\p{Lower}");
+  public static Pattern LOWER = Pattern.compile("^\\p{Lower}",Pattern.UNICODE_CHARACTER_CLASS);
 
   // detect url links
   public static Pattern LINK = Pattern
@@ -124,15 +124,15 @@ public class NonPrefixBreaker {
 
   // english contractions patterns
   public static Pattern NOALPHA_APOS_NOALPHA = Pattern
-      .compile("([^\\p{Alpha}])[']([^\\p{Alpha}])");
+      .compile("([^\\p{Alpha}])[']([^\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern NOALPHA_DIGIT_APOS_ALPHA = Pattern
-      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})");
+      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern ALPHA_APOS_NOALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])");
+      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern ALPHA_APOS_ALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([\\p{Alpha}])");
+      .compile("([\\p{Alpha}])[']([\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
   // special case for "1990's"
-  public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])");
+  public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])",Pattern.UNICODE_CHARACTER_CLASS);
 
   private HashMap<String, String> dictMap;
 

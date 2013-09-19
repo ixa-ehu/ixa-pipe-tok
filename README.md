@@ -28,23 +28,23 @@ INSTALLATION
 
 Installing the ixa-pipe-tok requires the following steps:
 
-If you already have installed in your machine JDK6 and MAVEN 3, please go to step 3
+If you already have installed in your machine JDK7 and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-1. Install JDK 1.6
+1. Install JDK 1.7
 -------------------
 
-If you do not install JDK 1.6 in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
+If you do not install JDK 1.7 in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
 ````shell
-export JAVA_HOME=/yourpath/local/java6
+export JAVA_HOME=/yourpath/local/java7
 export PATH=${JAVA_HOME}/bin:${PATH}
 ````
 
 If you use tcsh you will need to specify it in your .login as follows:
 
 ````shell
-setenv JAVA_HOME /usr/java/java16
+setenv JAVA_HOME /usr/java/java17
 setenv PATH ${JAVA_HOME}/bin:${PATH}
 ````
 
@@ -54,7 +54,7 @@ If you re-login into your shell and run the command
 java -version
 ````
 
-You should now see that your jdk is 1.6
+You should now see that your jdk is 1.7
 
 2. Install MAVEN 3
 ------------------
