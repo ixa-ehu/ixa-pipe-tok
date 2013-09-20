@@ -4,7 +4,7 @@ IXA-pipe-tok
 This module provides Sentence Segmentation and Tokenization for English and Spanish via two methods:
 
 1. Rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
-tokenizer but with few additions and modifications. This is the default.
+tokenizer but with several additions and modifications. This is the default.
 2. Probabilistic models trained using the Apache OpenNLP API (http://opennlp.apache.org/) based on the
 CoNLL 2003 and 2002 datasets.
 

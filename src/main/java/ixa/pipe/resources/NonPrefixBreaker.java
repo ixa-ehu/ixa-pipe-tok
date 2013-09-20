@@ -1,5 +1,5 @@
 /*
- *Copyright 2013 Rodrigo Agerri
+ * Copyright 2013 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -229,7 +229,13 @@ public class NonPrefixBreaker {
     return segmentedText;
   }
 
-  public String TokenizerNonBreaker(String line) {
+  /**
+   * It decides when periods do not need to be tokenized
+   * 
+ * @param line
+ * @return line
+ */
+public String TokenizerNonBreaker(String line) {
     StringBuilder sb = new StringBuilder();
     String segmentedText = "";
     int i;
