@@ -59,7 +59,7 @@
 			<version>1.5.3</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
       <groupId>ixa.kaflib</groupId>
       <artifactId>kaflib</artifactId>
