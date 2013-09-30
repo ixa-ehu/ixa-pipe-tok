@@ -95,8 +95,10 @@ public class NonPrefixBreaker {
   // question and exclamation marks (do not separate if multiple)
   public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
 
-  // tokenize dash 
-    public static Pattern DASH = Pattern.compile("(\\-+)");
+  // tokenize whenever after or before a space
+  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})",Pattern.UNICODE_CHARACTER_CLASS);  
+  public static Pattern DASH = Pattern.compile("( \\-+|\\-+ )");
+    
   // multidots
   public static Pattern MULTI_DOTS = Pattern.compile("\\.([\\.]+)");
   public static Pattern DOTMULTI_DOT = Pattern.compile("DOTMULTI\\.");

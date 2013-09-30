@@ -22,6 +22,7 @@ import static ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
 import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
 import static ixa.pipe.resources.NonPrefixBreaker.QEXC;
 import static ixa.pipe.resources.NonPrefixBreaker.DASH;
+import static ixa.pipe.resources.NonPrefixBreaker.DASH_LU;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT_ANY;
@@ -69,6 +70,8 @@ public class TokenizerMoses implements TokTokenizer {
     line = ASCII_HEX.matcher(line).replaceAll("");
     // separate question and exclamation marks
     line = QEXC.matcher(line).replaceAll(" $1 ");
+    // separate dash if before an upper case character 
+    line = DASH_LU.matcher(line).replaceAll("$1 $2");
     // separate dash if before or after space
     line = DASH.matcher(line).replaceAll(" $1 ");
     // separate out other special characters [^\p{Alnum}s.'`,-?!]
