@@ -61,10 +61,10 @@
 		</dependency>
 
 		<dependency>
-      <groupId>ixa.kaflib</groupId>
-      <artifactId>kaflib</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
+		  <groupId>ixa.kaflib</groupId>
+		  <artifactId>kaflib</artifactId>
+		  <version>1.0-SNAPSHOT</version>
+		</dependency>
 
 	</dependencies>
 
