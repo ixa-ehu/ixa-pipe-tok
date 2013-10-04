@@ -57,7 +57,11 @@ public class NonPrefixBreaker {
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
       .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
-
+  
+  // segment wrongly introduced periods; Centraal.There
+  public static Pattern WRONG_PERIODS = Pattern.
+      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
+  
   // some sort of punctuation inside a quote or parenthetical followed
   // by a possible sentence starter punctuation and upper case
   public static Pattern END_INSIDE_QUOTES = Pattern

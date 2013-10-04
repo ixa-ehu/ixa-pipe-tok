@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
+import static ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
 import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
 import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 
@@ -80,6 +81,7 @@ public class SegmenterMoses implements SentenceSegmenter {
     text = NOPERIOD_END.matcher(text).replaceAll("$1\n$2");
     // multi-dots followed by sentence starters
     text = MULTI_DOTS_STARTERS.matcher(text).replaceAll("$1\n$2");
+    text = WRONG_PERIODS.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
     text = END_INSIDE_QUOTES.matcher(text).replaceAll("$1\n$2");
     // add breaks for sentences that end with some sort of punctuation are
