@@ -90,6 +90,22 @@ public class CLI {
             "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
                 + " 'ml' for Apache OpenNLP trained probabilistic models. ");
 
+    // specify whether input if a KAF/NAF file
+    parser
+        .addArgument("-k", "--kaf")
+	.setDefault("v1.opener")
+        .help(
+            "Use this option if input is a KAF/NAF document with <raw> layer.");
+
+    // specify KAF version
+    parser
+        .addArgument("--kafversion")
+        .choices("moses", "ml")
+        .setDefault("moses")
+        .help(
+            "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
+                + " 'ml' for Apache OpenNLP trained probabilistic models. ");
+
     /*
      * Parse the command line arguments
      */
@@ -111,13 +127,15 @@ public class CLI {
 
     String lang = parsedArguments.getString("lang");
     String method = parsedArguments.getString("method");
+    String kafVersion = parsedArguments.getString("kafversion");
+    Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
     Resources resourceRetriever = new Resources();
     Formats formatter = new Formats();
     Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
-    KAFDocument kaf = new KAFDocument(lang, "v1.opener");
+    KAFDocument kaf;
 
     // choosing tokenizer and resources by language
 
@@ -139,20 +157,31 @@ public class CLI {
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
+      String text;
 
-      StringBuilder sb = new StringBuilder();
-      String line;
-      while ((line = breader.readLine()) != null) {
-        line = formatter.cleanWeirdChars(line);
-        sb.append(line).append("<JA>");
+      if (inputKafRaw) {
+	  // read KAF from standard input
+	  kaf = KAFDocument.createFromStream(breader);
+	  text = kaf.getRawText();
+      } else {
+	  kaf = new KAFDocument(lang, kafversion);
+	  StringBuilder sb = new StringBuilder();
+	  String line;
+	  while ((line = breader.readLine()) != null) {
+	      line = formatter.cleanWeirdChars(line);
+	      sb.append(line).append("<JA>");
+	  }
+	  text = sb.toString();
       }
-
-      String text = sb.toString();
       // tokenize and create KAF
       annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
 
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
+      if (inputKafRaw) {
+	  // empty raw layer ?
+	  // kaf.setRawText("");
+      }
       bwriter.write(kaf.toString());
       bwriter.close();
 
