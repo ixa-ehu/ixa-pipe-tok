@@ -93,18 +93,17 @@ public class CLI {
     // specify whether input if a KAF/NAF file
     parser
         .addArgument("-k", "--kaf")
-	.setDefault("v1.opener")
+	.type(Boolean.class)
+	.setDefault(false)
         .help(
             "Use this option if input is a KAF/NAF document with <raw> layer.");
 
     // specify KAF version
     parser
         .addArgument("--kafversion")
-        .choices("moses", "ml")
-        .setDefault("moses")
+        .setDefault("v1.opener")
         .help(
-            "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
-                + " 'ml' for Apache OpenNLP trained probabilistic models. ");
+            "Set kaf document version.");
 
     /*
      * Parse the command line arguments
@@ -164,7 +163,7 @@ public class CLI {
 	  kaf = KAFDocument.createFromStream(breader);
 	  text = kaf.getRawText();
       } else {
-	  kaf = new KAFDocument(lang, kafversion);
+	  kaf = new KAFDocument(lang, kafVersion);
 	  StringBuilder sb = new StringBuilder();
 	  String line;
 	  while ((line = breader.readLine()) != null) {
