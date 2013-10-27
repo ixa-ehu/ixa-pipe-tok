@@ -38,17 +38,14 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * ixa-pipe tokenization
- * 
+ *
  * This module implements two sentence segmenters and tokenizers: 1. Rule-based
  * loosely inspired by the moses tokenizer
  * (https://github.com/moses-smt/mosesdecoder)
- * 
- * 2. Machine learning based with models trained using Apache OpenNLP API (on
- * CoNLL 2002 and 2003 corpora)
- * 
+ *
  * @author ragerri
  * @version 1.0
- * 
+ *
  */
 
 public class CLI {
@@ -58,7 +55,7 @@ public class CLI {
    * module takes plain text from standard input and produces tokenized text by
    * sentences. The tokens are then placed into the <wf> elements of KAF
    * document. The KAF document is passed via standard output.
-   * 
+   *
    * @param args
    * @throws IOException
    */
@@ -81,19 +78,7 @@ public class CLI {
         .help(
             "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
 
-    // specify tokenization method
-
-    parser
-        .addArgument("-m", "--method")
-        .choices("moses", "ml")
-        .setDefault("moses")
-        .help(
-            "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
-                + " 'ml' for Apache OpenNLP trained probabilistic models. ");
-
-<<<<<<< HEAD
     parser.addArgument("--notok").action(Arguments.storeTrue()).help("Build KAF with already tokenized and segmented text");
-=======
     // specify whether input if a KAF/NAF file
     parser
         .addArgument("-k", "--kaf")
@@ -109,7 +94,6 @@ public class CLI {
         .help(
             "Set kaf document version.");
 
->>>>>>> 9b6a4d71cd9fccaa2da702b306db7c4cc94026cc
     /*
      * Parse the command line arguments
      */
@@ -143,19 +127,10 @@ public class CLI {
 
     // choosing tokenizer and resources by language
 
-    TokTokenizer tokenizer = null;
-    SentenceSegmenter segmenter = null;
-    if (method.equalsIgnoreCase("ml")) {
-      segmenter = new SegmenterOpenNLP(lang);
-      tokenizer = new TokenizerOpenNLP(lang);
-    }
-
-    else {
       InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-      segmenter = new SegmenterMoses(nonBreaker);
+      SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
       nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-      tokenizer = new TokenizerMoses(nonBreaker, lang);
-    }
+      TokTokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
 
     // reading standard input, segment and tokenize
     try {
@@ -180,9 +155,9 @@ public class CLI {
       // tokenize and create KAF
       if (parsedArguments.getBoolean("notok")) {
         annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
-        
+
       }
-      else { 
+      else {
         annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
       }
       // write kaf document
