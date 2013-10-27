@@ -117,7 +117,7 @@ mvn clean install
 ````
 
 4. Using ixa-pipe-tok
-========================
+---------------------
 
 The program accepts standard input and outputs tokenized text in KAF:
 
