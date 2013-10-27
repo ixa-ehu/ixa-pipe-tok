@@ -60,6 +60,8 @@ public class CLI {
 
   public static void main(String[] args) throws IOException {
 
+    //TODO check offsets when we normalize 
+    
     Namespace parsedArguments = null;
 
     // create Argument Parser

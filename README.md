@@ -5,7 +5,7 @@ This module provides Sentence Segmentation and Tokenization for English and Span
 rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
 tokenizer but with several additions and modifications.
 
-ixa-pipe-tok is part of IXA-Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
+ixa-pipe-tok is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
 
 
 Contents
