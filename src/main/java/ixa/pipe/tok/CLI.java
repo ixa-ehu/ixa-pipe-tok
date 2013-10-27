@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -90,6 +91,7 @@ public class CLI {
             "Tokenization method: Choose 'moses' for a (slightly modified and extended) re-implementation of the rule-based Moses MT system tokenizer (this is the default);"
                 + " 'ml' for Apache OpenNLP trained probabilistic models. ");
 
+    parser.addArgument("--notok").action(Arguments.storeTrue()).help("Build KAF with already tokenized and segmented text");
     /*
      * Parse the command line arguments
      */
@@ -149,8 +151,13 @@ public class CLI {
 
       String text = sb.toString();
       // tokenize and create KAF
-      annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
-
+      if (parsedArguments.getBoolean("notok")) {
+        annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
+        
+      }
+      else { 
+        annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
+      }
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
       bwriter.write(kaf.toString());
