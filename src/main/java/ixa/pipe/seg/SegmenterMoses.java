@@ -76,8 +76,8 @@ public class SegmenterMoses implements SentenceSegmenter {
     Matcher m = MULTI_SPACE.matcher(text);
     text = m.replaceAll(" ");
     // replace '' for "
-    text = text.replaceAll("''","\"");
-    text = text.replaceAll("``","\"");
+    //text = text.replaceAll("''","\"");
+    //text = text.replaceAll("``","\"");
 
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = NOPERIOD_END.matcher(text).replaceAll("$1\n$2");
