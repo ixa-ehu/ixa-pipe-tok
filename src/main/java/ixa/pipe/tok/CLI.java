@@ -20,7 +20,6 @@ import ixa.kaflib.KAFDocument;
 import ixa.pipe.resources.Formats;
 import ixa.pipe.resources.Resources;
 import ixa.pipe.seg.SegmenterMoses;
-import ixa.pipe.seg.SegmenterOpenNLP;
 import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.BufferedReader;
@@ -38,14 +37,13 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * ixa-pipe tokenization
- *
- * This module implements two sentence segmenters and tokenizers: 1. Rule-based
- * loosely inspired by the moses tokenizer
+ * 
+ * This module implements a rule-based loosely inspired by the moses tokenizer
  * (https://github.com/moses-smt/mosesdecoder)
- *
+ * 
  * @author ragerri
  * @version 1.0
- *
+ * 
  */
 
 public class CLI {
@@ -55,7 +53,7 @@ public class CLI {
    * module takes plain text from standard input and produces tokenized text by
    * sentences. The tokens are then placed into the <wf> elements of KAF
    * document. The KAF document is passed via standard output.
-   *
+   * 
    * @param args
    * @throws IOException
    */
@@ -76,23 +74,22 @@ public class CLI {
         .choices("en", "es")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with IXA-Pipeline");
+            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
 
-    parser.addArgument("--notok").action(Arguments.storeTrue()).help("Build KAF with already tokenized and segmented text");
+    parser.addArgument("--notok").action(Arguments.storeTrue())
+        .help("Build KAF with already tokenized and segmented text");
+    
     // specify whether input if a KAF/NAF file
     parser
         .addArgument("-k", "--kaf")
-	.type(Boolean.class)
-	.setDefault(false)
+        .type(Boolean.class)
+        .setDefault(false)
         .help(
             "Use this option if input is a KAF/NAF document with <raw> layer.");
 
     // specify KAF version
-    parser
-        .addArgument("--kafversion")
-        .setDefault("v1.opener")
-        .help(
-            "Set kaf document version.");
+    parser.addArgument("--kafversion").setDefault("v1.opener")
+        .help("Set kaf document version.");
 
     /*
      * Parse the command line arguments
@@ -127,10 +124,10 @@ public class CLI {
 
     // choosing tokenizer and resources by language
 
-      InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-      SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
-      nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-      TokTokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
+    InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
+    SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
+    nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
+    TokTokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
 
     // reading standard input, segment and tokenize
     try {
@@ -138,33 +135,33 @@ public class CLI {
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       String text;
 
+      //TODO if this option is used, get language from lang attribute in KAF 
       if (inputKafRaw) {
-	  // read KAF from standard input
-	  kaf = KAFDocument.createFromStream(breader);
-	  text = kaf.getRawText();
+        // read KAF from standard input
+        kaf = KAFDocument.createFromStream(breader);
+        text = kaf.getRawText();
       } else {
-	  kaf = new KAFDocument(lang, kafVersion);
-	  StringBuilder sb = new StringBuilder();
-	  String line;
-	  while ((line = breader.readLine()) != null) {
-	      line = formatter.cleanWeirdChars(line);
-	      sb.append(line).append("<JA>");
-	  }
-	  text = sb.toString();
+        kaf = new KAFDocument(lang, kafVersion);
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = breader.readLine()) != null) {
+          line = formatter.cleanWeirdChars(line);
+          sb.append(line).append("<JA>");
+        }
+        text = sb.toString();
       }
       // tokenize and create KAF
       if (parsedArguments.getBoolean("notok")) {
         annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
 
-      }
-      else {
+      } else {
         annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
       }
       // write kaf document
       kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
       if (inputKafRaw) {
-	  // empty raw layer ?
-	  // kaf.setRawText("");
+        // empty raw layer ?
+        // kaf.setRawText("");
       }
       bwriter.write(kaf.toString());
       bwriter.close();

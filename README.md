@@ -1,12 +1,9 @@
 IXA-pipe-tok
 ===============
 
-This module provides Sentence Segmentation and Tokenization for English and Spanish via two methods:
-
-1. Rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
-tokenizer but with several additions and modifications. This is the default.
-2. Probabilistic models trained using the Apache OpenNLP API (http://opennlp.apache.org/) based on the
-CoNLL 2003 and 2002 datasets.
+This module provides Sentence Segmentation and Tokenization for English and Spanish via a
+rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
+tokenizer but with several additions and modifications.
 
 ixa-pipe-tok is part of IXA-Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
 
@@ -101,25 +98,7 @@ git clone git@github.com:ixa-ehu/ixa-pipe-tok.git
 cd ixa-pipe-tok
 ````
 
-5. Copy models to resources
----------------------------
-
-You need to copy four models to ixa-pipe-tok/src/main/resources/ for the probabilistic segmenter/tokenizer
-to work:
-
-1. en-sent.bin and en-token.bin for English Segmentation and Tokenization.
-2. es-sent.bin and es-token.bin for Spanish Segmentation and Tokenization.
-
-Download the models from and untar the archive into the src/main/resources directory:
-
-````shell
-cd ixa-pipe-tok/src/main/resources
-wget http://ixa2.si.ehu.es/ragerri/ixa-pipeline-models/tok-resources.tgz
-tar xvzf tok-resources.tgz
-````
-If you change the name of the models you will need to modify also the source code in Models.java
-
-6. Install module using maven
+5. Install module using maven
 -----------------------------
 
 ````shell
@@ -140,14 +119,14 @@ To install the module as in the maven's user local repository, located in ~/.m2/
 mvn clean install
 ````
 
-7. USING ixa-pipe-tok
+6. USING ixa-pipe-tok
 ========================
 
 The program accepts standard input and outputs tokenized text in KAF:
 
 https://github.com/opener-project/kaf/wiki/KAF-structure-overview
 
-To run the program execute (using the default rule-based segmenter/tokenizer):
+To run the program execute:
 
 ````shell
 cat file.txt | java -jar $PATH/target/ixa-pipe-tok-1.0.jar -l $lang
