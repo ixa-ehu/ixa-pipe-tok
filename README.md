@@ -84,22 +84,19 @@ mvn -version
 
 You should see reference to the MAVEN version you have just installed plus the JDK 6 that is using.
 
-3. Get module source code
---------------------------
+3. Install ixa-pipe-tok
+-----------------------
 
 ````shell
 git clone git@github.com:ixa-ehu/ixa-pipe-tok.git
 ````
 
-4. Move into main directory
----------------------------
+move into main directory:
 
 ````shell
 cd ixa-pipe-tok
 ````
-
-5. Install module using maven
------------------------------
+compile module:
 
 ````shell
 mvn clean package
@@ -119,7 +116,7 @@ To install the module as in the maven's user local repository, located in ~/.m2/
 mvn clean install
 ````
 
-6. USING ixa-pipe-tok
+4. Using ixa-pipe-tok
 ========================
 
 The program accepts standard input and outputs tokenized text in KAF:
