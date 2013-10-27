@@ -55,7 +55,7 @@ public class SegmenterMoses implements SentenceSegmenter {
    *         corresponds to a sentence
    */
   public String[] segmentSentence(String line) {
-    String[] sentences = this.sentenceSplitter(line);
+    String[] sentences = sentenceSplitter(line);
     return sentences;
   }
 
@@ -67,7 +67,7 @@ public class SegmenterMoses implements SentenceSegmenter {
    * Each line is a paragraph of the original input text
    * 
    * @param line
-   * @return an array of segmented senteces, each element in the array
+   * @return an array of segmented sentences, each element in the array
    *         corresponds to a sentence
    */
   private String[] sentenceSplitter(String line) {
@@ -75,7 +75,9 @@ public class SegmenterMoses implements SentenceSegmenter {
     String text = line.trim();
     Matcher m = MULTI_SPACE.matcher(text);
     text = m.replaceAll(" ");
-    // text = text.replaceAll("(\\.)\\s+([A-Z])","$1\n$2");
+    // replace '' for "
+    text = text.replaceAll("''","\"");
+    text = text.replaceAll("``","\"");
 
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = NOPERIOD_END.matcher(text).replaceAll("$1\n$2");
