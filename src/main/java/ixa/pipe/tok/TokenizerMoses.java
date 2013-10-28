@@ -48,7 +48,7 @@ public class TokenizerMoses implements TokTokenizer {
   }
 
   public String[] tokenize(String line, String lang) {
-    String[] tokens = this.tokDetector(line, lang);
+    String[] tokens = tokDetector(line, lang);
     return tokens;
   }
 
@@ -91,7 +91,7 @@ public class TokenizerMoses implements TokTokenizer {
     // //////////////////////////////////
 
     // contractions it's, l'agila
-    line = this.treatContractions(line, lang);
+    line = treatContractions(line, lang);
     // non prefix breaker
     line = nonBreaker.TokenizerNonBreaker(line);
 
@@ -100,10 +100,10 @@ public class TokenizerMoses implements TokTokenizer {
     line = line.trim();
 
     // restore multidots
-    line = this.restoreMultidots(line);
+    line = restoreMultidots(line);
 
     // urls 
-    line = this.detokenizeURLs(line);
+    line = detokenizeURLs(line);
 
     // create final array of tokens
     //System.out.println(line);

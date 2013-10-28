@@ -67,9 +67,13 @@ public class Annotate {
       throws IOException {
 
     int noSents = 0;
+    //offset counters
     int offsetCounter = 0;
-
-    text = this.buildText(text);
+    int current_index = 0;
+    int previous_index = 0;
+    
+    //build text to be tokenized
+    text = buildText(text);
 
     // this creates the actual paragraphs to be passed to the sentence detector
     String[] lines = text.split("<P>");
@@ -78,21 +82,18 @@ public class Annotate {
 
       line = line.trim();
       String[] sentences = sentDetector.segmentSentence(line);
+      
       // get linguistic annotations
       for (String sent : sentences) {
         // clean extra spaces
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        // System.out.println(sent);
 
         // tokenize each sentence
         String[] tokens = toker.tokenize(sent, lang);
-
         // get sentence counter
         noSents = noSents + 1;
-        // offsets counters
-        int current_index = 0;
-        int previous_index = 0;
+        
         for (int i = 0; i < tokens.length; i++) {
           // get offsets
           current_index = line.indexOf(tokens[i], previous_index);
@@ -128,7 +129,9 @@ public class Annotate {
    */
 
   int tokSents = 0;
-  int tokoffsetCounter = 0;
+  int tokOffsetCounter = 0;
+  int tokCurrent_index = 0;
+  int tokPrevious_index = 0;
   
   public void tokenizedTextToKAF(String text, String lang, TokTokenizer toker, KAFDocument kaf)
       throws IOException {
@@ -147,18 +150,16 @@ public class Annotate {
         String[] tokens = sent.split(" ");
         // get sentence counter
         tokSents = tokSents + 1;
-        // offsets counters
-        int current_index = 0;
-        int previous_index = 0;
+       
         for (int i = 0; i < tokens.length; i++) {
           // get offsets
-          current_index = sent.indexOf(tokens[i], previous_index);
-          int offset = tokoffsetCounter + current_index;
+          tokCurrent_index = sent.indexOf(tokens[i], tokPrevious_index);
+          int offset = tokOffsetCounter + tokCurrent_index;
           WF wf = kaf.newWF(tokens[i], offset);
           wf.setSent(tokSents);
-          previous_index = current_index + tokens[i].length();
+          tokPrevious_index = tokCurrent_index + tokens[i].length();
         }
-        tokoffsetCounter += sent.length();
+        tokOffsetCounter += sent.length();
       }
       
   }

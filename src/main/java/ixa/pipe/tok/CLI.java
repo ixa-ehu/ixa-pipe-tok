@@ -17,7 +17,7 @@
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
-import ixa.pipe.resources.Formats;
+import ixa.pipe.resources.Normalizer;
 import ixa.pipe.resources.Resources;
 import ixa.pipe.seg.SegmenterMoses;
 import ixa.pipe.seg.SentenceSegmenter;
@@ -118,7 +118,7 @@ public class CLI {
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
     Resources resourceRetriever = new Resources();
-    Formats formatter = new Formats();
+    Normalizer formatter = new Normalizer();
     Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
