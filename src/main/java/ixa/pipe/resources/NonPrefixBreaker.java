@@ -125,7 +125,7 @@ public class NonPrefixBreaker {
 
   // detect url links
   public static Pattern LINK = Pattern
-      .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
+      .compile("((http|ftp)\\s:\\s/\\s/\\s[-A-Za-z0-9+&@#/%?=~_|!:,.;]*\\s+[-A-Za-z0-9+&@#/%?=~_|!:,.;])\\s+");
 
   // english contractions patterns
   public static Pattern NOALPHA_APOS_NOALPHA = Pattern

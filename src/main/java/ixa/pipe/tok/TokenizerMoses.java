@@ -103,7 +103,7 @@ public class TokenizerMoses implements TokTokenizer {
     line = restoreMultidots(line);
 
     // urls 
-    line = detokenizeURLs(line);
+    //line = detokenizeURLs(line);
 
     // create final array of tokens
     //System.out.println(line);
@@ -176,7 +176,7 @@ public class TokenizerMoses implements TokTokenizer {
   }
 
   /**
-   * It detects (wrongly tokenized) URLs and de-tokenizes them
+   * It detects (wrongly tokenized) URLs and detokenizes them
    * 
    * @param line
    * @param lang
