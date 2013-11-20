@@ -39,7 +39,7 @@ import static ixa.pipe.resources.NonPrefixBreaker.LINK;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 
-public class TokenizerMoses implements TokTokenizer {
+public class TokenizerMoses implements Tokenizer {
 
   NonPrefixBreaker nonBreaker;
 
@@ -64,7 +64,6 @@ public class TokenizerMoses implements TokTokenizer {
   private String[] tokDetector(String line, String lang) {
 
     // remove extra spaces and ASCII stuff
-
     line = " " + line + " ";
     line = MULTI_SPACE.matcher(line).replaceAll(" ");
     line = ASCII_HEX.matcher(line).replaceAll("");
@@ -78,7 +77,7 @@ public class TokenizerMoses implements TokTokenizer {
     line = SPECIALS.matcher(line).replaceAll(" $1 ");
 
     // do not separate multidots
-    line = this.generateMultidots(line);
+    line = generateMultidots(line);
 
     // separate "," except if within numbers (5,300)
     line = NODIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");

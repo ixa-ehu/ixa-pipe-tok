@@ -55,7 +55,7 @@ public class Annotate {
    *          text
    * @param SentenceSegmenter
    *          sentDetector
-   * @param TokTokenizer
+   * @param Tokenizer
    *          toker
    * @param KAF
    *          object. This object is used to take the output data and convert it
@@ -63,7 +63,7 @@ public class Annotate {
    */
 
   public void annotateTokensToKAF(String text, String lang,
-      SentenceSegmenter sentDetector, TokTokenizer toker, KAFDocument kaf)
+      SentenceSegmenter sentDetector, Tokenizer toker, KAFDocument kaf)
       throws IOException {
 
     int noSents = 0;
@@ -121,7 +121,7 @@ public class Annotate {
    *          text
    * @param SentenceSegmenter
    *          sentDetector
-   * @param TokTokenizer
+   * @param Tokenizer
    *          toker
    * @param KAF
    *          object. This object is used to take the output data and convert it
@@ -133,7 +133,7 @@ public class Annotate {
   int tokCurrent_index = 0;
   int tokPrevious_index = 0;
   
-  public void tokenizedTextToKAF(String text, String lang, TokTokenizer toker, KAFDocument kaf)
+  public void tokenizedTextToKAF(String text, String lang, Tokenizer toker, KAFDocument kaf)
       throws IOException {
 
     // this creates the actual sentences to be passed to the sentence detector

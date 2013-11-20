@@ -77,7 +77,8 @@ public class CLI {
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
-
+    
+    // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
         .help("Build KAF with already tokenized and segmented text");
     
@@ -113,12 +114,11 @@ public class CLI {
      */
 
     String lang = parsedArguments.getString("lang");
-    String method = parsedArguments.getString("method");
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
     Resources resourceRetriever = new Resources();
-    Normalizer formatter = new Normalizer();
+    Normalizer normalizer = new Normalizer();
     Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
@@ -129,7 +129,7 @@ public class CLI {
     InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
     SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
     nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    TokTokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
+    Tokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
 
     // reading standard input, segment and tokenize
     try {
@@ -147,7 +147,7 @@ public class CLI {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = breader.readLine()) != null) {
-          line = formatter.cleanWeirdChars(line);
+          line = normalizer.ptb3normalize(line);
           sb.append(line).append("<JA>");
         }
         text = sb.toString();
