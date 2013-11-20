@@ -83,12 +83,8 @@ public class CLI {
         .help("Build KAF with already tokenized and segmented text");
     
     // specify whether input if a KAF/NAF file
-    parser
-        .addArgument("-k", "--kaf")
-        .type(Boolean.class)
-        .setDefault(false)
-        .help(
-            "Use this option if input is a KAF/NAF document with <raw> layer.");
+    parser.addArgument("-k", "--kaf").action(Arguments.storeTrue())
+        .help("Use this option if input is a KAF/NAF document with <raw> layer.");
 
     // specify KAF version
     parser.addArgument("--kafversion").setDefault("v1.opener")
