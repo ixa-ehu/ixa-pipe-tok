@@ -17,6 +17,7 @@
 package ixa.pipe.tok;
 
 import ixa.pipe.resources.NonPrefixBreaker;
+
 import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
 import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
