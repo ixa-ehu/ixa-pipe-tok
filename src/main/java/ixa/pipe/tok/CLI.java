@@ -1,4 +1,4 @@
-/*
+/* 
  *Copyright 2013 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
-import ixa.pipe.resources.Normalizer;
 import ixa.pipe.resources.Resources;
 import ixa.pipe.seg.SegmenterMoses;
 import ixa.pipe.seg.SentenceSegmenter;
@@ -114,7 +113,6 @@ public class CLI {
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
     Resources resourceRetriever = new Resources();
-    Normalizer normalizer = new Normalizer();
     Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
@@ -143,7 +141,6 @@ public class CLI {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = breader.readLine()) != null) {
-          line = normalizer.ptb3normalize(line);
           sb.append(line).append("<JA>");
         }
         text = sb.toString();

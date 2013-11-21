@@ -47,17 +47,19 @@
 			<artifactId>argparse4j</artifactId>
 			<version>0.3.2</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
-			<scope>compile</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
 			<version>1.5.3</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+		  <groupId>de.jflex</groupId>
+		  <artifactId>jflex</artifactId>
+		  <version>1.4.3</version>
+		  <scope>compile</scope>
 		</dependency>
 
 		<dependency>

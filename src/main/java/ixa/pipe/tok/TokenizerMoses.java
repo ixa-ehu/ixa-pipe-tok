@@ -34,7 +34,6 @@ import static ixa.pipe.resources.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
-import static ixa.pipe.resources.NonPrefixBreaker.LINK;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
@@ -102,14 +101,11 @@ public class TokenizerMoses implements Tokenizer {
     line = restoreMultidots(line);
 
     // urls 
-    //line = detokenizeURLs(line);
 
     // create final array of tokens
     //System.out.println(line);
     String[] tokens = line.split(" ");
 
-    // ensure final line break
-    // if (!line.endsWith("\n")) { line = line + "\n"; }
     return tokens;
   }
 
@@ -171,24 +167,6 @@ public class TokenizerMoses implements Tokenizer {
     } else {
       line = line.replaceAll("'", "' ");
     }
-    return line;
-  }
-
-  /**
-   * It detects (wrongly tokenized) URLs and detokenizes them
-   * 
-   * @param line
-   * @param lang
-   * @return detokenized URL
-   */
-  private String detokenizeURLs(String line) {
-    Matcher link = LINK.matcher(line);
-    StringBuffer sb = new StringBuffer();
-    while (link.find()) {
-      link.appendReplacement(sb, link.group().replaceAll("\\s", ""));
-    }
-    link.appendTail(sb);
-    line = sb.toString();
     return line;
   }
 

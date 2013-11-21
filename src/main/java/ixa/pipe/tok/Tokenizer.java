@@ -19,10 +19,9 @@ package ixa.pipe.tok;
 public interface Tokenizer {
 
   /**
-   * Takes a sentence (already segmented) and performs tokenization.
+   * Takes a sentence and performs tokenization.
    * 
-   * @param String
-   *          segmented sentence
+   * @param String input sentence
    * @param lang
    * @return String[] where each element is a token
    */
