@@ -88,7 +88,7 @@ You should see reference to the MAVEN version you have just installed plus the J
 -----------------------
 
 ````shell
-https://github.com/ixa-ehu/ixa-pipe-tok.git
+git clone https://github.com/ixa-ehu/ixa-pipe-tok.git
 ````
 
 move into main directory:
