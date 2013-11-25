@@ -37,21 +37,36 @@ import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
-public class TokenizerMoses implements Tokenizer {
+public class IXATokenizer implements Tokenizer {
 
   NonPrefixBreaker nonBreaker;
+  Map<List<Integer>,String> tokenList = new LinkedHashMap<List<Integer>,String>();
+  List<Integer> offsetList = new ArrayList<Integer>();
 
-  public TokenizerMoses(InputStream nonBreakingFile, String lang) {
+  public IXATokenizer(InputStream nonBreakingFile, String lang) {
     nonBreaker = new NonPrefixBreaker(nonBreakingFile);
   }
 
   public String[] tokenize(String line, String lang) {
-    String[] tokens = tokDetector(line, lang);
+    
     return tokens;
   }
 
+  public Map<List<Integer>,String> tokMaker(String token, int startIndex, int length) { 
+    offsetList.add(startIndex);
+    offsetList.add(length);
+    tokenList.put(offsetList, token);
+    
+    //String[] tokens = tokenList.toArray(new String[tokenList.size()]);
+    return tokens;
+  }
+  
   /**
    * Main tokenizer function. It applies the tokenizing rules and treats with
    * language-dependent periods plus url links.
@@ -61,7 +76,7 @@ public class TokenizerMoses implements Tokenizer {
    * @return String[] containing where each member is a token of the input
    *         sentence
    */
-  private String[] tokDetector(String line, String lang) {
+  private String[] tokDetector1(String line, String lang) {
 
     // remove extra spaces and ASCII stuff
     line = " " + line + " ";

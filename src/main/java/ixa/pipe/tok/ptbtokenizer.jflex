@@ -535,30 +535,6 @@ import edu.stanford.nlp.util.StringUtils;
     return AMP_PATTERN.matcher(in).replaceAll("&");
   }
 
-  private Object getNext() {
-    final String txt = yytext();
-    return getNext(txt, txt);
-  }
-
-  /** Make the next token.
-   *  @param txt What the token should be
-   *  @param originalText The original String that got transformed into txt
-   */
-  private Object getNext(String txt, String originalText) {
-    if (invertible) {
-      String str = prevWordAfter.toString();
-      prevWordAfter.setLength(0);
-      CoreLabel word = (CoreLabel) tokenFactory.makeToken(txt, yychar, yylength());
-      word.set(CoreAnnotations.OriginalTextAnnotation.class, originalText);
-      word.set(CoreAnnotations.BeforeAnnotation.class, str);
-      prevWord.set(CoreAnnotations.AfterAnnotation.class, str);
-      prevWord = word;
-      return word;
-    } else {
-      return tokenFactory.makeToken(txt, yychar, yylength());
-   }
-  }
-
   private Object getNormalizedAmpNext() {
     final String txt = yytext();
     if (normalizeAmpersandEntity) {

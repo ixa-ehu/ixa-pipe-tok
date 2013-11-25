@@ -123,7 +123,7 @@ public class CLI {
     InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
     SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
     nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    Tokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
+    Tokenizer tokenizer = new IXATokenizer(nonBreaker, lang);
 
     // reading standard input, segment and tokenize
     try {
