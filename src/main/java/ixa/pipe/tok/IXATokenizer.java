@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 
-
+ 
 public class IXATokenizer<T> extends AbstractTokenizer<T> {
 
   NonPrefixBreaker nonBreaker;

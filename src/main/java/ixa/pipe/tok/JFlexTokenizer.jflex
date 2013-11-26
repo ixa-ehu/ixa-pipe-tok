@@ -331,177 +331,185 @@ DOLLAR = ([A-Z]*\$|#)
 /* These are cent and pound sign, euro and euro, and Yen, Lira */
 OTHER_CURRENCIES= [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\uFFE0\uFFE1\uFFE5\uFFE6]
 
+
+
 /* ------------------------Lexical Rules Section---------------------- */
 
 %%
 
 /* ptb3 normalized ampersand */
-{AMP}                 	{ return normalizeAmpNext(); }
+{AMP}                       { return normalizeAmpNext(); }
 
 /* ptb3 normalized dashes */
-{DASHES}				{ if (ptb3Dashes) {
-                    		return makeToken(ptbDash); }
+{DASHES}                    { if (ptb3Dashes) {
+                    	        return makeToken(ptbDash); 
+                                }
                   		else {
                     		return makeToken();
                    		}
-                		}
+                	    }
                 
 /* special punctuation */
-{SPECIAL_PUNCT}       		{ return makeToken(); }
+{SPECIAL_PUNCT}       	    { return makeToken(); }
 
 /* special words slang */
 
-cannot          		{ yypushback(3) ; return makeToken(); }
-gonna|gotta|lemme|gimme|wanna 	{ yypushback(2) ; return makeToken(); }
+cannot                      { yypushback(3) ; return makeToken(); }
+gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 
 /* WORDS  including they're and n't and so on */
-{WORD}/{APOS_AUX}         	{String normString = removeSoftHyphen(yytext());
-                          	 return makeToken(normString);
-                        	}
+{WORD}/{APOS_AUX}           {String normString = removeSoftHyphen(yytext());
+                                 return makeToken(normString);
+                            }
                         	
-{SPECIAL_WORD}/{SPECIAL_APOS_AUX}       {  String normString = removeSoftHyphen(yytext());
-                          				   return makeToken(normString); 
-                          				}
+{SPECIAL_WORD}/{SPECIAL_APOS_AUX}   {  String normString = removeSoftHyphen(yytext());
+                          	           return makeToken(normString); 
+                          	    }
 
-{WORD}                  { String normString = removeSoftHyphen(yytext());
-                          return makeToken(normString);
-                        }
+{WORD}                      { String normString = removeSoftHyphen(yytext());
+                                return makeToken(normString);
+                            }
 
-{WORD_APOS}               { return makeToken(); }
+{WORD_APOS}                 { return makeToken(); }
 
-{Y_APOS_WORD}/[:letter:]   { return makeToken(); }
+{Y_APOS_WORD}/[:letter:]    { return makeToken(); }
 
 /* URLs */
-{STRICT_URL}            { String txt = yytext();
-                          if (escapeForwardSlash) {
-                            txt = escape(txt, '/');
-                            txt = escape(txt, '*');
-                          }
-                          return makeToken(txt); 
-                        }
+{STRICT_URL}                { String txt = yytext();
+                                if (escapeForwardSlash) {
+                                    txt = escape(txt, '/');
+                                    txt = escape(txt, '*');
+                                }
+                                return makeToken(txt); 
+                            }
 
-{APPROX_URL}            { String txt = yytext();
-                          if (escapeForwardSlash) {
-                            txt = escape(txt, '/');
-                            txt = escape(txt, '*');
-                          }
-                          return makeToken(txt); 
-                        }
+{APPROX_URL}                { String txt = yytext();
+                                if (escapeForwardSlash) {
+                                    txt = escape(txt, '/');
+                                    txt = escape(txt, '*');
+                                }
+                                return makeToken(txt); 
+                            }
 
-{EMAIL}                 { return makeToken(); }
-{TWITTER}               { return makeToken(); }
+{EMAIL}                     { return makeToken(); }
+{TWITTER}                   { return makeToken(); }
 
 /* QUOTES */
 
-{APOS_AUX}/[^A-Za-z]    { return handleQuotes(yytext(), false);
-                        }
-{SPECIAL_APOS_AUX}      { return handleQuotes(yytext(), false);
-                        }
+{APOS_AUX}/[^A-Za-z]        { return handleQuotes(yytext(), false); }
+{SPECIAL_APOS_AUX}          { return handleQuotes(yytext(), false); }
 
 /* DATES and NUMERS */
 
-{DATE}                  { String txt = yytext();
-                          if (escapeForwardSlash) {
-                            txt = escape(txt, '/');
-                          }
-                          return makeToken(txt);
-                        }
-{NUMBER}                { String normString = removeSoftHyphen(yytext());
-						  return makeToken(normString); 
-						}
-{SUBSUPNUM}             { return makeToken(); }
+{DATE}                      { String txt = yytext();
+                                if (escapeForwardSlash) {
+                                    txt = escape(txt, '/');
+                                }
+                                return makeToken(txt);
+                            }
+{NUMBER}                    { String normString = removeSoftHyphen(yytext()); 
+                              return makeToken(normString); 
+			    }
+{SUBSUPNUM}                 { return makeToken(); }
 
 
 /* Treebank 3 state for normalization */
 
-<TB3>{FRACTION} 		{ String txt = yytext();
-                  		 	if (escapeForwardSlash) {
-                   		  	txt = escape(txt, '/');
-                  		  	}
-                  			if (normalizeSpace) {
-                  			// change space to non-breaking space
-                   			txt = txt.replace(' ', '\u00A0'); 
-
-                  			}
-                  			return makeToken(txt);
-               			}
+<TB3>{FRACTION} 	    { String txt = yytext();
+                  	        if (escapeForwardSlash) {
+                   		txt = escape(txt, '/');
+                  		}
+                  		if (normalizeSpace) {
+                  		// change space to non-breaking space
+                   		txt = txt.replace(' ', '\u00A0'); 
+                                }
+                  		return makeToken(txt);
+               		    }
 
 /* Strict Treebank 3 state for normalization */
 
-<strictTB3>{FRACTION_TB3} { String txt = yytext();
-                  			if (escapeForwardSlash) {
-                    		txt = escape(txt, '/');
-                  			}
-                  			if (normalizeSpace) {
-                  			// change space to non-breaking space
-                    		txt = txt.replace(' ', '\u00A0'); 
-                  			}
-                  			return makeToken(txt);
-                		  }
-
-{OTHER_FRACTION}          { return normalizeFractions(yytext()); }
-
-{NORMALIZED_PREFIXES}    { return normalizeAmpNext(); }
-
-{HYPHEN_WORDS}          { if (escapeForwardSlash) {
-							String txt = escape(yytext(), '/');
-							return makeToken(txt);
-                          } else {
-                            return makeToken();
-                          }
-                        }
-
-{DOLLAR}               { return makeToken(); }
-{OTHER_CURRENCIES}     { if (normalizeCurrency) {
-						    String normString = normalizeCurrency(yytext());
-						    return makeToken(normString);
-                          }
-                          else {
-                            return makeToken();
-                          }
-                        }
-/* NON BREAKING PREFIXES 
-
-
-\{              		{ if (normalizeOtherBrackets) {
-                    		return makeToken(openCB); }
-                  		  else {
-                    		return makeToken();
-                  		  }
-                		}
-\}              		
-						{ if (normalizeOtherBrackets) {
-                    		return makeToken(closeCB); }
-                  		else {
-                    		return makeToken();
+<strictTB3>{FRACTION_TB3}   { String txt = yytext();
+                  	        if (escapeForwardSlash) {
+                    	            txt = escape(txt, '/');
                   		}
-                		}
+                  		if (normalizeSpace) {
+                  		// change space to non-breaking space
+                    		txt = txt.replace(' ', '\u00A0'); 
+                  		}
+                  		return makeToken(txt);
+                	    }
+
+{OTHER_FRACTION}            { return normalizeFractions(yytext()); }
+
+{NORMALIZED_PREFIXES}       { return normalizeAmpNext(); }
+
+{HYPHEN_WORDS}              {   if (escapeForwardSlash) {
+								String txt = escape(yytext(), '/');
+									return makeToken(txt);
+                                }
+                                else {
+                                return makeToken();
+                                }
+                            }
+
+{DOLLAR}                    { return makeToken(); }
+{OTHER_CURRENCIES}          {   if (normalizeCurrency) {
+			        				String normString = normalizeCurrency(yytext());
+			        				return makeToken(normString);
+                                } 
+                                else {
+                                return makeToken();
+                                }
+                            }
+/* NON BREAKING PREFIXES */
+
+
+
+
+\{                          {   if (normalizeOtherBrackets) {
+                    	            return makeToken(openCB); 
+                                }
+                  	        else {
+                    		    return makeToken();
+                  			}
+                	    	}
+\}              		
+			    			{   if (normalizeOtherBrackets) {
+                    		    return makeToken(closeCB); 
+                                }
+                  				else {
+                    		    return makeToken();
+                  				}
+                	    	}
                 
-\[              { if (normalizeOtherBrackets) {
-                    return makeToken(openSB); }
-                  else {
-                    return makeToken();
-                  }
-                }
-\]              { if (normalizeOtherBrackets) {
-                    return makeToken(closeSB); }
-                  else {
-                    return makeToken();
-                  }
-                }
-\(              { if (normalizeParentheses) {
-                    return makeToken(openRB); }
-                  else {
-                    return makeToken();
-                  }
-                }
-\)              { if (normalizeParentheses) {
-                    return makeToken(closeRB); 
-                  }
-                  else {
-                    return makeToken();
-                  }
-                }
+\[                          {   if (normalizeOtherBrackets) {
+                                    return makeToken(openSB); 
+                                }
+                                else {
+                                    return makeToken();
+                                }
+                            }       
+\]                          {   if (normalizeOtherBrackets) {
+                                    return makeToken(closeSB); 
+                                }
+                                else {
+                                    return makeToken();
+                                }                    
+                            }
+\(                          {   if (normalizeParentheses) {
+                                    return makeToken(openRB); 
+                                }
+                                else {
+                                    return makeToken();
+                                }
+                            }
+\)                          {   if (normalizeParentheses) {
+                                    return makeToken(closeRB); 
+                                }
+                                else {
+                                    return makeToken();
+                                }
+                            }
 
 .|\n 			{ /* skip everything else */ }
 
