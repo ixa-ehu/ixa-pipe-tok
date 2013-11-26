@@ -299,25 +299,7 @@ import edu.stanford.nlp.util.StringUtils;
   private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
   private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
 
-  /* Flags begin with historical ptb3Escaping behavior */
-  private boolean invertible;
-  private boolean tokenizeNLs;
-  private boolean americanize = true;
-  private boolean normalizeSpace = true;
-  private boolean normalizeAmpersandEntity = true;
-  private boolean normalizeCurrency = true;
-  private boolean normalizeFractions = true;
-  private boolean normalizeParentheses = true;
-  private boolean normalizeOtherBrackets = true;
-  private boolean latexQuotes = true;
-  private boolean unicodeQuotes;
-  private boolean asciiQuotes;
-  private boolean ptb3Ellipsis = true;
-  private boolean unicodeEllipsis;
-  private boolean ptb3Dashes = true;
-  private boolean escapeForwardSlashAsterisk = true;
-  private boolean strictTreebank3 = false;
-
+ 
   /*
    * This has now been extended to cover the main Windows CP1252 characters,
    * at either their correct Unicode codepoints, or in their invalid
@@ -359,151 +341,15 @@ import edu.stanford.nlp.util.StringUtils;
    * - Still by default escape [ ] { } but it can be turned off.  Use -LSB- -RSB- -LCB- -RCB-.
    */
 
-  public static final String openparen = "-LRB-";
-  public static final String closeparen = "-RRB-";
-  public static final String openbrace = "-LCB-";
-  public static final String closebrace = "-RCB-";
-  public static final String ptbmdash = "--";
   public static final String ptb3EllipsisStr = "...";
   public static final String unicodeEllipsisStr = "\u2026";
   /** For tokenizing carriage returns.  (JS) */
   public static final String NEWLINE_TOKEN = "*NL*";
+  
 
-  // private static final Pattern SINGLE_SPACE_PATTERN = Pattern.compile(" ");
-  private static final Pattern LEFT_PAREN_PATTERN = Pattern.compile("\\(");
-  private static final Pattern RIGHT_PAREN_PATTERN = Pattern.compile("\\)");
-  private static final Pattern AMP_PATTERN = Pattern.compile("(?i:&amp;)");
+  
 
-  private static final Pattern ONE_FOURTH_PATTERN = Pattern.compile("\u00BC");
-  private static final Pattern ONE_HALF_PATTERN = Pattern.compile("\u00BD");
-  private static final Pattern THREE_FOURTHS_PATTERN = Pattern.compile("\u00BE");
-  private static final Pattern ONE_THIRD_PATTERN = Pattern.compile("\u2153");
-  private static final Pattern TWO_THIRDS_PATTERN = Pattern.compile("\u2154");
-
-  private Object normalizeFractions(final String in) {
-    String out = in;
-    if (normalizeFractions) {
-      if (escapeForwardSlashAsterisk) {
-        out = ONE_FOURTH_PATTERN.matcher(out).replaceAll("1\\\\/4");
-        out = ONE_HALF_PATTERN.matcher(out).replaceAll("1\\\\/2");
-        out = THREE_FOURTHS_PATTERN.matcher(out).replaceAll("3\\\\/4");
-        out = ONE_THIRD_PATTERN.matcher(out).replaceAll("1\\\\/3");
-        out = TWO_THIRDS_PATTERN.matcher(out).replaceAll("2\\\\/3");
-     } else {
-        out = ONE_FOURTH_PATTERN.matcher(out).replaceAll("1/4");
-        out = ONE_HALF_PATTERN.matcher(out).replaceAll("1/2");
-        out = THREE_FOURTHS_PATTERN.matcher(out).replaceAll("3/4");
-        out = ONE_THIRD_PATTERN.matcher(out).replaceAll("1/3");
-        out = TWO_THIRDS_PATTERN.matcher(out).replaceAll("2/3");
-      }
-    }
-    //  System.err.println("normalizeFractions="+normalizeFractions+", escapeForwardSlashAsterisk="+escapeForwardSlashAsterisk);
-    //  System.err.println("Mapped |"+in+"| to |" + out + "|.");
-    return getNext(out, in);
-  }
-
-  private static String removeSoftHyphens(String in) {
-    // \u00AD is the soft hyphen character, which we remove, regarding it as inserted only for line-breaking
-    if (in.indexOf('\u00AD') < 0) {
-      // shortcut doing work
-      return in;
-    }
-    int length = in.length();
-    StringBuilder out = new StringBuilder(length - 1);
-    for (int i = 0; i < length; i++) {
-      char ch = in.charAt(i);
-      if (ch != '\u00AD') {
-        out.append(ch);
-      }
-    }
-    if (out.length() == 0) {
-      out.append('-'); // don't create an empty token
-    }
-    return out.toString();
-  }
-
-  private static final Pattern CENTS_PATTERN = Pattern.compile("\u00A2");
-  private static final Pattern POUND_PATTERN = Pattern.compile("\u00A3");
-  private static final Pattern GENERIC_CURRENCY_PATTERN = Pattern.compile("[\u0080\u00A4\u20A0\u20AC]");
-
-  private static String normalizeCurrency(String in) {
-    String s1 = in;
-    s1 = CENTS_PATTERN.matcher(s1).replaceAll("cents");
-    s1 = POUND_PATTERN.matcher(s1).replaceAll("#");  // historically used for pound in PTB3
-    s1 = GENERIC_CURRENCY_PATTERN.matcher(s1).replaceAll("\\$");  // Euro (ECU, generic currency)  -- no good translation!
-    return s1;
-  }
-
-  private static final Pattern singleQuote = Pattern.compile("&apos;|'");
-  private static final Pattern doubleQuote = Pattern.compile("\"|&quot;");
-
-  // 91,92,93,94 aren't valid unicode points, but sometimes they show
-  // up from cp1252 and need to be translated
-  private static final Pattern leftSingleQuote = Pattern.compile("[\u0091\u2018\u201B\u2039]");
-  private static final Pattern rightSingleQuote = Pattern.compile("[\u0092\u2019\u203A]");
-  private static final Pattern leftDoubleQuote = Pattern.compile("[\u0093\u201C\u00AB]");
-  private static final Pattern rightDoubleQuote = Pattern.compile("[\u0094\u201D\u00BB]");
-
-  private static String latexQuotes(String in, boolean probablyLeft) {
-    String s1 = in;
-    if (probablyLeft) {
-      s1 = singleQuote.matcher(s1).replaceAll("`");
-      s1 = doubleQuote.matcher(s1).replaceAll("``");
-    } else {
-      s1 = singleQuote.matcher(s1).replaceAll("'");
-      s1 = doubleQuote.matcher(s1).replaceAll("''");
-    }
-    s1 = leftSingleQuote.matcher(s1).replaceAll("`");
-    s1 = rightSingleQuote.matcher(s1).replaceAll("'");
-    s1 = leftDoubleQuote.matcher(s1).replaceAll("``");
-    s1 = rightDoubleQuote.matcher(s1).replaceAll("''");
-    return s1;
-  }
-
-  private static final Pattern asciiSingleQuote = Pattern.compile("&apos;|[\u0091\u2018\u0092\u2019\u201A\u201B\u2039\u203A']");
-  private static final Pattern asciiDoubleQuote = Pattern.compile("&quot;|[\u0093\u201C\u0094\u201D\u201E\u00AB\u00BB\"]");
-
-  private static String asciiQuotes(String in) {
-    String s1 = in;
-    s1 = asciiSingleQuote.matcher(s1).replaceAll("'");
-    s1 = asciiDoubleQuote.matcher(s1).replaceAll("\"");
-    return s1;
-  }
-
-  private static final Pattern unicodeLeftSingleQuote = Pattern.compile("\u0091");
-  private static final Pattern unicodeRightSingleQuote = Pattern.compile("\u0092");
-  private static final Pattern unicodeLeftDoubleQuote = Pattern.compile("\u0093");
-  private static final Pattern unicodeRightDoubleQuote = Pattern.compile("\u0094");
-
-  private static String unicodeQuotes(String in, boolean probablyLeft) {
-    String s1 = in;
-    if (probablyLeft) {
-      s1 = singleQuote.matcher(s1).replaceAll("\u2018");
-      s1 = doubleQuote.matcher(s1).replaceAll("\u201c");
-    } else {
-      s1 = singleQuote.matcher(s1).replaceAll("\u2019");
-      s1 = doubleQuote.matcher(s1).replaceAll("\u201d");
-    }
-    s1 = unicodeLeftSingleQuote.matcher(s1).replaceAll("\u2018");
-    s1 = unicodeRightSingleQuote.matcher(s1).replaceAll("\u2019");
-    s1 = unicodeLeftDoubleQuote.matcher(s1).replaceAll("\u201c");
-    s1 = unicodeRightDoubleQuote.matcher(s1).replaceAll("\u201d");
-    return s1;
-  }
-
-  private Object handleQuotes(String tok, boolean probablyLeft) {
-    String normTok;
-    if (latexQuotes) {
-      normTok = latexQuotes(tok, probablyLeft);
-    } else if (unicodeQuotes) {
-      normTok = unicodeQuotes(tok, probablyLeft);
-    } else if (asciiQuotes) {
-      normTok = asciiQuotes(tok);
-    } else {
-      normTok = tok;
-    }
-    return getNext(normTok, tok);
-  }
+  
 
   private Object handleEllipsis(final String tok) {
     if (ptb3Ellipsis) {
@@ -515,44 +361,20 @@ import edu.stanford.nlp.util.StringUtils;
     }
   }
 
-  /** This quotes a character with a backslash, but doesn't do it
-   *  if the character is already preceded by a backslash.
-   */
-  private static String delimit(String s, char c) {
-    int i = s.indexOf(c);
-    while (i != -1) {
-      if (i == 0 || s.charAt(i - 1) != '\\') {
-        s = s.substring(0, i) + '\\' + s.substring(i);
-        i = s.indexOf(c, i + 2);
-      } else {
-        i = s.indexOf(c, i + 1);
-      }
-    }
-    return s;
-  }
+  
 
-  private static String normalizeAmp(final String in) {
-    return AMP_PATTERN.matcher(in).replaceAll("&");
-  }
+  
 
-  private Object getNormalizedAmpNext() {
-    final String txt = yytext();
-    if (normalizeAmpersandEntity) {
-      return getNext(normalizeAmp(txt), txt);
-    } else {
-      return getNext();
-    }
-  }
+  
 
 %}
 
 ////////////////
 //// MACROS ////
 ///////////////
-SPMDASH = &(MD|mdash|ndash);|[\u0096\u0097\u2013\u2014\u2015]
-SPAMP = &amp;
-SPPUNC = &(HT|TL|UR|LR|QC|QL|QR|odq|cdq|#[0-9]+);
-SPLET = &[aeiouAEIOU](acute|grave|uml);
+
+
+
 /* \u3000 is ideographic space */
 SPACE = [ \t\u00A0\u2000-\u200A\u3000]
 SPACES = {SPACE}+
@@ -560,60 +382,27 @@ NEWLINE = \r|\r?\n|\u2028|\u2029|\u000B|\u000C|\u0085
 SPACENL = ({SPACE}|{NEWLINE})
 SPACENLS = {SPACENL}+
 SENTEND = {SPACENL}({SPACENL}|[:uppercase:]|{SGML})
-DIGIT = [:digit:]|[\u07C0-\u07C9]
-DATE = {DIGIT}{1,2}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{2,4}
-NUM = {DIGIT}+|{DIGIT}*([.:,\u00AD\u066B\u066C]{DIGIT}+)+
-/* Now don't allow bracketed negative numbers!  They have too many uses (e.g.,
-   years or times in parentheses), and having them in tokens messes up
-   treebank parsing.
-   NUMBER = [\-+]?{NUM}|\({NUM}\) */
-NUMBER = [\-+]?{NUM}
-SUBSUPNUM = [\u207A\u207B\u208A\u208B]?([\u2070\u00B9\u00B2\u00B3\u2074-\u2079]+|[\u2080-\u2089]+)
-/* Constrain fraction to only match likely fractions */
-FRAC = ({DIGIT}{1,4}[- \u00A0])?{DIGIT}{1,4}(\\?\/|\u2044){DIGIT}{1,4}
-FRACSTB3 = ({DIGIT}{1,4}-)?{DIGIT}{1,4}(\\?\/|\u2044){DIGIT}{1,4}
-FRAC2 = [\u00BC\u00BD\u00BE\u2153-\u215E]
-DOLSIGN = ([A-Z]*\$|#)
-/* These are cent and pound sign, euro and euro, and Yen, Lira */
-DOLSIGN2 = [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\uFFE0\uFFE1\uFFE5\uFFE6]
+
+
+
+
+
 /* not used DOLLAR      {DOLSIGN}[ \t]*{NUMBER}  */
 /* |\( ?{NUMBER} ?\))    # is for pound signs */
-/* For some reason U+0237-U+024F (dotless j) isn't in [:letter:]. Recent additions? */
-LETTER = ([:letter:]|{SPLET}|[\u00AD\u0237-\u024F\u02C2-\u02C5\u02D2-\u02DF\u02E5-\u02FF\u0300-\u036F\u0370-\u037D\u0384\u0385\u03CF\u03F6\u03FC-\u03FF\u0483-\u0487\u04CF\u04F6-\u04FF\u0510-\u0525\u055A-\u055F\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0615-\u061A\u063B-\u063F\u064B-\u065E\u0670\u06D6-\u06EF\u06FA-\u06FF\u070F\u0711\u0730-\u074F\u0750-\u077F\u07A6-\u07B1\u07CA-\u07F5\u07FA\u0900-\u0903\u093C\u093E-\u094E\u0951-\u0955\u0962-\u0963\u0981-\u0983\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A4F\u0A81-\u0A83\u0ABC-\u0ACF\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0C01-\u0C03\u0C3E-\u0C56\u0D3E-\u0D44\u0D46-\u0D48\u0E30-\u0E3A\u0E47-\u0E4E\u0EB1-\u0EBC\u0EC8-\u0ECD])
-WORD = {LETTER}+([.!?]{LETTER}+)*
+
 /* The $ was for things like New$ */
 /* WAS: only keep hyphens with short one side like co-ed */
 /* But treebank just allows hyphenated things as words! */
 THING = ([dDoOlL]{APOSETCETERA}([:letter:]|[:digit:]))?([:letter:]|[:digit:])+({HYPHEN}([dDoOlL]{APOSETCETERA}([:letter:]|[:digit:]))?([:letter:]|[:digit:])+)*
 THINGA = [A-Z]+(([+&]|{SPAMP})[A-Z]+)+
-THING3 = [A-Za-z0-9]+(-[A-Za-z]+){0,2}(\\?\/[A-Za-z0-9]+(-[A-Za-z]+){0,2}){1,2}
-APOS = ['\u0092\u2019]|&apos;
-/* Includes extra ones that may appear inside a word, rightly or wrongly */
-APOSETCETERA = {APOS}|[\u0091\u2018\u201B]
-HTHING = [A-Za-z0-9][A-Za-z0-9.,\u00AD]*(-([A-Za-z0-9\u00AD]+|{ACRO}\.))+
-REDAUX = {APOS}([msdMSD]|re|ve|ll)
-/* For things that will have n't on the end. They can't end in 'n' */
-/* \u00AD is soft hyphen */
-SWORD = [A-Za-z\u00AD]*[A-MO-Za-mo-z](\u00AD)*
-SREDAUX = n{APOSETCETERA}t
-/* Tokens you want but already okay: C'mon 'n' '[2-9]0s '[eE]m 'till?
-   [Yy]'all 'Cause Shi'ite B'Gosh o'clock.  Here now only need apostrophe
-   final words. */
-/* Note that Jflex doesn't support {2,} form.  Only {2,k}. */
-/* [yY]' is for Y'know, y'all and I for I.  So exclude from one letter first */
-/* Rest are for French borrowings.  n allows n'ts in "don'ts" */
-/* Arguably, c'mon should be split to "c'm" + "on", but not yet. */
-APOWORD = {APOS}n{APOS}?|[lLdDjJ]{APOS}|Dunkin{APOS}|somethin{APOS}|ol{APOS}|{APOS}em|[A-HJ-XZn]{APOSETCETERA}[:letter:]{2}[:letter:]*|{APOS}[2-9]0s|{APOS}till?|[:letter:][:letter:]*[aeiouyAEIOUY]{APOSETCETERA}[aeiouA-Z][:letter:]*|{APOS}cause|cont'd\.?|'twas|nor'easter|c'mon|e'er|s'mores|ev'ry|li'l|nat'l
-APOWORD2 = y{APOS}
-FULLURL = https?:\/\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-]
-LIKELYURL = ((www\.([^ \t\n\f\r\"<>|.!?(){},]+\.)+[a-zA-Z]{2,4})|(([^ \t\n\f\r\"`'<>|.!?(){},-_$]+\.)+(com|net|org|edu)))(\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-])?
-EMAIL = [a-zA-Z0-9][^ \t\n\f\r\"<>|()\u00A0]*@([^ \t\n\f\r\"<>|().\u00A0]+\.)*([^ \t\n\f\r\"<>|().\u00A0]+)
 
-/* Technically, names should be capped at 15 characters.  However, then
-   you get into weirdness with what happens to the rest of the characters. */
-TWITTER_NAME = @[a-zA-Z_][a-zA-Z_0-9]*
-TWITTER_CATEGORY = #{WORD}
-TWITTER = {TWITTER_NAME}|{TWITTER_CATEGORY}
+
+HTHING = [A-Za-z0-9][A-Za-z0-9.,\u00AD]*(-([A-Za-z0-9\u00AD]+|{ACRO}\.))+
+
+
+
+
+
 
 
 /* --- This block becomes ABBREV1 and is usually followed by lower case words. --- */
@@ -691,9 +480,7 @@ FNMARKS = {ATS}|{HASHES}|{UNDS}
 INSENTP = [,;:\u3001]
 QUOTES = {APOS}|''|[`\u2018\u2019\u201A\u201B\u201C\u201D\u0091\u0092\u0093\u0094\u201E\u201F\u2039\u203A\u00AB\u00BB]{1,2}
 DBLQUOT = \"|&quot;
-/* Cap'n for captain, c'est for french */
-TBSPEC = -(RRB|LRB|RCB|LCB|RSB|LSB)-|C\.D\.s|pro-|anti-|S(&|&amp;)P-500|S(&|&amp;)Ls|Cap{APOS}n|c{APOS}est
-TBSPEC2 = {APOS}[0-9][0-9]
+
 
 /* Smileys (based on Chris Potts' sentiment tutorial, but much more restricted set - e.g., no "8)", "do:" or "):", too ambiguous) and simple Asian smileys */
 SMILEY = [<>]?[:;=][\-o\*']?[\(\)DPdpO\\{@\|\[\]]
@@ -711,107 +498,21 @@ MISCSYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA\
 
 %%
 
-cannot                  { yypushback(3) ; return getNext(); }
-gonna|gotta|lemme|gimme|wanna
-                        { yypushback(2) ; return getNext(); }
-{SGML}                  { final String origTxt = yytext();
-                          String txt = origTxt;
-                          if (normalizeSpace) {
-                            // txt = SINGLE_SPACE_PATTERN.matcher(txt).replaceAll("\u00A0"); // change to non-breaking space
-                            txt = txt.replace(' ', '\u00A0'); // change space to non-breaking space
-                          }
-                          return getNext(txt, origTxt);
-                        }
-{SPMDASH}               { if (ptb3Dashes) {
-                            return getNext(ptbmdash, yytext()); }
-                          else {
-                            return getNext();
-                          }
-                        }
-{SPAMP}                 { return getNormalizedAmpNext(); }
-{SPPUNC}                { return getNext(); }
-{WORD}/{REDAUX}         { final String origTxt = yytext();
-                          String tmp = removeSoftHyphens(origTxt);
-                          if (americanize) {
-                            tmp = Americanize.americanize(tmp);
-                          }
-                          return getNext(tmp, origTxt);
-                        }
-{SWORD}/{SREDAUX}       { final String txt = yytext();
-                          return getNext(removeSoftHyphens(txt),
-                                         txt); }
-{WORD}                  { final String origTxt = yytext();
-                          String tmp = removeSoftHyphens(origTxt);
-                          if (americanize) {
-                            tmp = Americanize.americanize(tmp);
-                          }
-                          return getNext(tmp, origTxt);
-                        }
-{APOWORD}               { return getNext(); }
-{APOWORD2}/[:letter:]   { return getNext(); }
-{FULLURL}               { String txt = yytext();
-                          if (escapeForwardSlashAsterisk) {
-                            txt = delimit(txt, '/');
-                            txt = delimit(txt, '*');
-                          }
-                          return getNext(txt, yytext()); }
-{LIKELYURL}             { String txt = yytext();
-                          if (escapeForwardSlashAsterisk) {
-                            txt = delimit(txt, '/');
-                            txt = delimit(txt, '*');
-                          }
-                          return getNext(txt, yytext()); }
-{EMAIL}                 { return getNext(); }
-{TWITTER}               { return getNext(); }
-{REDAUX}/[^A-Za-z]      { return handleQuotes(yytext(), false);
-                        }
-{SREDAUX}               { return handleQuotes(yytext(), false);
-                        }
-{DATE}                  { String txt = yytext();
-                          if (escapeForwardSlashAsterisk) {
-                            txt = delimit(txt, '/');
-                          }
-                          return getNext(txt, yytext());
-                         }
-{NUMBER}                { return getNext(removeSoftHyphens(yytext()),
-                                         yytext()); }
-{SUBSUPNUM}             { return getNext(); }
-<YyTraditionalTreebank3>{FRAC} { String txt = yytext();
-                  if (escapeForwardSlashAsterisk) {
-                    txt = delimit(txt, '/');
-                  }
-                  if (normalizeSpace) {
-                    // txt = SINGLE_SPACE_PATTERN.matcher(txt).replaceAll("\u00A0"); // change to non-breaking space
-                    txt = txt.replace(' ', '\u00A0'); // change space to non-breaking space
 
-                  }
-                  return getNext(txt, yytext());
-                }
-<YyStrictlyTreebank3>{FRACSTB3} { String txt = yytext();
-                  if (escapeForwardSlashAsterisk) {
-                    txt = delimit(txt, '/');
-                  }
-                  if (normalizeSpace) {
-                    // txt = SINGLE_SPACE_PATTERN.matcher(txt).replaceAll("\u00A0"); // change to non-breaking space
-                    txt = txt.replace(' ', '\u00A0'); // change space to non-breaking space
-                  }
-                  return getNext(txt, yytext());
-                }
-{FRAC2}                 { return normalizeFractions(yytext()); }
-{TBSPEC}                { return getNormalizedAmpNext(); }
-{THING3}                { if (escapeForwardSlashAsterisk) {
-                            return getNext(delimit(yytext(), '/'), yytext());
-                          } else {
-                            return getNext();
-                          }
-                        }
-{DOLSIGN}               { return getNext(); }
-{DOLSIGN2}              { if (normalizeCurrency) {
-                            return getNext(normalizeCurrency(yytext()), yytext()); }
-                          else {
-                            return getNext();
-                          }
-                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Any acronym can be treated as sentence final iff followed by this list of words (pronouns, determiners, and prepositions, etc.). "U.S." is the single big source of errors.  Character classes make this rule case sensitive! (This is needed!!) */
 {ACRONYM}/({SPACENLS})([A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]t|[B]ut|[E]arlier|[H]e|[H]er|[H]ere|[H]owever|[I]f|[I]n|[I]t|[L]ast|[M]any|[M]ore|[M]r\.|[M]s\.|[N]ow|[O]nce|[O]ne|[O]ther|[O]ur|[S]he|[S]ince|[S]o|[S]ome|[S]uch|[T]hat|[T]he|[T]heir|[T]hen|[T]here|[T]hese|[T]hey|[T]his|[W]e|[W]hen|[W]hile|[W]hat|[Y]et|[Y]ou|{SGML}){SPACENL} {
                           // try to work around an apparent jflex bug where it
@@ -915,41 +616,7 @@ gonna|gotta|lemme|gimme|wanna
                   }
                   return getNext(txt, origText);
                 }
-\{              { if (normalizeOtherBrackets) {
-                    return getNext(openbrace, yytext()); }
-                  else {
-                    return getNext();
-                  }
-                }
-\}              { if (normalizeOtherBrackets) {
-                    return getNext(closebrace, yytext()); }
-                  else {
-                    return getNext();
-                  }
-                }
-\[              { if (normalizeOtherBrackets) {
-                    return getNext("-LSB-", yytext()); }
-                  else {
-                    return getNext();
-                  }
-                }
-\]              { if (normalizeOtherBrackets) {
-                    return getNext("-RSB-", yytext()); }
-                  else {
-                    return getNext();
-                  }
-                }
-\(              { if (normalizeParentheses) {
-                    return getNext(openparen, yytext()); }
-                  else {
-                    return getNext();
-                  }
-                }
-\)              { if (normalizeParentheses) {
-                    return getNext(closeparen, yytext()); }
-                  else {
-                    return getNext();
-                  }
+
                 }
 {HYPHENS}       { if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
                     return getNext(ptbmdash, yytext());

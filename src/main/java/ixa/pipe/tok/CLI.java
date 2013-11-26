@@ -58,8 +58,6 @@ public class CLI {
    */
 
   public static void main(String[] args) throws IOException {
-
-    //TODO check offsets when we normalize 
     
     Namespace parsedArguments = null;
 
@@ -112,19 +110,14 @@ public class CLI {
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
-    Resources resourceRetriever = new Resources();
-    Annotate annotator = new Annotate();
+    TokenFactory tokenFactory = new TokenFactory();
+    String options= "";
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
     KAFDocument kaf;
 
     // choosing tokenizer and resources by language
-
-    InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
-    nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    Tokenizer tokenizer = new IXATokenizer(nonBreaker, lang);
-
+  
     // reading standard input, segment and tokenize
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
@@ -134,33 +127,19 @@ public class CLI {
       //TODO if this option is used, get language from lang attribute in KAF 
       if (inputKafRaw) {
         // read KAF from standard input
-        kaf = KAFDocument.createFromStream(breader);
-        text = kaf.getRawText();
-      } else {
-        kaf = new KAFDocument(lang, kafVersion);
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = breader.readLine()) != null) {
-          sb.append(line).append("<JA>");
+        //kaf = KAFDocument.createFromStream(breader);
+        //text = kaf.getRawText();
+      } 
+      
+      else {
+        
+        IXATokenizer<Token> tokenizer = new IXATokenizer<Token>(breader,tokenFactory,options);
+        while (tokenizer.hasNext()) { 
+          Token token = tokenizer.next();
+          System.out.println(token.value());
         }
-        text = sb.toString();
+             
       }
-      // tokenize and create KAF
-      if (parsedArguments.getBoolean("notok")) {
-        annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
-
-      } else {
-        annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
-      }
-      // write kaf document
-      kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
-      if (inputKafRaw) {
-        // empty raw layer ?
-        // kaf.setRawText("");
-      }
-      bwriter.write(kaf.toString());
-      bwriter.close();
-
     } catch (IOException e) {
       e.printStackTrace();
     }

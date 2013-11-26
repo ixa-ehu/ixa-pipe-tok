@@ -90,7 +90,7 @@ public class Annotate {
         sent = sent.replaceAll("\\s+", " ");
 
         // tokenize each sentence
-        String[] tokens = toker.tokenize(sent, lang);
+        String[] tokens = sent.split(" ");
         // get sentence counter
         noSents = noSents + 1;
         

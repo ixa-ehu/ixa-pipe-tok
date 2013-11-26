@@ -34,9 +34,9 @@ public class TokenFactory {
    * Constructs a Token as a String with a corresponding offsets for START and END position.
    * (Does not take substring).
    */
-  public Token makeToken(String tokenText, int startOffset, int length) {
+  public Token createToken(String tokenString, int startOffset, int length) {
     Token token = new Token();
-    token.setValue(tokenText);
+    token.setValue(tokenString);
     if (addOffsets) { 
       token.setStartOffset(startOffset);
       token.setEndOffset(length);

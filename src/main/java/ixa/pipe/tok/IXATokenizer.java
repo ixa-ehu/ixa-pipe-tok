@@ -16,55 +16,59 @@
 
 package ixa.pipe.tok;
 
-import ixa.pipe.resources.NonPrefixBreaker;
-
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
+import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
+import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
-import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
-import static ixa.pipe.resources.NonPrefixBreaker.QEXC;
 import static ixa.pipe.resources.NonPrefixBreaker.DASH;
 import static ixa.pipe.resources.NonPrefixBreaker.DASH_LU;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
+import static ixa.pipe.resources.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT;
 import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT_ANY;
-import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
-import static ixa.pipe.resources.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
-import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
+import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
+import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static ixa.pipe.resources.NonPrefixBreaker.NOALPHA_APOS_NOALPHA;
 import static ixa.pipe.resources.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
+import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
+import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
+import static ixa.pipe.resources.NonPrefixBreaker.QEXC;
+import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
 import static ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
+import ixa.pipe.resources.NonPrefixBreaker;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 
-public class IXATokenizer implements Tokenizer {
+
+
+public class IXATokenizer<T> extends AbstractTokenizer<T> {
 
   NonPrefixBreaker nonBreaker;
-  Map<List<Integer>,String> tokenList = new LinkedHashMap<List<Integer>,String>();
-  List<Integer> offsetList = new ArrayList<Integer>();
-
-  public IXATokenizer(InputStream nonBreakingFile, String lang) {
-    nonBreaker = new NonPrefixBreaker(nonBreakingFile);
+  
+  private JFlexTokenizer jlexer;
+  
+  
+  // TODO Americanize
+  public IXATokenizer(BufferedReader breader, TokenFactory tokenFactory, String options) {
+    jlexer = new JFlexTokenizer(breader, tokenFactory, options);
   }
 
-  public String[] tokenize(String line, String lang) {
-    
-    return tokens;
-  }
-
-  public Map<List<Integer>,String> tokMaker(String token, int startIndex, int length) { 
-    offsetList.add(startIndex);
-    offsetList.add(length);
-    tokenList.put(offsetList, token);
-    
-    //String[] tokens = tokenList.toArray(new String[tokenList.size()]);
-    return tokens;
+  /**
+   * Internally fetches the next token.
+   *
+   * @return the next token in the token stream, or null if none exists.
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  protected T getToken() {
+    try {
+      return (T) jlexer.yylex();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return nextToken;
   }
   
   /**
