@@ -38,13 +38,11 @@ package ixa.pipe.tok;
      * @throws java.util.NoSuchElementException
      *          if the token stream has no more tokens.
      */
-    @Override
     public T next();
 
     /**
      * Returns <code>true</code> if and only if this Tokenizer has more elements.
      */
-    @Override
     public boolean hasNext();
 
     /**
@@ -53,7 +51,6 @@ package ixa.pipe.tok;
      * Tokenizer normally would not support it. This method can be called
      * only once per call to next.
      */
-    @Override
     public void remove();
 
     /**

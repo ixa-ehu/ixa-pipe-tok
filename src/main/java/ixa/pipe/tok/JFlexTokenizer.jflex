@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 %caseless
 %char
 %state SPTB3 PTB3 EN ANCORA
-
 /* 
  * Member variables and functions
  */
@@ -55,8 +54,7 @@ import java.util.regex.Pattern;
   private boolean ptb3Ldots = true;
   private boolean unicodeLdots;
   private boolean sptb3Normalize = false;
-  
-  
+ 
   public JFlexTokenizer(Reader breader, TokenFactory tokenFactory, String options) {
     this(breader);
     this.tokenFactory = tokenFactory;
@@ -107,7 +105,7 @@ import java.util.regex.Pattern;
       yybegin(PTB3);
     }
   }
-  
+
   ////////////////////
   //// AMPERSANDS ////
   ////////////////////
@@ -822,7 +820,7 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 {WORD_AMP}\./{INTRA_SENT_PUNCT}	{ return makeToken(normalizeSoftHyphen(yytext())); }
 {WORD_AMP}        			{ return makeToken(normalizeSoftHyphen(yytext())); }
 {OTHER_HYPHEN_WORDS}\./{INTRA_SENT_PUNCT}	{ return makeToken(); }
-{OTHER_HYPHEN_WORDS}        { makeToken(); }
+{OTHER_HYPHEN_WORDS}        { return makeToken(); }
 {WORD_HYPHEN_ACRONYM}\./{INTRA_SENT_PUNCT}	{ return normalizeAmpNext(); }
 {WORD_HYPHEN_ACRONYM}       { return normalizeAmpNext(); }
 

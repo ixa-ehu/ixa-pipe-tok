@@ -18,11 +18,12 @@ package ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
 
 
 /**
- *  IXATokenizer is based on the @JFlexTokenizer class.  Here IXATokenizer 
- *  overrides @AbstractTokenizer getToken() method calling the @JFlexTokenizer yylex() 
+ *  IXATokenizer is based on the {@link JFlexTokenizer} class.  Here IXATokenizer 
+ *  overrides {@link AbstractTokenizer} getToken() method calling the {@link JFlexTokenizer} yylex() 
  *  method instead. 
  *  
  *  Most of the rules taken/adapted from PTBLexer class of Stanford CoreNLP 3.2.0.

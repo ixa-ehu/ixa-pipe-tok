@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.seg;
+package ixa.pipe.tok;
 
 /**
  * Interface for a Sentence Segmenter
@@ -22,7 +22,7 @@ package ixa.pipe.seg;
  * @author ragerri
  * 
  */
-public interface SentenceSegmenter {
+public interface Segmenter {
 
   public String[] segmentSentence(String line);
 

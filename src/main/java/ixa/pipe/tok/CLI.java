@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -133,7 +134,7 @@ public class CLI {
       else {
         
         IXATokenizer<Token> tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
-        while (tokenizer.hasNext()) { 
+        while (tokenizer.hasNext()) {
           Token token = tokenizer.next();
           System.out.println(token.value() + " " + token.startOffset() + " " + token.tokenLength());
         }

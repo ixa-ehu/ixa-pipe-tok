@@ -18,7 +18,6 @@ package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
-import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.IOException;
 
@@ -53,7 +52,7 @@ public class Annotate {
    * 
    * @param String
    *          text
-   * @param SentenceSegmenter
+   * @param Segmenter
    *          sentDetector
    * @param Tokenizer
    *          toker
@@ -62,8 +61,8 @@ public class Annotate {
    *          to KAF, returning an XML document in a string.
    */
 
-  public void annotateTokensToKAF(String text, String lang,
-      SentenceSegmenter sentDetector, Tokenizer toker, KAFDocument kaf)
+  public void annotateTokens(String text, String lang,
+      Segmenter sentDetector, Tokenizer tokenizer, KAFDocument kaf)
       throws IOException {
 
     int noSents = 0;
@@ -119,7 +118,7 @@ public class Annotate {
    * 
    * @param String
    *          text
-   * @param SentenceSegmenter
+   * @param Segmenter
    *          sentDetector
    * @param Tokenizer
    *          toker
