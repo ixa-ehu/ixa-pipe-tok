@@ -16,35 +16,87 @@
 
 package ixa.pipe.tok;
 
-import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
-import static ixa.pipe.resources.NonPrefixBreaker.DASH;
-import static ixa.pipe.resources.NonPrefixBreaker.DASH_LU;
-import static ixa.pipe.resources.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
-import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT;
-import static ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT_ANY;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
-import static ixa.pipe.resources.NonPrefixBreaker.NOALPHA_APOS_NOALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
-import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
-import static ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
-import static ixa.pipe.resources.NonPrefixBreaker.QEXC;
-import static ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
-import static ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
-import ixa.pipe.resources.NonPrefixBreaker;
-
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
 
 
+/**
+ *  IXATokenizer is based on the @JFlexTokenizer class.  Here IXATokenizer 
+ *  overrides @AbstractTokenizer getToken() method calling the @JFlexTokenizer yylex() 
+ *  method instead. 
+ *  
+ *  Most of the rules taken/adapted from PTBLexer class of Stanford CoreNLP 3.2.0.
+ *  
+ * This tokenizer provides options to configure:
+ * - language for language-dependent apostrophe treatment and
+ * - normalization method. 
+ * 
+ *  By default, the tokenizer does PTB3 normalization style except brackets, forward 
+ *  slashes and duplication of dots after acronym at sentence end (option "en" below).  
+ *  
+ *  To change these options, the CLI currently provides four parameters: 
+ * 
+ * <ol>
+ * <li>sptb3: Strict Penn Treebank normalization. 
+ * IXATokenizer ptb3 option below deviates from strict PTB3
+ * WSJ tokenization in two cases: (i) When an acronym is followed by a
+ * sentence end, such as "Corp." at the end of a sentence, the PTB3
+ * has tokens of "Corp" and ".", while by default IXATokenizer duplicates
+ * the period returning tokens of "Corp." and "."; and (ii) IXATokenizer
+ * will return numbers with a whole number and a fractional part like
+ * "5 7/8" as a single token (with a non-breaking space in the middle),
+ * while the PTB3 separates them into two tokens "5" and "7/8".
+ * (Exception: for "U.S." the treebank does have the two tokens
+ * "U.S." and "." like our default; sptb3 does that too.) 
+ * <li> ptb3: Activates all traditional PTB3 normalizations. These are:
+ * <li> en: ptb3 minus brackets and forward slash normalizations. The DEFAULT.
+ * <li> Ancora: Ancora corpus based normalization.
+ * </ol> 
+ * 
+ * Each of the four options either activate or switch off the following specific
+ * normalizations: 
+ * <ol>
+ * <li>americanize: Rewrite British English spellings using American English
+ * <li>normalizeSpace: Whether any spaces in tokens (phone numbers, fractions
+ *     get turned into U+00A0 (non-breaking space).  It's dangerous to turn
+ *     this off for most as it is usually assumed that there are not spaces in tokens.
+ * <li>normalizeAmpersand: Normalize the XML &amp;amp; intoto an ampersand
+ * <li>normalizeCurrency: Clumsy currency mappings into $, #, or "cents", reflecting
+ *     the fact that nothing else appears in the old PTB3 WSJ (not Euro). 
+ * <li>normalizeFractions: Normalize fraction characters to spelled out letter forms like "1/2"
+ * <li>normalizeBrackets: Normalized round brackets to -LRB- and -RRB- 
+ * <li>normalizeOtherBrackets: Normalize other common bracket characters
+ *     to -LCB-, -LRB-, -RCB-, -RRB-
+ * <li>asciiQuotes: Normalize quote characters to ascii ' and "
+ * <li>latexQuotes: Normalize to ``, `, ', '' for every quote, as in Latex
+ *     and the PTB3 WSJ (though this is now discouraged by Unicode).
+ *     If true, this takes precedence over the setting of unicodeQuotes;
+ *     if both are false, no mapping is done.
+ * <li>unicodeQuotes: Whether to normalized quotes to the range U+2018 to U+201D,
+ *     the preferred Unicode encoding of single and double quotes.
+ * <li>ptb3Ldots: Whether to map ellipses to ..., the old PTB3 WSJ coding
+ *     of an ellipsis. If true, this takes precedence over the setting of
+ *     unicodeLdots; if both are false, no normalization is performed. .
+ * <li>unicodeLdots: Whether to map dot and optional space sequences to
+ *     U+2026, the Unicode ellipsis character
+ * <li>ptb3Dashes: Whether to turn various dash characters into "--",
+ *     the dominant encoding of dashes in the PTB3 WSJ
+ * <li>escapeForwardSlash: Whether to put a backslash escape in front
+ *     of / and * as the old PTB3 WSJ does.
+ * </ol>
+ *
+ * @param breader The Reader to tokenize text from
+ * @param tokenFactory The TokenFactory that will be invoked to convert
+ *    each substring extracted by the lexer into a @Token
+ * @param options Options to the tokenizer
+ * 
+ * @author ragerri
+ * @version 2013/11/27
+ * 
+ * */
  
 public class IXATokenizer<T> extends AbstractTokenizer<T> {
 
-  NonPrefixBreaker nonBreaker;
   
   private JFlexTokenizer jlexer;
   
@@ -71,123 +123,4 @@ public class IXATokenizer<T> extends AbstractTokenizer<T> {
     return nextToken;
   }
   
-  /**
-   * Main tokenizer function. It applies the tokenizing rules and treats with
-   * language-dependent periods plus url links.
-   * 
-   * @param line
-   * @param lang
-   * @return String[] containing where each member is a token of the input
-   *         sentence
-   */
-  private String[] tokDetector1(String line, String lang) {
-
-    // remove extra spaces and ASCII stuff
-    line = " " + line + " ";
-    line = MULTI_SPACE.matcher(line).replaceAll(" ");
-    line = ASCII_HEX.matcher(line).replaceAll("");
-    // separate question and exclamation marks
-    line = QEXC.matcher(line).replaceAll(" $1 ");
-    // separate dash if before an upper case character 
-    line = DASH_LU.matcher(line).replaceAll("$1 $2");
-    // separate dash if before or after space
-    line = DASH.matcher(line).replaceAll(" $1 ");
-    // separate out other special characters [^\p{Alnum}s.'`,-?!]
-    line = SPECIALS.matcher(line).replaceAll(" $1 ");
-
-    // do not separate multidots
-    line = generateMultidots(line);
-
-    // separate "," except if within numbers (5,300)
-    line = NODIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");
-    // separate pre and post digit
-    line = DIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");
-    line = NODIGIT_COMMA_DIGIT.matcher(line).replaceAll("$1 , $2");
-
-    // //////////////////////////////////
-    // // language dependent rules //////
-    // //////////////////////////////////
-
-    // contractions it's, l'agila
-    line = treatContractions(line, lang);
-    // non prefix breaker
-    line = nonBreaker.TokenizerNonBreaker(line);
-
-    // clean up extraneous spaces
-    line = line.replaceAll("\\s+", " ");
-    line = line.trim();
-
-    // restore multidots
-    line = restoreMultidots(line);
-
-    // urls 
-
-    // create final array of tokens
-    //System.out.println(line);
-    String[] tokens = line.split(" ");
-
-    return tokens;
-  }
-
-  /**
-   * 
-   * This function normalizes multi-period expressions (...) to make
-   * tokenization easier; it also keeps multidots together
-   * 
-   * @param line
-   * @return string
-   */
-  private String generateMultidots(String line) {
-
-    line = MULTI_DOTS.matcher(line).replaceAll(" DOTMULTI$1 ");
-    Matcher dotMultiDot = DOTMULTI_DOT.matcher(line);
-
-    while (dotMultiDot.find()) {
-      line = DOTMULTI_DOT_ANY.matcher(line).replaceAll("DOTDOTMULTI $1");
-      line = dotMultiDot.replaceAll("DOTDOTMULTI");
-      // reset the matcher otherwise the while will stop after one run
-      dotMultiDot.reset(line);
-    }
-    return line;
-  }
-
-  /**
-   * restores the normalized multidots to its original state and it tokenizes
-   * them
-   * 
-   * @param line
-   * @return tokenized multidots
-   */
-  private String restoreMultidots(String line) {
-
-    while (line.contains("DOTDOTMULTI")) {
-      line = line.replaceAll("DOTDOTMULTI", "DOTMULTI.");
-    }
-    line = line.replaceAll("DOTMULTI", ".");
-    return line;
-  }
-
-  /**
-   * 
-   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on the
-   * input language
-   * 
-   * @param line
-   * @param lang
-   * @return tokenized sinqle quotes expressions
-   */
-  private String treatContractions(String line, String lang) {
-
-    if (lang.equalsIgnoreCase("en")) {
-      line = NOALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = NOALPHA_DIGIT_APOS_ALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1 '$2");
-      line = YEAR_APOS.matcher(line).replaceAll("$1 ' $2");
-    } else {
-      line = line.replaceAll("'", "' ");
-    }
-    return line;
-  }
-
 }

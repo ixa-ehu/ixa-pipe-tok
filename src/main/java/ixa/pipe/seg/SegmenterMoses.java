@@ -16,16 +16,17 @@
 
 package ixa.pipe.seg;
 
-import ixa.pipe.resources.NonPrefixBreaker;
+import ixa.pipe.tok.NonPrefixBreaker;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
-import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
-import static ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
-import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
-import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
+
+import static ixa.pipe.tok.NonPrefixBreaker.END_INSIDE_QUOTES;
+import static ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS_STARTERS;
+import static ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
+import static ixa.pipe.tok.NonPrefixBreaker.NOPERIOD_END;
+import static ixa.pipe.tok.NonPrefixBreaker.PUNCT_UPPER;
+import static ixa.pipe.tok.NonPrefixBreaker.WRONG_PERIODS;
 
 /**
  * 

@@ -39,7 +39,7 @@ public class TokenFactory {
     token.setValue(tokenString);
     if (addOffsets) { 
       token.setStartOffset(startOffset);
-      token.setEndOffset(length);
+      token.setTokenLength(length);
     }
     return token;
   }

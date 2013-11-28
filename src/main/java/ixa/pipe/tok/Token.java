@@ -20,9 +20,9 @@ public class Token {
     private int startOffset = -1;
 
     /**
-     * End position of the word in the original input string
+     * Length of the word in the original input string
      */
-    private int endOffset = -1;
+    private int tokenLength = -1;
 
 
     /**
@@ -46,12 +46,12 @@ public class Token {
      *
      * @param str The new label's content
      * @param startOffset Start offset in original text
-     * @param endOffset End offset in original text
+     * @param tokenLength End offset in original text
      */
-    public Token(String str, int startOffset, int endOffset) {
+    public Token(String str, int startOffset, int tokenLength) {
       this.str = str;
       setStartOffset(startOffset);
-      setEndOffset(endOffset);
+      setTokenLength(tokenLength);
     }
 
 
@@ -94,9 +94,9 @@ public class Token {
       return startOffset;
     }
 
-    public int endOffset()
+    public int tokenLength()
     {
-      return endOffset;
+      return tokenLength;
     }
 
     public void setStartOffset(int beginPosition)
@@ -104,9 +104,9 @@ public class Token {
       this.startOffset = beginPosition;
     }
 
-    public void setEndOffset(int endPosition)
+    public void setTokenLength(int tokLength)
     {
-      this.endOffset = endPosition;
+      this.tokenLength = tokLength;
     }
 
 

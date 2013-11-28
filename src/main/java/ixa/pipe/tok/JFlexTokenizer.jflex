@@ -2,13 +2,9 @@ package ixa.pipe.tok;
 
 /* --------------------------Usercode Section------------------------ */
 
-import ixa.pipe.resources.NonPrefixBreaker;
+
 import java.io.Reader;
 import java.util.logging.Logger;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 	
@@ -21,8 +17,7 @@ import java.util.regex.Pattern;
 %type Token
 %caseless
 %char
-%state strictTB3 TB3 EN ANCORA
-
+%state SPTB3 PTB3 EN ANCORA
 
 /* 
  * Member variables and functions
@@ -31,30 +26,35 @@ import java.util.regex.Pattern;
 %{
 
   private TokenFactory tokenFactory;
+  private static final Logger LOGGER = Logger.getLogger(JFlexTokenizer.class.getName());
+  private boolean seenUntokenizableCharacter;
+  private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
+  private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
   
-   /* Flags begin with historical ptb3Escaping behavior */
+  
+  /////////////////
+  //// OPTIONS ////
+  /////////////////
+  
+  
+  /* Flags begin with ptb3Normalize minus americanize, brackets and forward slash escaping */
   
   private boolean tokenizeNLs;
-  private boolean americanize = true;
+  //private boolean americanize = false;
   private boolean ptb3Dashes = true;
   private boolean normalizeAmpersand = true;
-  private boolean escapeForwardSlash = true;
+  private boolean escapeForwardSlash = false;
   private boolean normalizeSpace = true;
   private boolean normalizeFractions = true;
-   
+  private boolean normalizeBrackets = false;
   private boolean normalizeCurrency = true;
- 
-  private boolean normalizeParentheses = true;
-  private boolean normalizeOtherBrackets = true;
- 
+  private boolean normalizeOtherBrackets = false;
   private boolean latexQuotes = true;
   private boolean unicodeQuotes;
   private boolean asciiQuotes;
-  private boolean ptb3Ellipsis = true;
-  private boolean unicodeEllipsis;
-  
-  
-  private boolean strictTreebank3 = false;
+  private boolean ptb3Ldots = true;
+  private boolean unicodeLdots;
+  private boolean sptb3Normalize = false;
   
   
   public JFlexTokenizer(Reader breader, TokenFactory tokenFactory, String options) {
@@ -62,6 +62,49 @@ import java.util.regex.Pattern;
     this.tokenFactory = tokenFactory;
     if (options == null) {
       options = "";
+    }
+    else if (options.equalsIgnoreCase("en")) {
+         //americanize = false;
+          normalizeSpace = true;
+          normalizeAmpersand = true;
+          normalizeCurrency = true;
+          normalizeFractions = true;
+          normalizeBrackets = false;
+          normalizeOtherBrackets = false;
+          latexQuotes = true;
+          unicodeQuotes = true;
+          asciiQuotes = true;
+          ptb3Ldots = true;
+          unicodeLdots = true;
+          ptb3Dashes = true; 
+          escapeForwardSlash = false;
+          sptb3Normalize = false;
+    }
+    else if (options.equalsIgnoreCase("ptb3")) {
+        //americanize = true;
+        normalizeSpace = true;
+        normalizeAmpersand = true;
+        normalizeCurrency = true;
+        normalizeFractions = true;
+        normalizeBrackets = true;
+        normalizeOtherBrackets = true;
+        latexQuotes = true;
+        unicodeQuotes = true;
+        asciiQuotes = true;
+        ptb3Ldots = true;
+        unicodeLdots = true;
+        ptb3Dashes = true;
+        escapeForwardSlash = true;
+        sptb3Normalize = false;
+      }  
+    else if (options.equalsIgnoreCase("sptb3")) {
+        sptb3Normalize = true;
+      } 
+    if (sptb3Normalize) {
+      yybegin(SPTB3);
+    } 
+    else {
+      yybegin(PTB3);
     }
   }
   
@@ -84,7 +127,11 @@ import java.util.regex.Pattern;
     return AMP_PATTERN.matcher(in).replaceAll("&");
   }
   
-  private static String removeSoftHyphen(String in) {
+  /////////////////////////////
+  //// HYPHENS and ESCAPES ////
+  /////////////////////////////
+  
+  private static String normalizeSoftHyphen(String in) {
     // \u00AD remove the soft hyphen character, except those used for line-breaking
     if (in.indexOf('\u00AD') < 0) {
       return in;
@@ -181,7 +228,7 @@ import java.util.regex.Pattern;
     return s1;
   }
 
-  private Token handleQuotes(String token, boolean probablyLeft) {
+  private Token normalizeQuotes(String token, boolean probablyLeft) {
     String normToken;
     if (latexQuotes) {
       normToken = latexQuotes(token, probablyLeft);
@@ -246,6 +293,25 @@ import java.util.regex.Pattern;
     return s1;
   }
   
+  //////////////////
+  //// ELLIPSIS ////
+  //////////////////
+  
+  public static final String ptbMultiDots = "...";
+  public static final String unicodeMultiDots = "\u2026";
+  /** For tokenizing carriage returns.  (JS) */
+  public static final String NEWLINE_TOKEN = "*NL*";
+  
+  private Token normalizeMultiDots(final String token) {
+    if (ptb3Ldots) {
+      return makeToken(ptbMultiDots);
+    } else if (unicodeLdots) {
+      return makeToken(unicodeMultiDots);
+    } else {
+      return makeToken(token);
+    }
+  }
+  
    //////////////////
   //// BRACKETS ////
   //////////////////
@@ -271,29 +337,51 @@ import java.util.regex.Pattern;
   private Token makeToken(String tokenString) { 
     return tokenFactory.createToken(tokenString, yychar, yylength());
   }
-  
- 
 
 %}
-
 
   ////////////////
   //// MACROS ////
   ///////////////
 
-AMP = &amp;  
-DASHES = &(MD|mdash|ndash);|[\u0096\u0097\u2013\u2014\u2015]
-SPECIAL_PUNCT = &(HT|TL|UR|LR|QC|QL|QR|odq|cdq|#[0-9]+);
+/*---- SPACES ----*/ 
 
-/* APOSTROPHES */
+/* \u3000 is ideographic space */
+SPACE = [ \t\u0020\u00A0\u2000-\u200A\u3000]
+SPACES = {SPACE}+
+NEWLINE = \r|\r?\n|\u2028|\u2029|\u000B|\u000C|\u0085
+SPACENL = ({SPACE}|{NEWLINE})
+SPACENLS = {SPACENL}+
+SENTEND = {SPACENL}({SPACENL}|[:uppercase:])
+
+
+/*---- APOSTROPHES and PUNCTUATION ----*/
 
 APOS = ['\u0092\u2019]|&apos;
 /* Includes extra ones that may appear inside a word, rightly or wrongly */
 ALL_APOS = {APOS}|[\u0091\u2018\u201B]
 SPECIAL_APOS_AUX = n{ALL_APOS}t
 SPECIAL_WEBS = &[aeiouAEIOU](acute|grave|uml);
+INTRA_SENT_PUNCT = [,;:\u3001]
+DOUBLE_QUOTE = \"|&quot;
+LESS_THAN = <|&lt;
+GREATER_THAN = >|&gt;
+AMP = &amp;  
+DASHES = &(MD|mdash|ndash);|[\u0096\u0097\u2013\u2014\u2015]
+SPECIAL_PUNCT = &(HT|TL|UR|LR|QC|QL|QR|odq|cdq|#[0-9]+);
+HYPHEN = [-_\u058A\u2010\u2011]
+LDOTS = \.{3,5}|(\.[ \u00A0]){2,4}\.|[\u0085\u2026]
+ASTERISK = \*+|(\\\*){1,3}
+ATS = @+
+HASHES = #+
+UNDERSCORES = _+
+OTHER_PUNCT = {ATS}|{HASHES}|{UNDERSCORES}
+HYPHENS = \-+
+FAKEDUCKFEET = <<|>>
+QUOTES = {APOS}|''|[`\u2018\u2019\u201A\u201B\u201C\u201D\u0091\u0092\u0093\u0094\u201E\u201F\u2039\u203A\u00AB\u00BB]{1,2}
 
-/* WORDS; note that U+0237-U+024F (dotless j) isn't in [:letter:] */
+
+/* ---- WORDS; note that U+0237-U+024F (dotless j) isn't in [:letter:] ----*/
 
 LETTER = ([:letter:]|{SPECIAL_WEBS}|[\u00AD\u0237-\u024F\u02C2-\u02C5\u02D2-\u02DF\u02E5-\u02FF\u0300-\u036F\u0370-\u037D\u0384\u0385\u03CF\u03F6\u03FC-\u03FF\u0483-\u0487\u04CF\u04F6-\u04FF\u0510-\u0525\u055A-\u055F\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0615-\u061A\u063B-\u063F\u064B-\u065E\u0670\u06D6-\u06EF\u06FA-\u06FF\u070F\u0711\u0730-\u074F\u0750-\u077F\u07A6-\u07B1\u07CA-\u07F5\u07FA\u0900-\u0903\u093C\u093E-\u094E\u0951-\u0955\u0962-\u0963\u0981-\u0983\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A4F\u0A81-\u0A83\u0ABC-\u0ACF\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0C01-\u0C03\u0C3E-\u0C56\u0D3E-\u0D44\u0D46-\u0D48\u0E30-\u0E3A\u0E47-\u0E4E\u0EB1-\u0EBC\u0EC8-\u0ECD])
 WORD = {LETTER}+([.!?]{LETTER}+)*
@@ -302,13 +390,16 @@ APOS_AUX = {APOS}([msdMSD]|re|ve|ll)
 SPECIAL_WORD = [A-Za-z\u00AD]*[A-MO-Za-mo-z](\u00AD)*
 WORD_APOS = {APOS}n{APOS}?|[lLdDjJ]{APOS}|Dunkin{APOS}|somethin{APOS}|ol{APOS}|{APOS}em|[A-HJ-XZn]{ALL_APOS}[:letter:]{2}[:letter:]*|{APOS}[2-9]0s|{APOS}till?|[:letter:][:letter:]*[aeiouyAEIOUY]{ALL_APOS}[aeiouA-Z][:letter:]*|{APOS}cause|cont'd\.?|'twas|nor'easter|c'mon|e'er|s'mores|ev'ry|li'l|nat'l
 Y_APOS_WORD = y{APOS}
-/* Cap'n for captain, c'est for french */
 NORMALIZED_PREFIXES = -(RRB|LRB|RCB|LCB|RSB|LSB)-|C\.D\.s|pro-|anti-|S(&|&amp;)P-500|S(&|&amp;)Ls|Cap{APOS}n|c{APOS}est
 APOS_DIGIT_DIGIT = {APOS}[0-9][0-9]
+
 HYPHEN_WORDS = [A-Za-z0-9]+(-[A-Za-z]+){0,2}(\\?\/[A-Za-z0-9]+(-[A-Za-z]+){0,2}){1,2}
+OTHER_HYPHEN_WORDS = ([dDoOlL]{ALL_APOS}([:letter:]|[:digit:]))?([:letter:]|[:digit:])+({HYPHEN}([dDoOlL]{ALL_APOS}([:letter:]|[:digit:]))?([:letter:]|[:digit:])+)*
+WORD_AMP = [A-Z]+(([+&]|{AMP})[A-Z]+)+
+WORD_HYPHEN_ACRONYM = [A-Za-z0-9][A-Za-z0-9.,\u00AD]*(-([A-Za-z0-9\u00AD]+|{ACRONYM}\.))+
 
 
-/* URLS */
+/*---- URLS ----*/
 STRICT_URL = https?:\/\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-]
 APPROX_URL = ((www\.([^ \t\n\f\r\"<>|.!?(){},]+\.)+[a-zA-Z]{2,4})|(([^ \t\n\f\r\"`'<>|.!?(){},-_$]+\.)+(com|net|org|edu)))(\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-])?
 EMAIL = [a-zA-Z0-9][^ \t\n\f\r\"<>|()\u00A0]*@([^ \t\n\f\r\"<>|().\u00A0]+\.)*([^ \t\n\f\r\"<>|().\u00A0]+)
@@ -317,8 +408,14 @@ EMAIL = [a-zA-Z0-9][^ \t\n\f\r\"<>|()\u00A0]*@([^ \t\n\f\r\"<>|().\u00A0]+\.)*([
 TWITTER_NAME = @[a-zA-Z_][a-zA-Z_0-9]*
 TWITTER_CATEGORY = #{WORD}
 TWITTER = {TWITTER_NAME}|{TWITTER_CATEGORY}
+/* Smileys (based on Chris Potts' sentiment tutorial, but much more restricted set
+ * - e.g., no "8)", "do:" or "):", too ambiguous) and simple Asian smileys 
+ */
+SMILEY = [<>]?[:;=][\-o\*']?[\(\)DPdpO\\{@\|\[\]]
+ASIANSMILEY = [\^x=~<>]\.\[\^x=~<>]|[\-\^x=~<>']_[\-\^x=~<>']|\([\-\^x=~<>'][_.]?[\-\^x=~<>']\)
 
-/* NUMBERS and DATES */
+
+/*---- NUMBERS and DATES ----*/
 DIGIT = [:digit:]|[\u07C0-\u07C9]
 DATE = {DIGIT}{1,2}[\-\/]{DIGIT}{1,2}[\-\/]{DIGIT}{2,4}
 NUM = {DIGIT}+|{DIGIT}*([.:,\u00AD\u066B\u066C]{DIGIT}+)+
@@ -330,7 +427,60 @@ OTHER_FRACTION = [\u00BC\u00BD\u00BE\u2153-\u215E]
 DOLLAR = ([A-Z]*\$|#)
 /* These are cent and pound sign, euro and euro, and Yen, Lira */
 OTHER_CURRENCIES= [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\uFFE0\uFFE1\uFFE5\uFFE6]
+/* U+2200-U+2BFF has a lot of the various mathematical, etc. symbol ranges */
+MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA\u00D7\u00F7\u0387\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0600-\u0603\u0606-\u060A\u060C\u0614\u061B\u061E\u066A\u066D\u0703-\u070D\u07F6\u07F7\u07F8\u0964\u0965\u0E4F\u1FBD\u2016\u2017\u2020-\u2023\u2030-\u2038\u203B\u203E-\u2042\u2044\u207A-\u207F\u208A-\u208E\u2100-\u214F\u2190-\u21FF\u2200-\u2BFF\u3012\u30FB\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\uFF65]
+/* \uFF65 is Halfwidth katakana middle dot; \u30FB is Katakana middle dot */
+/* Math and other symbols that stand alone: °²× ∀ */
+// Consider this list of bullet chars: 2219, 00b7, 2022, 2024
 
+/*---- NON BREAKING PREFIXES ----*/
+
+ACRO_NEXT_WORD = [A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]t|[B]ut|[E]arlier|[H]e|[H]er|[H]ere|[H]owever|[I]f|[I]n|[I]t|[L]ast|[M]any|[M]ore|[M]r\.|[M]s\.|[N]ow|[O]nce|[O]ne|[O]ther|[O]ur|[S]he|[S]ince|[S]o|[S]ome|[S]uch|[T]hat|[T]he|[T]heir|[T]hen|[T]here|[T]hese|[T]hey|[T]his|[W]e|[W]hen|[W]hile|[W]hat|[Y]et|[Y]ou
+
+/* In the caseless world S.p.A. "Società Per Azioni (Italian: shared company)" is got as a regular acronym */
+/* ACRONYM Is a bad case -- can go either way! */
+ACRONYM = [A-Za-z](\.[A-Za-z])+|(Canada|Sino|Korean|EU|Japan|non)-U\.S|U\.S\.-(U\.K|U\.S\.S\.R)
+ACRONYMS = ({ACRONYM})\.
+
+/* These abbreviations are allowed only before numbers. ---
+ * Otherwise, they aren't recognized as abbreviations (unless they also
+ * appear in ABBREV_DATES or SPECIAL_ABBREV_PREFIX.
+ * est. is "estimated" -- common in some financial contexts. ext. is extension, ca. is circa.
+ */
+/* Maybe also "op." for "op. cit." but also get a photo op. */
+ABBREV_NUMBER = (ca|figs?|prop|nos?|art|bldg|prop|pp|op)\.
+
+/* ABBREV_DATES abbreviations are normally followed by lower case words.
+ *  If they're followed by an uppercase one, we assume there is also a
+ *  sentence boundary.
+ *
+ * --- This block becomes ABBREV_DATES and is usually followed by lower case words. --- */
+/* Abbreviations - induced from 1987 WSJ by hand */
+ABBREV_MONTH = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
+ABBREV_DAYS = Mon|Tue|Tues|Wed|Thu|Thurs|Fri
+ABBREV_STATE = Ala|Ariz|[A]rk|Calif|Colo|Conn|Dak|Del|Fla|Ga|[I]ll|Ind|Kans?|Ky|La|[M]ass|Md|Mich|Minn|[M]iss|Mo|Mont|Neb|Nev|Okla|[O]re|Pa|Penn|Tenn|Tex|Va|Vt|[W]ash|Wisc?|Wyo
+
+/* Bhd is Malaysian companies! Rt. is Hungarian? */
+/* Special case: Change the class of Pty when followed by Ltd to not sentence break (in main code below)... */
+ABBREV_COMP = Inc|Cos?|Corp|Pp?t[ye]s?|Ltd|Plc|Rt|Bancorp|Dept|Bhd|Assn|Univ|Intl|Sys
+
+/* Don't included fl. oz. since Oz turns up too much in caseless tokenizer. ft now allows upper after it for "Fort" use. */
+ABBREV_NUM = Ph|tel|est|ext|sq
+ABBREV_AFTER_PERSON = Jr|Sr|Bros|(Ed|Ph)\.D|Blvd|Rd|Esq
+ABBREV_DATES = ({ABBREV_MONTH}|{ABBREV_DAYS}|{ABBREV_STATE}|{ABBREV_COMP}|{ABBREV_NUM}|{ABBREV_AFTER_PERSON}|etc|al|seq)\.
+
+/* ABBREV_PREFIX is mainly person titles, but also Mt for mountains and Ft for Fort. */
+ABBREV_PREFIX = Mr|Mrs|Ms|[M]iss|Drs?|Profs?|Sens?|Reps?|Attys?|Lt|Col|Gen|Messrs|Govs?|Adm|Rev|Maj|Sgt|Cpl|Pvt|Capt|Ste?|Ave|Pres|Lieut|Hon|Brig|Co?mdr|Pfc|Spc|Supts?|Det|Mt|Ft|Adj|Adv|Asst|Assoc|Ens|Insp|Mlle|Mme|Msgr|Sfc
+
+/* SPECIAL_ABBREV_PREFIX abbreviations are normally followed by an upper case word.
+ * We assume they aren't used sentence finally.
+ */
+SPECIAL_ABBREV_COMP = Invt|Elec|Natl|M[ft]g
+ABBREV_UPPER = [A-Za-z]|{ABBREV_PREFIX}|vs|Alex|Wm|Jos|Cie|a\.k\.a|cf|TREAS|{ACRONYM}|{SPECIAL_ABBREV_COMP}
+SPECIAL_ABBREV_PREFIX = {ABBREV_UPPER}\.
+
+/* phone numbers. keep multi dots pattern separate, so not confused with decimal numbers. */
+PHONE = (\([0-9]{2,3}\)[ \u00A0]?|(\+\+?)?([0-9]{2,4}[\- \u00A0])?[0-9]{2,4}[\- \u00A0])[0-9]{3,4}[\- \u00A0]?[0-9]{3,5}|((\+\+?)?[0-9]{2,4}\.)?[0-9]{2,4}\.[0-9]{3,4}\.[0-9]{3,5}
 
 
 /* ------------------------Lexical Rules Section---------------------- */
@@ -357,16 +507,19 @@ OTHER_CURRENCIES= [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\
 cannot                      { yypushback(3) ; return makeToken(); }
 gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 
-/* WORDS  including they're and n't and so on */
-{WORD}/{APOS_AUX}           {String normString = removeSoftHyphen(yytext());
-                                 return makeToken(normString);
+/*---- WORDS  including they're and n't and so on ----*/
+{WORD}/{APOS_AUX}           {   String origTxt = yytext();
+                                String tmp = normalizeSoftHyphen(origTxt);
+                                return makeToken(tmp);
                             }
                         	
-{SPECIAL_WORD}/{SPECIAL_APOS_AUX}   {  String normString = removeSoftHyphen(yytext());
-                          	           return makeToken(normString); 
+{SPECIAL_WORD}/{SPECIAL_APOS_AUX}   {   String origTxt = yytext();
+                                        String normString = normalizeSoftHyphen(origTxt);
+                          	        return makeToken(normString); 
                           	    }
 
-{WORD}                      { String normString = removeSoftHyphen(yytext());
+{WORD}                      {   String origTxt = yytext();
+                                String normString = normalizeSoftHyphen(origTxt);
                                 return makeToken(normString);
                             }
 
@@ -374,7 +527,7 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 
 {Y_APOS_WORD}/[:letter:]    { return makeToken(); }
 
-/* URLs */
+/*---- URLs ----*/
 {STRICT_URL}                { String txt = yytext();
                                 if (escapeForwardSlash) {
                                     txt = escape(txt, '/');
@@ -394,12 +547,12 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 {EMAIL}                     { return makeToken(); }
 {TWITTER}                   { return makeToken(); }
 
-/* QUOTES */
+/*---- QUOTES ----*/
 
-{APOS_AUX}/[^A-Za-z]        { return handleQuotes(yytext(), false); }
-{SPECIAL_APOS_AUX}          { return handleQuotes(yytext(), false); }
+{APOS_AUX}/[^A-Za-z]        { return normalizeQuotes(yytext(), false); }
+{SPECIAL_APOS_AUX}          { return normalizeQuotes(yytext(), false); }
 
-/* DATES and NUMERS */
+/*---- DATES and NUMERS ----*/
 
 {DATE}                      { String txt = yytext();
                                 if (escapeForwardSlash) {
@@ -407,15 +560,16 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                                 }
                                 return makeToken(txt);
                             }
-{NUMBER}                    { String normString = removeSoftHyphen(yytext()); 
-                              return makeToken(normString); 
+{NUMBER}                    {   String origTxt = yytext();
+                                String normString = normalizeSoftHyphen(origTxt); 
+                                return makeToken(normString); 
 			    }
 {SUBSUPNUM}                 { return makeToken(); }
 
 
-/* Treebank 3 state for normalization */
+/*---- Treebank 3 state for normalization ----*/
 
-<TB3>{FRACTION} 	    { String txt = yytext();
+<PTB3>{FRACTION} 	    { String txt = yytext();
                   	        if (escapeForwardSlash) {
                    		txt = escape(txt, '/');
                   		}
@@ -426,9 +580,9 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                   		return makeToken(txt);
                		    }
 
-/* Strict Treebank 3 state for normalization */
+/*---- Strict Treebank 3 state for normalization ----*/
 
-<strictTB3>{FRACTION_TB3}   { String txt = yytext();
+<SPTB3>{FRACTION_TB3}   { String txt = yytext();
                   	        if (escapeForwardSlash) {
                     	            txt = escape(txt, '/');
                   		}
@@ -461,25 +615,147 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                                 return makeToken();
                                 }
                             }
-/* NON BREAKING PREFIXES */
+                          
+                            
+/* -------- NON BREAKING PREFIXES ------------*/
+
+/* Any acronym can be treated as sentence final iff followed by this list 
+* of words (pronouns, determiners, and prepositions, etc.). "U.S." is the single 
+* big source of errors.  Character classes make this rule case sensitive! (This is needed!!) 
+*/
+{ACRONYMS}/({SPACENLS})({ACRO_NEXT_WORD}){SPACENL} {
+                          // try to work around an apparent jflex bug where it
+                          // gets a space at the token end by getting
+                          // wrong the length of the trailing context.
+                          while (yylength() > 0) {
+                            char last = yycharat(yylength()-1);
+                            if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
+                              yypushback(1);
+                            } else {
+                              break;
+                            }
+                          }
+                          String s;
+                          if (sptb3Normalize && ! "U.S.".equals(yytext())) {
+                            yypushback(1); // return a period for next time
+                            s = yytext();
+                          } else {
+                            s = yytext();
+                            yypushback(1); // return a period for next time
+                          }
+                          return makeToken(s);
+                        }
+
+/* Special case to get ca., fig. or Prop. before numbers */
+{ABBREV_NUMBER}/{SPACENL}?[:digit:]   {
+                          // try to work around an apparent jflex bug where it
+                          // gets a space at the token end by getting
+                          // wrong the length of the trailing context.
+                          while (yylength() > 0) {
+                            char last = yycharat(yylength()-1);
+                            if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
+                              yypushback(1);
+                            } else {
+                              break;
+                            }
+                          }
+			  				return makeToken();
+						}
+						
+/* Special case to get pty. ltd. or pty limited. 
+ * Also added "Co." since someone complained, but usually a comma after it. 
+ */
+(pt[eyEY]|co)\./{SPACE}(ltd|lim)  { return makeToken(); }
+
+{ABBREV_DATES}/{SENTEND}     {	String s;
+                          	if (sptb3Normalize && ! "U.S.".equals(yytext())) {
+                            yypushback(1); // return a period for next time
+                            s = yytext();
+                          } else {
+                            s = yytext();
+                            yypushback(1); // return a period for next time
+                          }
+                          	return makeToken(s); 
+                          	}
 
 
+{ABBREV_DATES}/[^][^]        { return makeToken(); }
 
+/* this one should only match at the end of file
+ * since the previous one matches even newlines
+*/
+{ABBREV_DATES}               { String s;
+                              if (sptb3Normalize && ! "U.S.".equals(yytext())) {
+                              yypushback(1); // return a period for next time
+                              s = yytext();
+                              } else {
+                                s = yytext();
+                                yypushback(1); // return a period for next time
+                              }
+                              return makeToken(s);
+                             }
+
+{SPECIAL_ABBREV_PREFIX}     { return makeToken(); }
+{ABBREV_UPPER}/{SPACE}      { return makeToken(); }
+
+{ACRONYM}/{SPACENL}        	{ return makeToken(); }
+{APOS_DIGIT_DIGIT}/{SPACENL} { return makeToken(); }
+
+{WORD}\./{INTRA_SENT_PUNCT} {   String origTxt = yytext();
+                                String normString = normalizeSoftHyphen(origTxt);
+				return makeToken(normString); 
+                            }
+
+{PHONE}                 	{ String txt = yytext();
+                          		if (normalizeSpace) {
+                            	txt = txt.replace(' ', '\u00A0'); // change space to non-breaking space
+                          	}
+                          		if (normalizeBrackets) {
+                            		txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
+                            		txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
+                          		}
+                          	return makeToken(txt);
+                        	}
+
+/*---- QUOTES ----*/ 
+{DOUBLE_QUOTE}/[A-Za-z0-9$]  { return normalizeQuotes(yytext(), true); }
+{DOUBLE_QUOTE}               { return normalizeQuotes(yytext(), false); }
+
+{LESS_THAN}              	{ return makeToken("<"); }
+{GREATER_THAN}           	{ return makeToken(">"); }
+
+{SMILEY}/[^A-Za-z] 			{ 	String txt = yytext();
+                  				if (normalizeBrackets) {
+                    				txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
+                    				txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
+                  				}
+                  				return makeToken(txt);
+                			}
+                			
+{ASIANSMILEY}        		{ 	String txt = yytext();
+                  				if (normalizeBrackets) {
+                    			txt = LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openRB);
+                    			txt = RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeRB);
+                  				}
+                  				return makeToken(txt);
+                			}
+                			
+/*---- BRACKETS ----*/ 
 
 \{                          {   if (normalizeOtherBrackets) {
                     	            return makeToken(openCB); 
-                                }
+                            }
                   	        else {
                     		    return makeToken();
                   			}
                 	    	}
 \}              		
 			    			{   if (normalizeOtherBrackets) {
-                    		    return makeToken(closeCB); 
-                                }
-                  				else {
-                    		    return makeToken();
-                  				}
+                    		        return makeToken(closeCB); 
+                                    }
+                  	    	    else {
+                    		        return makeToken();
+                  		    	}
                 	    	}
                 
 \[                          {   if (normalizeOtherBrackets) {
@@ -496,14 +772,14 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                                     return makeToken();
                                 }                    
                             }
-\(                          {   if (normalizeParentheses) {
+\(                          {   if (normalizeBrackets) {
                                     return makeToken(openRB); 
                                 }
                                 else {
                                     return makeToken();
                                 }
                             }
-\)                          {   if (normalizeParentheses) {
+\)                          {   if (normalizeBrackets) {
                                     return makeToken(closeRB); 
                                 }
                                 else {
@@ -511,8 +787,99 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                                 }
                             }
 
-.|\n 			{ /* skip everything else */ }
+{HYPHENS}       			{ 	if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
+                    			return makeToken(ptbDash);
+                  				} else {
+                    			return makeToken();
+                  				}
+                			}
+                			
+{LDOTS}         			{ return normalizeMultiDots(yytext()); }
 
-   
+{OTHER_PUNCT}      			{ return makeToken(); }
+{ASTERISK}         			{ 	if (escapeForwardSlash) {
+                    			return makeToken(escape(yytext(), '*')); }
+                  				else {
+                    			return makeToken();
+                  				}
+                			}
 
-<<EOF>> { return null; }
+/*---- START and END Sentence ----*/
+                			
+{INTRA_SENT_PUNCT}       	{ return makeToken(); }
+[?!]+          	 			{ return makeToken(); }
+
+[.¡¿\u037E\u0589\u061F\u06D4\u0700-\u0702\u07FA\u3002]  { return makeToken(); }
+=               			{ return makeToken(); }
+\/              			{ 	if (escapeForwardSlash) {
+                    			return makeToken(escape(yytext(), '/')); }
+                  				else {
+                    			return makeToken();
+                  				}
+                			}
+
+/*---- OTHER NONBREAKING WORDS with ACRONYMS and HYPHENS ----*/                			
+{WORD_AMP}\./{INTRA_SENT_PUNCT}	{ return makeToken(normalizeSoftHyphen(yytext())); }
+{WORD_AMP}        			{ return makeToken(normalizeSoftHyphen(yytext())); }
+{OTHER_HYPHEN_WORDS}\./{INTRA_SENT_PUNCT}	{ return makeToken(); }
+{OTHER_HYPHEN_WORDS}        { makeToken(); }
+{WORD_HYPHEN_ACRONYM}\./{INTRA_SENT_PUNCT}	{ return normalizeAmpNext(); }
+{WORD_HYPHEN_ACRONYM}       { return normalizeAmpNext(); }
+
+/*---- QUOTES ----*/
+/* invert quote - often but not always right */
+'/[A-Za-z][^ \t\n\r\u00A0] 	{ return normalizeQuotes(yytext(), true); }
+                                         
+{APOS_AUX}        			{ return normalizeQuotes(yytext(), false); }
+{QUOTES}        			{ return normalizeQuotes(yytext(), false); }
+{FAKEDUCKFEET}  			{ return makeToken(); }
+{MISC_SYMBOL}    			{ return makeToken(); }
+
+{NEWLINE}      				{ 	if (tokenizeNLs) {
+                      			return makeToken(NEWLINE_TOKEN); // js: for tokenizing carriage returns
+                				}
+                			}							
+
+
+/*---- skip non printable characters ----*/
+
+[\\x00-\\x19]|{SPACES}		{ }
+
+/*---- warn about other non tokenized characters ----*/
+
+.       { String str = yytext();
+          int first = str.charAt(0);
+          String msg = String.format("Untokenizable: %s (U+%s, decimal: %s)", yytext(), Integer.toHexString(first).toUpperCase(), Integer.toString(first));
+          switch (untokenizable) {
+            case NONE_DELETE:
+              break;
+            case FIRST_DELETE:
+              if ( ! this.seenUntokenizableCharacter) {
+                LOGGER.warning(msg);
+                this.seenUntokenizableCharacter = true;
+              }
+              break;
+            case ALL_DELETE:
+              LOGGER.warning(msg);
+              this.seenUntokenizableCharacter = true;
+              break;
+            case NONE_KEEP:
+              return makeToken();
+            case FIRST_KEEP:
+              if ( ! this.seenUntokenizableCharacter) {
+                LOGGER.warning(msg);
+                this.seenUntokenizableCharacter = true;
+              }
+              return makeToken();
+            case ALL_KEEP:
+              LOGGER.warning(msg);
+              this.seenUntokenizableCharacter = true;
+              return makeToken();
+          }
+        }
+<<EOF>> 					{ return null; }
+
+/*skip everything else*/
+/*.|\n 			{ } */
+
+

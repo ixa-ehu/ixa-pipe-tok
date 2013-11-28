@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.resources;
+package ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;

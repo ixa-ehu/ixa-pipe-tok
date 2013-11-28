@@ -17,14 +17,10 @@
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
-import ixa.pipe.resources.Resources;
-import ixa.pipe.seg.SegmenterMoses;
-import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
@@ -67,13 +63,18 @@ public class CLI {
         .description(
             "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group.\n");
 
-    // specify language
+    // specify language (for language dependent treatment of apostrophes)
     parser
         .addArgument("-l", "--lang")
         .choices("en", "es")
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
+    
+    parser.addArgument("-n","--normalize").choices("ancora", "en", "ptb3", "sptb3")
+          .required(false).setDefault("en").help("normalization method; ptb3 and ancora comply with " +
+          		"Penn Treebank and Ancora normalizations respectively; the default option does not escape " +
+          		"brackets or forward slashes. See README for more details.");
     
     // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
@@ -106,17 +107,15 @@ public class CLI {
      * read and write kaf
      */
 
+    String normalize = parsedArguments.getString("normalize");
     String lang = parsedArguments.getString("lang");
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
-    TokenFactory tokenFactory = new TokenFactory();
-    String options= "";
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
+    TokenFactory tokenFactory = new TokenFactory();
     KAFDocument kaf;
-
-    // choosing tokenizer and resources by language
   
     // reading standard input, segment and tokenize
     try {
@@ -133,10 +132,10 @@ public class CLI {
       
       else {
         
-        IXATokenizer<Token> tokenizer = new IXATokenizer<Token>(breader,tokenFactory,options);
+        IXATokenizer<Token> tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
         while (tokenizer.hasNext()) { 
           Token token = tokenizer.next();
-          System.out.println(token.value());
+          System.out.println(token.value() + " " + token.startOffset() + " " + token.tokenLength());
         }
              
       }
