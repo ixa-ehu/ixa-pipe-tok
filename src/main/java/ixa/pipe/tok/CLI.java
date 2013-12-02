@@ -133,16 +133,21 @@ public class CLI {
       
       else {
         
-        IXATokenizer<Token> tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
-        while (tokenizer.hasNext()) {
-          Token token = tokenizer.next();
-          System.out.println(token.value() + " " + token.startOffset() + " " + token.tokenLength());
-        }
-             
+        
+        Annotate annotator = new Annotate();
+        
+        // write kaf 
+        kaf = new KAFDocument(lang, "v1.opener");
+        annotator.annotateTokens(tokenizer, kaf);
+        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
+        bwriter.write(kaf.toString());
+        bwriter.close();
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
+    //breader.close();
+    //bwriter.close();
 
   }
 }

@@ -38,8 +38,7 @@ public class IXASegmenter {
   NonPrefixBreaker nonBreaker;
   TokenFactory tokenFactory;
 
-  public IXASegmenter(InputStream nonBreakingFile) {
-    nonBreaker = new NonPrefixBreaker(nonBreakingFile);
+  public IXASegmenter() {
 
   }
 
@@ -73,15 +72,7 @@ public class IXASegmenter {
     // clean extra spaces
     String text = "";
     
-    ListIterator<Token> iterTokens = tokens.listIterator();
     
-    while (iterTokens.hasNext()) { 
-      if (iterTokens.next().value()
-          .matches("([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\ ]*[\\p{Lu}])") && 
-          iterTokens.previous().value().matches("([?!\\.])")) {
-        iterTokens.add(tokenFactory.createToken("\n", 0, 0));
-      }
-    }
     
     
     // non-period end of sentence markers (?!) followed by sentence starters.
