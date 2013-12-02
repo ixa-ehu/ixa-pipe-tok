@@ -26,49 +26,62 @@ import java.util.List;
 public class Annotate {
 
   private IXATokenizer<Token> tokenizer;
-  
-  public Annotate (BufferedReader breader, TokenFactory tokenFactory, String normalize) { 
+  private IXASegmenter segmenter;
+
+  // counters
+  int noSents = 0;
+  int offsetCounter = 0;
+  int current_index = 0;
+  int previous_index = 0;
+
+  public Annotate(BufferedReader breader, TokenFactory tokenFactory,
+      String normalize) {
     tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
+    segmenter = new IXASegmenter();
   }
-  
-  public Annotate (BufferedReader breader) { 
-    
+
+  public Annotate(BufferedReader breader) {
+
   }
-  
-  public String tokensToKAF(KAFDocument kaf) { 
+
+  public String tokensToKAF(KAFDocument kaf) {
+
     List<Token> tokens = tokenizer.tokenize();
-    
-    int noSents = 0;
-    for (Token token : tokens) {
-      WF wf = kaf.newWF(token.value(), token.startOffset());
-      wf.setSent(noSents);
+    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
+    for (List<Token> sent : sentences) {
+
+      // initiate sentence counter
+      noSents = noSents + 1;
+      for (Token token : sent) {
+        WF wf = kaf.newWF(token.value(), token.startOffset());
+        wf.setSent(noSents);
+      }
     }
     return kaf.toString();
   }
-  
+
   public String tokensToCoNLL() {
     List<Token> tokens = tokenizer.tokenize();
     StringBuilder sb = new StringBuilder();
-    
+
     for (Token token : tokens) {
-      sb.append(token.value()).append(" ").append(token.startOffset()).append(" ")
-      .append(token.tokenLength()).append("\n");
+      sb.append(token.value()).append(" ").append(token.startOffset())
+          .append(" ").append(token.tokenLength()).append("\n");
     }
     return sb.toString();
   }
-  
-  public String tokensToText() { 
+
+  public String tokensToText() {
     List<Token> tokens = tokenizer.tokenize();
     StringBuilder sb = new StringBuilder();
-    
+
     for (Token token : tokens) {
       sb.append(token.value()).append(" ");
     }
     sb.append("\n");
     return sb.toString();
   }
-  
-  
+
   private String buildText(BufferedReader breader) throws IOException {
 
     StringBuilder sb = new StringBuilder();
@@ -84,7 +97,7 @@ public class Annotate {
     text = text.trim();
     return text;
   }
-  
+
   /**
    * This method performs Sentence Detection and Tokenization to produce
    * tokenized text by sentences represented in KAF format.
@@ -106,38 +119,32 @@ public class Annotate {
    *          to KAF, returning an XML document in a string.
    */
 
-  int tokSents = 0;
-  int tokOffsetCounter = 0;
-  int tokCurrent_index = 0;
-  int tokPrevious_index = 0;
-  
   public String tokenizedTextToKAF(BufferedReader breader, KAFDocument kaf)
       throws IOException {
 
-    
     String text = buildText(breader);
     // this creates the actual sentences to be passed to the sentence detector
     String[] sentences = text.split("<P>");
 
     for (String sent : sentences) {
-        // clean extra spaces
-        sent = sent.trim();
-        sent = sent.replaceAll("\\s+", " ");
+      // clean extra spaces
+      sent = sent.trim();
+      sent = sent.replaceAll("\\s+", " ");
 
-        String[] tokens = sent.split(" ");
-        // get sentence counter
-        tokSents = tokSents + 1;
-       
-        for (int i = 0; i < tokens.length; i++) {
-          // get offsets
-          tokCurrent_index = sent.indexOf(tokens[i], tokPrevious_index);
-          int offset = tokOffsetCounter + tokCurrent_index;
-          WF wf = kaf.newWF(tokens[i], offset);
-          wf.setSent(tokSents);
-          tokPrevious_index = tokCurrent_index + tokens[i].length();
-        }
-        tokOffsetCounter += sent.length();
+      String[] tokens = sent.split(" ");
+      // get sentence counter
+      noSents = noSents + 1;
+
+      for (int i = 0; i < tokens.length; i++) {
+        // get offsets
+        current_index = sent.indexOf(tokens[i], previous_index);
+        int offset = offsetCounter + current_index;
+        WF wf = kaf.newWF(tokens[i], offset);
+        wf.setSent(noSents);
+        previous_index = current_index + tokens[i].length();
       }
+      offsetCounter += sent.length();
+    }
     return kaf.toString();
   }
 }

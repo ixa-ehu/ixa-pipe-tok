@@ -335,7 +335,7 @@ import java.util.regex.Pattern;
   private Token makeToken(String tokenString) {
     Token token;
     if (tokenString.equalsIgnoreCase("*NL*")) {
-      token = tokenFactory.createToken(tokenString,0,1);
+      token = tokenFactory.createToken(tokenString, yychar, 1);
     }
     else { 
       token = tokenFactory.createToken(tokenString, yychar, yylength());
@@ -406,7 +406,7 @@ WORD_HYPHEN_ACRONYM = [A-Za-z0-9][A-Za-z0-9.,\u00AD]*(-([A-Za-z0-9\u00AD]+|{ACRO
 
 /*---- URLS ----*/
 STRICT_URL = https?:\/\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-]
-APPROX_URL = ((www\.([^ \t\n\f\r\"<>|.!?(){},]+\.)+[a-zA-Z]{2,4})|(([^ \t\n\f\r\"`'<>|.!?(){},-_$]+\.)+(com|net|org|edu)))(\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-])?
+APPROX_URL = (https?:\/\/)*((www\.([^ \t\n\f\r\"<>|.!?(){},]+\.)+[a-zA-Z]{2,4})|(([^ \t\n\f\r\"`'<>|.!?(){},-_$]+\.)+(com|net|org|edu|es|fr|uk|it|nl|de|eu|cat)))(\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-])?
 EMAIL = [a-zA-Z0-9][^ \t\n\f\r\"<>|()\u00A0]*@([^ \t\n\f\r\"<>|().\u00A0]+\.)*([^ \t\n\f\r\"<>|().\u00A0]+)
 /* Technically, names should be capped at 15 characters.  However, then
    you get into weirdness with what happens to the rest of the characters. */
