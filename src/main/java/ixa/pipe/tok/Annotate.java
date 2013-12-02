@@ -31,55 +31,58 @@ public class Annotate {
     tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
   }
   
-  /**
-   * This function takes the original input text and cleans extra newlines and
-   * spaces creating the input text for the sentence segmenter and the tokenizer
-   * 
-   * @param String
-   *          text
-   * @return String text
-   */
+  public Annotate (BufferedReader breader) { 
+    
+  }
+  
+  public String tokensToKAF(KAFDocument kaf) { 
+    List<Token> tokens = tokenizer.tokenize();
+    
+    int noSents = 0;
+    for (Token token : tokens) {
+      WF wf = kaf.newWF(token.value(), token.startOffset());
+      wf.setSent(noSents);
+    }
+    return kaf.toString();
+  }
+  
+  public String tokensToCoNLL() {
+    List<Token> tokens = tokenizer.tokenize();
+    StringBuilder sb = new StringBuilder();
+    
+    for (Token token : tokens) {
+      sb.append(token.value()).append(" ").append(token.startOffset()).append(" ")
+      .append(token.tokenLength()).append("\n");
+    }
+    return sb.toString();
+  }
+  
+  public String tokensToText() { 
+    List<Token> tokens = tokenizer.tokenize();
+    StringBuilder sb = new StringBuilder();
+    
+    for (Token token : tokens) {
+      sb.append(token.value()).append(" ");
+    }
+    sb.append("\n");
+    return sb.toString();
+  }
+  
+  
+  private String buildText(BufferedReader breader) throws IOException {
 
-  public String buildText(String text) {
+    StringBuilder sb = new StringBuilder();
+    String text;
+    String line;
+    while ((line = breader.readLine()) != null) {
+      sb.append(line).append("<JA>");
+    }
+    text = sb.toString();
     text = text.replaceAll("(<JA><JA>)+", "<P>");
     text = text.replaceAll("<JA>", " ");
     text = text.replaceAll("\\s+", " ");
     text = text.trim();
     return text;
-  }
-
-  /**
-   * This method performs Sentence Detection and Tokenization to produce
-   * tokenized text by sentences represented in KAF format.
-   * 
-   * For every line of text the method receives, it creates an array of
-   * segmented sentences, and an array of Tokens.
-   * 
-   * It fills the kaf object with the word forms element <wf> corresponding to
-   * each of the tokens.
-   * 
-   * @param String
-   *          text
-   * @param Segmenter
-   *          sentDetector
-   * @param Tokenizer
-   *          toker
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF, returning an XML document in a string.
-   */
-
-  private List<Token> toker(KAFDocument kaf)
-      throws IOException {
-
-    int noSents = 0;
-    List<Token> tokens = tokenizer.tokenize();
-    
-    for (Token token : tokens) {
-      System.out.println(token.value() + " " + token.startOffset() + " " + token.tokenLength());
-      WF wf = kaf.newWF(token.value(), token.startOffset());
-      wf.setSent(noSents);
-    }
   }
   
   /**
@@ -108,20 +111,19 @@ public class Annotate {
   int tokCurrent_index = 0;
   int tokPrevious_index = 0;
   
-  public void tokenizedTextToKAF(String text, String lang, Tokenizer toker, KAFDocument kaf)
+  public String tokenizedTextToKAF(BufferedReader breader, KAFDocument kaf)
       throws IOException {
 
+    
+    String text = buildText(breader);
     // this creates the actual sentences to be passed to the sentence detector
-    String[] sentences = text.split("<JA>");
+    String[] sentences = text.split("<P>");
 
     for (String sent : sentences) {
         // clean extra spaces
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        // System.out.println(sent);
 
-        // "tokenize" an already tokenized sentence
-        //String[] tokens = toker.tokenize(sent, lang);
         String[] tokens = sent.split(" ");
         // get sentence counter
         tokSents = tokSents + 1;
@@ -136,6 +138,6 @@ public class Annotate {
         }
         tokOffsetCounter += sent.length();
       }
-      
+    return kaf.toString();
   }
 }

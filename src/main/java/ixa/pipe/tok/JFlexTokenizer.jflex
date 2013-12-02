@@ -332,8 +332,15 @@ import java.util.regex.Pattern;
     return makeToken(tokenString);
   }
 
-  private Token makeToken(String tokenString) { 
-    return tokenFactory.createToken(tokenString, yychar, yylength());
+  private Token makeToken(String tokenString) {
+    Token token;
+    if (tokenString.equalsIgnoreCase("*NL*")) {
+      token = tokenFactory.createToken(tokenString,0,1);
+    }
+    else { 
+      token = tokenFactory.createToken(tokenString, yychar, yylength());
+    }
+    return token;
   }
 
 %}

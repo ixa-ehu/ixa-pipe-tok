@@ -70,20 +70,29 @@ public class CLI {
         .choices("en", "es")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
+            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
     
     parser.addArgument("-n","--normalize").choices("ancora", "en", "ptb3", "sptb3")
-          .required(false).setDefault("en").help("normalization method; ptb3 and ancora comply with " +
+          .required(false).setDefault("en").help("Set normalization method; ptb3 and ancora comply with " +
           		"Penn Treebank and Ancora normalizations respectively; the default option does not escape " +
-          		"brackets or forward slashes. See README for more details.");
+          		"brackets or forward slashes. See README for more details.\n");
     
+    parser.addArgument("--nokaf").action(Arguments.storeFalse())
+          .help("Do not print tokens in KAF format, but plain text.\n");
+    
+    parser.addArgument("-o", "--outputFormat").choices("conll", "oneline")
+            .setDefault("oneline")
+            .required(false)
+            .help("Choose between conll format (one token per line) or running tokenized text.\n");
+
     // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
-        .help("Build KAF with already tokenized and segmented text");
+        .help("Build KAF with already tokenized and segmented text in conll format: one token per line " +
+        		"and two newlines to mark sentences.\n");
     
     // specify whether input if a KAF/NAF file
     parser.addArgument("-k", "--kaf").action(Arguments.storeTrue())
-        .help("Use this option if input is a KAF/NAF document with <raw> layer.");
+        .help("Use this option if input is a KAF/NAF document with <raw> layer.\n");
 
     // specify KAF version
     parser.addArgument("--kafversion").setDefault("v1.opener")
@@ -107,7 +116,7 @@ public class CLI {
      * Load language and tokenizer method parameters and construct annotators,
      * read and write kaf
      */
-
+    String outputFormat = parsedArguments.getString("outputFormat");
     String normalize = parsedArguments.getString("normalize");
     String lang = parsedArguments.getString("lang");
     String kafVersion = parsedArguments.getString("kafversion");
@@ -123,6 +132,7 @@ public class CLI {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       String text;
+      
 
       //TODO if this option is used, get language from lang attribute in KAF 
       if (inputKafRaw) {
@@ -130,24 +140,36 @@ public class CLI {
         //kaf = KAFDocument.createFromStream(breader);
         //text = kaf.getRawText();
       } 
-      
       else {
-        
-        
-        Annotate annotator = new Annotate();
-        
-        // write kaf 
+        // write kaf
+        if (parsedArguments.getBoolean("nokaf")) {
         kaf = new KAFDocument(lang, "v1.opener");
-        annotator.annotateTokens(tokenizer, kaf);
         kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
-        bwriter.write(kaf.toString());
-        bwriter.close();
-      }
+        
+          if (parsedArguments.getBoolean("notok")) {
+            Annotate annotator = new Annotate(breader);
+            bwriter.write(annotator.tokenizedTextToKAF(breader,kaf));
+          }
+          else {
+            Annotate annotator = new Annotate(breader,tokenFactory,normalize);
+            bwriter.write(annotator.tokensToKAF(kaf)); 
+          }
+        }// kaf options end here
+        
+        else {
+          Annotate annotator = new Annotate(breader,tokenFactory,normalize);
+          if (outputFormat.equalsIgnoreCase("conll")) { 
+            bwriter.write(annotator.tokensToCoNLL());
+          }
+          else { 
+            bwriter.write(annotator.tokensToText());
+          }
+        }
+      }// annotation options end here
+      bwriter.close();
+      breader.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    //breader.close();
-    //bwriter.close();
-
   }
 }
