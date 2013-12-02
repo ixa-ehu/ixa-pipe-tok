@@ -48,11 +48,11 @@ public class Annotate {
 
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
-    for (List<Token> sent : sentences) {
+    for (List<Token> sentence : sentences) {
 
       // initiate sentence counter
       noSents = noSents + 1;
-      for (Token token : sent) {
+      for (Token token : sentence) {
         WF wf = kaf.newWF(token.value(), token.startOffset());
         wf.setSent(noSents);
       }
@@ -61,24 +61,32 @@ public class Annotate {
   }
 
   public String tokensToCoNLL() {
-    List<Token> tokens = tokenizer.tokenize();
     StringBuilder sb = new StringBuilder();
+    List<Token> tokens = tokenizer.tokenize();
+    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
 
-    for (Token token : tokens) {
-      sb.append(token.value()).append(" ").append(token.startOffset())
-          .append(" ").append(token.tokenLength()).append("\n");
+    for (List<Token> sentence : sentences) {
+      for (Token token : sentence) {
+        sb.append(token.value()).append(" ").append(token.startOffset())
+            .append(" ").append(token.tokenLength()).append("\n");
+      }
+      sb.append("\n");
     }
     return sb.toString();
   }
 
   public String tokensToText() {
     List<Token> tokens = tokenizer.tokenize();
+    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
     StringBuilder sb = new StringBuilder();
 
-    for (Token token : tokens) {
-      sb.append(token.value()).append(" ");
+    for (List<Token> sentence : sentences) {
+
+      for (Token token : sentence) {
+        sb.append(token.value()).append(" ");
+      }
+      sb.append("\n");
     }
-    sb.append("\n");
     return sb.toString();
   }
 

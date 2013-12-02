@@ -87,8 +87,7 @@ public class CLI {
 
     // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
-        .help("Build KAF with already tokenized and segmented text in conll format: one token per line " +
-        		"and two newlines to mark sentences.\n");
+        .help("Build KAF with already tokenized text.\n");
     
     // specify whether input if a KAF/NAF file
     parser.addArgument("-k", "--kaf").action(Arguments.storeTrue())
