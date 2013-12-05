@@ -23,7 +23,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.List;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -34,9 +33,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * ixa-pipe tokenization
  * 
- * This module implements a rule-based loosely inspired by the moses tokenizer
- * (https://github.com/moses-smt/mosesdecoder)
- * 
+ *  
  * @author ragerri
  * @version 1.0
  * 
@@ -62,7 +59,7 @@ public class CLI {
     ArgumentParser parser = ArgumentParsers
         .newArgumentParser("ixa-pipe-tok-1.0.jar")
         .description(
-            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group.\n");
+            "ixa-pipe-tok-1.0 is a multilingual Tokenizer developed by IXA NLP Group.\n");
 
     // specify language (for language dependent treatment of apostrophes)
     parser
@@ -73,7 +70,7 @@ public class CLI {
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
     
     parser.addArgument("-n","--normalize").choices("ancora", "en", "ptb3", "sptb3")
-          .required(false).setDefault("en").help("Set normalization method; ptb3 and ancora comply with " +
+          .required(false).setDefault("en").help("Set normalization method; (s)ptb3 and ancora comply with " +
           		"Penn Treebank and Ancora normalizations respectively; the default option does not escape " +
           		"brackets or forward slashes. See README for more details.\n");
     
@@ -87,7 +84,7 @@ public class CLI {
 
     // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
-        .help("Build KAF with already tokenized text.\n");
+        .help("Build a KAF document with already tokenized text.\n");
     
     // specify whether input if a KAF/NAF file
     parser.addArgument("-k", "--kaf").action(Arguments.storeTrue())
@@ -112,8 +109,7 @@ public class CLI {
     }
 
     /*
-     * Load language and tokenizer method parameters and construct annotators,
-     * read and write kaf
+     * Load language and tokenizer method parameters
      */
     String outputFormat = parsedArguments.getString("outputFormat");
     String normalize = parsedArguments.getString("normalize");

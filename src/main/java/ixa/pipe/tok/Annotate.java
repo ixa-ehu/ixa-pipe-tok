@@ -106,27 +106,6 @@ public class Annotate {
     return text;
   }
 
-  /**
-   * This method performs Sentence Detection and Tokenization to produce
-   * tokenized text by sentences represented in KAF format.
-   * 
-   * For every line of text the method receives, it creates an array of
-   * segmented sentences, and an array of Tokens.
-   * 
-   * It fills the kaf object with the word forms element <wf> corresponding to
-   * each of the tokens.
-   * 
-   * @param String
-   *          text
-   * @param Segmenter
-   *          sentDetector
-   * @param Tokenizer
-   *          toker
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF, returning an XML document in a string.
-   */
-
   public String tokenizedTextToKAF(BufferedReader breader, KAFDocument kaf)
       throws IOException {
 

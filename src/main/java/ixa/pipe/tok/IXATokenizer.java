@@ -21,7 +21,7 @@ import java.io.IOException;
 
 
 /**
- *  IXATokenizer is based on the {@link JFlexTokenizer} class.  Here IXATokenizer 
+ *  IXATokenizer is based on the {@link JFlexTokenizer} class. Here IXATokenizer 
  *  overrides {@link AbstractTokenizer} getToken() method calling the {@link JFlexTokenizer} yylex() 
  *  method instead. 
  *  

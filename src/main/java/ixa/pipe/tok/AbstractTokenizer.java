@@ -6,7 +6,7 @@ package ixa.pipe.tok;
 
   /**
    * An abstract tokenizer.  Tokenizers extending AbstractTokenizer need only
-   * implement the <code>getNext()</code> method. This implementation does not
+   * implement the <code>getToken()</code> method. This implementation does not
    * allow null tokens, since
    * null is used in the protected nextToken field to signify that no more
    * tokens are available.
