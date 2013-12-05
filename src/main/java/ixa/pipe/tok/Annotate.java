@@ -76,6 +76,7 @@ public class Annotate {
   }
 
   public String tokensToText() {
+   
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
     StringBuilder sb = new StringBuilder();

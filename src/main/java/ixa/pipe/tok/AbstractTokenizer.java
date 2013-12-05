@@ -1,8 +1,8 @@
 package ixa.pipe.tok;
   
   import java.util.ArrayList;
-  import java.util.List;
-  import java.util.NoSuchElementException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
   /**
    * An abstract tokenizer.  Tokenizers extending AbstractTokenizer need only
@@ -84,10 +84,14 @@ package ixa.pipe.tok;
      * @return A list of all tokens remaining in the underlying Reader
      */
     public List<T> tokenize() {
+      final long start = System.nanoTime();
       List<T> result = new ArrayList<T>();
       while (hasNext()) {
         result.add(next());
       }
+      final long duration = System.nanoTime() - start;
+      final double toksPerSecond = (double) result.size() / ((double) duration / 1000000000.0);
+      System.err.printf("ixa-pipe-tok tokenized %d tokens at %.2f tokens per second.%n", result.size(), toksPerSecond);
       return result;
     }
 
