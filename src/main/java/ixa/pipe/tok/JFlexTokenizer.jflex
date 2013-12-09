@@ -392,8 +392,11 @@ QUOTES = {APOS}|''|[`\u2018\u2019\u201A\u201B\u201C\u201D\u0091\u0092\u0093\u009
 LETTER = ([:letter:]|{SPECIAL_WEBS}|[\u00AD\u0237-\u024F\u02C2-\u02C5\u02D2-\u02DF\u02E5-\u02FF\u0300-\u036F\u0370-\u037D\u0384\u0385\u03CF\u03F6\u03FC-\u03FF\u0483-\u0487\u04CF\u04F6-\u04FF\u0510-\u0525\u055A-\u055F\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0615-\u061A\u063B-\u063F\u064B-\u065E\u0670\u06D6-\u06EF\u06FA-\u06FF\u070F\u0711\u0730-\u074F\u0750-\u077F\u07A6-\u07B1\u07CA-\u07F5\u07FA\u0900-\u0903\u093C\u093E-\u094E\u0951-\u0955\u0962-\u0963\u0981-\u0983\u09BC-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A4F\u0A81-\u0A83\u0ABC-\u0ACF\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0C01-\u0C03\u0C3E-\u0C56\u0D3E-\u0D44\u0D46-\u0D48\u0E30-\u0E3A\u0E47-\u0E4E\u0EB1-\u0EBC\u0EC8-\u0ECD])
 WORD = {LETTER}+([.!?]{LETTER}+)*
 
+/* -- French, Italian APOS tokenization c' l' m' -- */
+DET_APOS = ([cdlmsCDLMS]|[Qq]u){QUOTES}
 /* -- English APOS tokenization 's 'm 'd 're 've 'll --*/
 APOS_AUX = {APOS}([msdMSD]|re|ve|ll)
+
 /* \u00AD is soft hyphen */
 SPECIAL_WORD = [A-Za-z\u00AD]*[A-MO-Za-mo-z](\u00AD)*
 WORD_APOS = {APOS}n{APOS}?|[lLdDjJ]{APOS}|Dunkin{APOS}|somethin{APOS}|ol{APOS}|{APOS}em|[A-HJ-XZn]{ALL_APOS}[:letter:]{2}[:letter:]*|{APOS}[2-9]0s|{APOS}till?|[:letter:][:letter:]*[aeiouyAEIOUY]{ALL_APOS}[aeiouA-Z][:letter:]*|{APOS}cause|cont'd\.?|'twas|nor'easter|c'mon|e'er|s'mores|ev'ry|li'l|nat'l
@@ -555,8 +558,12 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 {EMAIL}                     { return makeToken(); }
 {TWITTER}                   { return makeToken(); }
 
-/*---- QUOTES ----*/
+/*---- APOSTROPHES BREAKING ----*/
 
+/*French and Italian*/
+{DET_APOS}                  { return normalizeQuotes(yytext(), false); }
+
+/*English*/
 {APOS_AUX}/[^A-Za-z]        { return normalizeQuotes(yytext(), false); }
 {SPECIAL_APOS_AUX}          { return normalizeQuotes(yytext(), false); }
 

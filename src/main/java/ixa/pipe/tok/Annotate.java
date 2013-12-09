@@ -119,12 +119,13 @@ public class Annotate {
       sent = sent.trim();
       sent = sent.replaceAll("\\s+", " ");
 
+      // "tokenize" 
       String[] tokens = sent.split(" ");
       // get sentence counter
       noSents = noSents + 1;
 
       for (int i = 0; i < tokens.length; i++) {
-        // get offsets
+        // get offsets; offsets here will not be the original document
         current_index = sent.indexOf(tokens[i], previous_index);
         int offset = offsetCounter + current_index;
         WF wf = kaf.newWF(tokens[i], offset);
