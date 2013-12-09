@@ -393,7 +393,7 @@ LETTER = ([:letter:]|{SPECIAL_WEBS}|[\u00AD\u0237-\u024F\u02C2-\u02C5\u02D2-\u02
 WORD = {LETTER}+([.!?]{LETTER}+)*
 
 /* -- French, Italian APOS tokenization c' l' m' -- */
-DET_APOS = ([cdlmsCDLMS]|[Qq]u){QUOTES}
+DET_APOS = ([A-Za-z]|[Qq]u){ALL_APOS}
 /* -- English APOS tokenization 's 'm 'd 're 've 'll --*/
 APOS_AUX = {APOS}([msdMSD]|re|ve|ll)
 
@@ -560,8 +560,8 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 
 /*---- APOSTROPHES BREAKING ----*/
 
-/*French and Italian*/
-{DET_APOS}                  { return normalizeQuotes(yytext(), false); }
+/*French and Italian style*/
+[^A-Za-z]{DET_APOS}                  { return normalizeQuotes(yytext(), false); }
 
 /*English*/
 {APOS_AUX}/[^A-Za-z]        { return normalizeQuotes(yytext(), false); }

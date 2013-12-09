@@ -64,7 +64,7 @@ public class CLI {
     // specify language (for language dependent treatment of apostrophes)
     parser
         .addArgument("-l", "--lang")
-        .choices("en", "es")
+        .choices("de", "en", "es", "fr", "it", "nl")
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
