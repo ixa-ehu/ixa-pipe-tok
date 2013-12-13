@@ -444,47 +444,73 @@ MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA
 /* Math and other symbols that stand alone: °²× ∀ */
 // Consider this list of bullet chars: 2219, 00b7, 2022, 2024
 
-/*---- NON BREAKING PREFIXES ----*/
 
-ACRO_NEXT_WORD = [A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]t|[B]ut|[E]arlier|[H]e|[H]er|[H]ere|[H]owever|[I]f|[I]n|[I]t|[L]ast|[M]any|[M]ore|[M]r\.|[M]s\.|[N]ow|[O]nce|[O]ne|[O]ther|[O]ur|[S]he|[S]ince|[S]o|[S]ome|[S]uch|[T]hat|[T]he|[T]heir|[T]hen|[T]here|[T]hese|[T]hey|[T]his|[W]e|[W]hen|[W]hile|[W]hat|[Y]et|[Y]ou
+///////////////////////////////
+//// NON BREAKING PREFIXES ////
+//////////////////////////////
 
-/* In the caseless world S.p.A. "Società Per Azioni (Italian: shared company)" is got as a regular acronym */
-/* ACRONYM Is a bad case -- can go either way! */
+/* -- for end of sentence acronyms --*/
+
+ACRO_NEXT_WORD_EN = [A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]t|[B]ut|[E]arlier|[H]e|[H]er|[H]ere|[H]owever|[I]f|[I]n|[I]t|[L]ast|[M]any|[M]ore|[M]r\.|[M]s\.|[N]ow|[O]nce|[O]ne|[O]ther|[O]ur|[S]he|[S]ince|[S]o|[S]ome|[S]uch|[T]hat|[T]he|[T]heir|[T]hen|[T]here|[T]hese|[T]hey|[T]his|[W]e|[W]hen|[W]hile|[W]hat|[Y]et|[Y]ou
+
+ACRO_NEXT_WORD_ES = alguna|algún|algunas|alguno|algunos|ambas|ambos|bastantes|cada|cualesquier|cualquier|cuantas|cuantos|demasiada|demasiadas|demasiado|demasiados|mucha|muchas|mucho|muchos|ninguna|ningunas|ningún|ninguno|ningunos|otra|otras|otro|otros|poca|pocas|poco|pocos|sendas|sendos|tantas|tanta|tantos|tanto|todas|toda|todos|todo|nada|unas|una|unos|un|varias|varios|ellas|ellos|las|les|los|nos|nosotras|nosotros|nuestras|nuestros|os|ustedes|vosotras|vosotros|vuestras|vuestro|conmigo|contigo|él|ella|la|le|lo|me|mía|mí|mío|nuestra|nuestro|nuestro|suya|suyo|suyo|te|ti|tú|tuya|tuyo|tuyo|usted|vos|vuestra|vuestro|vuestro|yo|la|las|mía|mías|nosotras|mucha|muchas|mucho|muchos|nada|nadie|naide|quienesquiera|quienquiera
+
+ACRO_NEXT_WORD = {ACRO_NEXT_WORD_EN}|{ACRO_NEXT_WORD_ES}
+
+/* In the caseless world S.p.A. "Società Per Azioni (Italian: shared company)" is also an acronym */
 ACRONYM = [A-Za-z](\.[A-Za-z])+|(Canada|Sino|Korean|EU|Japan|non)-U\.S|U\.S\.-(U\.K|U\.S\.S\.R)
 ACRONYMS = ({ACRONYM})\.
 
-/* These abbreviations are allowed only before numbers. ---
- * Otherwise, they aren't recognized as abbreviations (unless they also
- * appear in ABBREV_DATES or SPECIAL_ABBREV_PREFIX.
+/* ONLY BEFORE NUMBERS 
+ * Unless they also appear in ABBREV_DATES or SPECIAL_ABBREV_PREFIX.
  * est. is "estimated" -- common in some financial contexts. ext. is extension, ca. is circa.
+ * Maybe also "op." for "op. cit." but also get a photo op. 
  */
-/* Maybe also "op." for "op. cit." but also get a photo op. */
-ABBREV_NUMBER = (ca|figs?|prop|nos?|art|bldg|prop|pp|op)\.
 
-/* ABBREV_DATES abbreviations are normally followed by lower case words.
- *  If they're followed by an uppercase one, we assume there is also a
- *  sentence boundary.
- *
- * --- This block becomes ABBREV_DATES and is usually followed by lower case words. --- */
-/* Abbreviations - induced from 1987 WSJ by hand */
-ABBREV_MONTH = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
-ABBREV_DAYS = Mon|Tue|Tues|Wed|Thu|Thurs|Fri
+ABBREV_NUMBER = (al|ca|figs?|prop|nos?|Nr|art|bldg|prop|pp|op)\.
+
+////////////////////////////////////////////////
+//// DATES AND COMPANIES + LOWERCASE  WORDS ////
+////////////////////////////////////////////////
+
+
+/* ABBREV_DATES: FOLLOWED BY LOWER CASE WORDS 
+ * If followed by uppercase, a sentence boundary is assumed.
+ */
+
+ABBREV_MONTH_EN = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
+ABBREV_MONTH_ES = Ene|Abr|May|Abr|Jun|Jul|Ag|Sept|Oct|Nov|Dic
+ABBREV_MONTH = {ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}
+
+ABBREV_DAYS_EN = Mon|Tue|Tues|Wed|Thu|Thurs|Fri
+ABBREV_DAYS_ES = Lun|Miér|Jue|Vier|Sáb|Dom
+ABBREV_DAYS = {ABBREV_DAYS_EN}|{ABBREV_DAYS_ES}
+
 ABBREV_STATE = Ala|Ariz|[A]rk|Calif|Colo|Conn|Dak|Del|Fla|Ga|[I]ll|Ind|Kans?|Ky|La|[M]ass|Md|Mich|Minn|[M]iss|Mo|Mont|Neb|Nev|Okla|[O]re|Pa|Penn|Tenn|Tex|Va|Vt|[W]ash|Wisc?|Wyo
 
 /* Bhd is Malaysian companies! Rt. is Hungarian? */
 /* Special case: Change the class of Pty when followed by Ltd to not sentence break (in main code below)... */
-ABBREV_COMP = Inc|Cos?|Corp|Pp?t[ye]s?|Ltd|Plc|Rt|Bancorp|Dept|Bhd|Assn|Univ|Intl|Sys
+ABBREV_COMP = Inc|Cos?|Corp|Pp?t[ye]s?|Ltd|Plc|Rt|Bancorp|Dept|Bhd|Assn|Univ|Intl|Sys|S\.A|S\.L|Dep|Fac|Coop|Soc
 
 /* Don't included fl. oz. since Oz turns up too much in caseless tokenizer. ft now allows upper after it for "Fort" use. */
 ABBREV_NUM = Ph|tel|est|ext|sq
 ABBREV_AFTER_PERSON = Jr|Sr|Bros|(Ed|Ph)\.D|Blvd|Rd|Esq
 ABBREV_DATES = ({ABBREV_MONTH}|{ABBREV_DAYS}|{ABBREV_STATE}|{ABBREV_COMP}|{ABBREV_NUM}|{ABBREV_AFTER_PERSON}|etc|al|seq)\.
 
-/* ABBREV_PREFIX is mainly person titles, but also Mt for mountains and Ft for Fort. */
-ABBREV_PREFIX = Mr|Mrs|Ms|[M]iss|Drs?|Profs?|Sens?|Reps?|Attys?|Lt|Col|Gen|Messrs|Govs?|Adm|Rev|Maj|Sgt|Cpl|Pvt|Capt|Ste?|Ave|Pres|Lieut|Hon|Brig|Co?mdr|Pfc|Spc|Supts?|Det|Mt|Ft|Adj|Adv|Asst|Assoc|Ens|Insp|Mlle|Mme|Msgr|Sfc
+///////////////////////
+//// PERSON TITLES ////
+///////////////////////
 
-/* SPECIAL_ABBREV_PREFIX abbreviations are normally followed by an upper case word.
- * We assume they aren't used sentence finally.
+ABBREV_PREFIX_EN = Adj|Adm|Adv|Assoc|Asst|Attys?|Ave|Bart|Bldg|Brig|Bros|Capt|Col|Co?mdr|Con|Corp|Cpl|Det|DR|Drs?|Ens|Ft|Gen|Govs?|Hon|Hr|Hosp|Insp|Lieut|Lt|Maj|Messrs|[M]iss|Mlle|Mme|MM|MR|MRS|MS|Mr|Mrs|Msgr|Ms|Msgr|Mt|Op|Ord|Ph|Pfc|Pres|Profs?|Pvt|Reps?|Res|Rev|Sens?|Sfc|Sgt|Sr|Ste?|Spc|Supts?|Surg
+
+ABBREV_PREFIX_ES = A\.C|Apdo|Av|Bco|CC\.AA|Da|Dep|Dn|Dr|Dra|EE\.UU|Excmo|FF\.CC|Fil|Gral|J\.C|Let|Lic|N\.B|P\.D|P\.V\.P|Prof|Pts|Rte|S\.A|S\.A\.R|S\.E|S\.L|S\.R\.C|Sr|Sra|Srta|Sta|Sto|T\.V\.E|Tel|Ud|Uds|V\.B|V\.E|Vd|Vds|a\/c|adj|admón|afmo|apdo|av|c|c\.f|c\.g|cap|cm|cta|dcha|doc|ej|entlo|esq|etc|f\.c|gr|grs|izq|kg|km|mg|mm|núm|núm|p|p\.a|p\.ej|ptas|pág|págs|pág|págs|q\.e\.g\.e|q\.e\.s\.m|s|s\.s\.s|vid|vol|aa\.rr|abr|abrev|a\.c|adj|adm|admón|afma|afmas|afmo|afmos|ag|ago|am|ap|apdo|art|arts|arz|arzbpo|assn|atte|av|avda|bros|bv|cap|caps|cg|cgo|cia|cía|cit|co|col|corp|cos|cta|cte|ctra|cts|d\.c|dcha|dept|depto|dic|doc|docs|dpt|dpto|dr|dra|dras|dres|dto|dupdo|ed|ee\.uu|ej|emma|emmas|emmo|emmos|ene|entlo|entpo|esp|etc|ex|excm|excma|excmas|excmo|excmos|fasc|fdo|feb|fig|figs|fol|fra|gb|gral|hnos|hros|ib|ibid|ibíd|id|íd|ilm|ilma|ilmas|ilmo|ilmos|iltre|inc|intr|ít|izq|izqda|izqdo|jr|jul|jun|lám|lda|ldo|lib|lim|loc|ltd|ltda|mar|máx|may|mín|mons|mr|mrs|ms|mss|mtro|nov|ntra|ntro|núm|ob|obpo|oct|op|pág|págs|párr|pd|ph|pje|pl|plc|pm|pp|ppal|pral|prof|pról|prov|ps|pta|ptas|pte|pts|pza|rda|rdo|ref|reg|rel|rev|revda|revdo|rma|rmo|r\.p\.m|rte|sdad|sec|secret|sep|sig|smo|sr|sra|sras|sres|srs|srta|ss\.mm|sta|sto|sust|tech|tel|teléf|telf|ten|tfono|tít|tlf|ud|uds|vda|vdo|vid|vol|vols|vra|vro|vta
+
+ABBREV_PREFIX_FREELING = a\.a|a\.a\.a|a\.a\.u|a\.b|a\.b\.a|abbr|abr|a\.c|acad|aclu|a\.d|a\.e\.c|a\.f\.l|afl\-cio|afrik|a\.i\.a|a\.k\.c|a\.l|a\.l\.a|alt|alta|a\.m|a\.m\.a|a\.m\.p|a\.m\.u|antilog|a\.p|arab|ariz|ark|a\.s|ascap|at\.no|at\.wt|a\.u|aug|a\.v|avdp|ave|b\.a|b\.b\.c|b\.c|b\.d|b\.lit|b\.mus|b\.p|brig\.gen|b\.s|b\.t\.u|bul|bulg|cal|calif|cant|capt|c\.c|c\.d|cent|cento|c\.e\.o|c\.g\.s|chem|chin|chron|c\.i\.a|c\.i\.d|c\.i\.o|c\.m|co|col|coll|colo|comdr|comp|com\.pop|conn|cor|corp|cos|cot|coul|c\.p\.a|c\.p\.l|c\.p\.o|c\.s\.c|c\.u|dan|dar|d\.c|d\.c\.l|d\.d|d\.d\.s|d\.d\.t|dec|del|dept|deut|dist|div|dr|d\.sc|du|e\.c|e\.c\.a|eccles|ecclus|ed|e\.d\.c|e\.e|e\.e\.a|e\.e\.c|e\.e\.o\.c|e\.f\.t\.a|e\.g|e\.m\.f|e\.m\.u|eng|enl|eph|e\.r\.a|e\.r\.p|e\.s\.c|esp|est|e\.u|ev|ex|ezek|f\.a\.a|fac|f\.a\.o|f\.b\.i|f\.c\.c|f\.d\.a|feb|f\.e\.p\.c|finn|fl|fla|floz|f\.m|fr|ft|f\.t\.c|ga|gal|gall|gatt|g\.d\.p|gen|ger|g\.m\.t|g\.n\.p|g\.o\.p|gov|gr|grad|hab|hag|heb|h\.m\.s|hon|hr|hung|hz|i\.a\.u|i\.b\.m|i\.b\.t|i\.c\.a\.o|i\.c\.b\.m|i\.c\.c|icel|i\.e|i\.g\.y|ilgwu|ill|i\.l\.o|i\.m\.f|inc|ind|inst|introd|i\.q|i\.r\.a|i\.r\.b\.m|i\.r\.s|isa|ital|i\.t\.u|i\.u\.p\.a\.c|i\.w\.w|jan|jap|j\.d|jer|j\.g|jr|kc|kg|kgb|kgm|k\.k\.k|kl|km|kw|kwh|ky|la|lam|lat|lb|lev|l\.h\.d|lib|lith|litt\.b|litt\.d|ll\.b|ll\.d|l\.s\.d|lt|lt\.col|ltd|lt\.gen|lt\.gov|m\.a|mac|maj\.gen|mal|mass|mass\.no|m\.d|md|m\.e|mev|mex|mg|m\.h\.g|mi|mich|min|minn|miss|mks|ml|mlle|mm|mme|mo|mont|m\.p|mph|m\.p\.h|mr|mrs|m\.s|ms|msgr|ms|mss|mt|mts|mus|mus\.b|mus\.d|n\.a\.a\.c\.p|n\.a\.f\.t\.a|n\.a\.s\.a|n\.a\.s\.d\.a\.q|n\.a\.t\.o|n\.b|n\.b\.a|n\.c|n\.c\.a\.a|n\.c\.o|n\.dak|n\.e|n\.e\.a|nebr|neh|nev|n\.f|n\.f\.l|n\.h|n\.h\.l|n\.j|nl|n\.l\.r\.b|n\.mex|nnw|no|nor|nov|n\.r\.a|n\.r\.c|n\.s|n\.s\.f|num|n\.y|n\.y\.a|n\.y\.s\.e|o\.a\.s|obad|oct|o\.e|o\.e\.c\.d|o\.e\.o|o\.e\.s|o\.fr|o\.h\.g|okla|o\.n|ont|op|o\.p\.a|o\.s|o\.s\.c\.e|o\.s\.s|o\.z|pa|p\.a\.u|pd\.d|p\.e\.i|pers|p\.f\.c|p\.g\.a|ph\.b|ph\.d|philip|pl|plc|p\.m|po|pol|pop|port|prov|prov(s)|ps|pseud|pss|pt|pub|pvt|p\.w\.a|q\.t|que|r\.a|r\.a\.f|repr|rev|r\.i|r\.n|r\.n\.a|rom|r\.o\.t\.c|r\.p\.m|rpm|r\.r|r\.s\.f\.s\.r|r\.s\.v|rt\.rev|rus|r\.v|sam|sask|s\.c|sc\.d|s\.dak|s\.e|s\.e\.a\.t\.o|sec|sept|ser|sgt|s\.j|skt|s\.o\.s|span|s\.p\.c\.a|s\.p\.c\.c|sp\.gr|s\.q|sr|s\.s|s\.s\.r|st|s\.t\.d|s\.t\.e|s\.t\.p|s\.w|swed|t\.a\.n|t\.a\.s\.s|tenn|thess|tim|t\.n\.t|tr|turk|t\.v\.a|u\.a\.w|u\.h\.f|ukr|u\.m\.w|u\.n|uninc|univ|u\.n\.r\.r\.a|u\.p\.i|u\.s|u\.s\.a|u\.s\.a\.f|u\.s\.c\.g|u\.s\.m\.c|u\.s\.n|u\.s\.o|u\.s\.s|u\.s\.s\.r|u\.t|va|var|ved|v\.f\.w|v\.h\.f|vol|vs|vt|w\.a\.c|w\.c\.t\.u|w\.e\.u|w\.f\.t\.u|wis|wmo|wpa|wt|wto|w\.va|wyo|yd|y\.m\.c\.a|y\.m\.h\.a|y\.w\.c\.a|y\.w\.h\.a|zech|zeph|v|vs|i\.e|rev|e\.g
+
+ABBREV_PREFIX = {ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FREELING}|{ABBREV_PREFIX_ES}
+
+/* SPECIAL_ABBREV_PREFIX are list of titles. 
+ * These are often followed by upper-case names, but do not indicate sentence breaks
  */
 SPECIAL_ABBREV_COMP = Invt|Elec|Natl|M[ft]g
 ABBREV_UPPER = [A-Za-z]|{ABBREV_PREFIX}|vs|Alex|Wm|Jos|Cie|a\.k\.a|cf|TREAS|{ACRONYM}|{SPECIAL_ABBREV_COMP}
@@ -682,16 +708,17 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
  */
 (pt[eyEY]|co)\./{SPACE}(ltd|lim)  { return makeToken(); }
 
-{ABBREV_DATES}/{SENTEND}     {	String s;
+{ABBREV_DATES}/{SENTEND}   {    String s;
                           	if (sptb3Normalize && ! "U.S.".equals(yytext())) {
-                            yypushback(1); // return a period for next time
-                            s = yytext();
-                          } else {
-                            s = yytext();
-                            yypushback(1); // return a period for next time
-                          }
+                                yypushback(1); // return a period for next time
+                                s = yytext();
+                                } 
+                                else {
+                                    s = yytext();
+                                    yypushback(1); // return a period for next time
+                                }
                           	return makeToken(s); 
-                          	}
+                            }
 
 
 {ABBREV_DATES}/[^][^]        { return makeToken(); }
@@ -713,7 +740,7 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 {SPECIAL_ABBREV_PREFIX}     { return makeToken(); }
 {ABBREV_UPPER}/{SPACE}      { return makeToken(); }
 
-{ACRONYM}/{SPACENL}        	{ return makeToken(); }
+{ACRONYM}/{SPACENL}         { return makeToken(); }
 {APOS_DIGIT_DIGIT}/{SPACENL} { return makeToken(); }
 
 {WORD}\./{INTRA_SENT_PUNCT} {   String origTxt = yytext();
