@@ -139,20 +139,23 @@ public class CLI {
       
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
-      // TODO if this option is used, get language from lang attribute in KAF
+      // read KAF/NAF document to tokenize raw element
       if (inputKafRaw) {
+        
         BufferedReader kafReader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
         // read KAF from standard input
         kaf = KAFDocument.createFromStream(kafReader);
         String text = kaf.getRawText();
         StringReader stringReader = new StringReader(text);
         breader = new BufferedReader(stringReader);
-      } else {// take plain text and create a new KAFDocument
+        
+      } else {// read plain text from standard input and create a new KAFDocument
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       }
       // tokenize in kaf
       if (parsedArguments.getBoolean("nokaf")) {
+        
         kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
         if (parsedArguments.getBoolean("notok")) {
           Annotate annotator = new Annotate(breader);

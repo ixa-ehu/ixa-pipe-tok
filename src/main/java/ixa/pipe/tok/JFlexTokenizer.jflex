@@ -413,13 +413,12 @@ WORD_HYPHEN_ACRONYM = [A-Za-z0-9][A-Za-z0-9.,\u00AD]*(-([A-Za-z0-9\u00AD]+|{ACRO
 STRICT_URL = https?:\/\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-]
 APPROX_URL = (https?:\/\/)*((www\.([^ \t\n\f\r\"<>|.!?(){},]+\.)+[a-zA-Z]{2,4})|(([^ \t\n\f\r\"`'<>|.!?(){},-_$]+\.)+(com|net|org|edu|es|fr|uk|it|nl|de|eu|cat)))(\/[^ \t\n\f\r\"<>|()]+[^ \t\n\f\r\"<>|.!?(){},-])?
 EMAIL = [a-zA-Z0-9][^ \t\n\f\r\"<>|()\u00A0]*@([^ \t\n\f\r\"<>|().\u00A0]+\.)*([^ \t\n\f\r\"<>|().\u00A0]+)
-/* Technically, names should be capped at 15 characters.  However, then
-   you get into weirdness with what happens to the rest of the characters. */
+/* Technically, names should be capped at 15 characters, but this is not 
+useful with not complying ones*/
 TWITTER_NAME = @[a-zA-Z_][a-zA-Z_0-9]*
 TWITTER_CATEGORY = #{WORD}
 TWITTER = {TWITTER_NAME}|{TWITTER_CATEGORY}
-/* Smileys (based on Chris Potts' sentiment tutorial, but much more restricted set
- * - e.g., no "8)", "do:" or "):", too ambiguous) and simple Asian smileys 
+/* Smileys (based on Chris Potts' publicly available tutorial, but without "8)", "do:" or "):" plus simple Asian smileys 
  */
 SMILEY = [<>]?[:;=][\-o\*']?[\(\)DPdpO\\{@\|\[\]]
 ASIANSMILEY = [\^x=~<>]\.\[\^x=~<>]|[\-\^x=~<>']_[\-\^x=~<>']|\([\-\^x=~<>'][_.]?[\-\^x=~<>']\)
@@ -441,7 +440,7 @@ OTHER_CURRENCIES= [\u00A2\u00A3\u00A4\u00A5\u0080\u20A0\u20AC\u060B\u0E3F\u20A4\
 MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA\u00D7\u00F7\u0387\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0600-\u0603\u0606-\u060A\u060C\u0614\u061B\u061E\u066A\u066D\u0703-\u070D\u07F6\u07F7\u07F8\u0964\u0965\u0E4F\u1FBD\u2016\u2017\u2020-\u2023\u2030-\u2038\u203B\u203E-\u2042\u2044\u207A-\u207F\u208A-\u208E\u2100-\u214F\u2190-\u21FF\u2200-\u2BFF\u3012\u30FB\uFF01-\uFF0F\uFF1A-\uFF20\uFF3B-\uFF40\uFF5B-\uFF65\uFF65]
 /* \uFF65 is Halfwidth katakana middle dot; \u30FB is Katakana middle dot */
 /* Math and other symbols that stand alone: °²× ∀ */
-// Consider this list of bullet chars: 2219, 00b7, 2022, 2024
+// bullet chars: 2219, 00b7, 2022, 2024
 
 
 ///////////////////////////////
@@ -452,11 +451,11 @@ MISC_SYMBOL = [+%&~\^|\\¦\u00A7¨\u00A9\u00AC\u00AE¯\u00B0-\u00B3\u00B4-\u00BA
 
 ACRO_NEXT_WORD_EN = [A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]t|[B]ut|[E]arlier|[H]e|[H]er|[H]ere|[H]owever|[I]f|[I]n|[I]t|[L]ast|[M]any|[M]ore|[M]r\.|[M]s\.|[N]ow|[O]nce|[O]ne|[O]ther|[O]ur|[S]he|[S]ince|[S]o|[S]ome|[S]uch|[T]hat|[T]he|[T]heir|[T]hen|[T]here|[T]hese|[T]hey|[T]his|[W]e|[W]hen|[W]hile|[W]hat|[Y]et|[Y]ou
 
-ACRO_NEXT_WORD_ES = alguna|algún|algunas|alguno|algunos|ambas|ambos|bastantes|cada|cualesquier|cualquier|cuantas|cuantos|demasiada|demasiadas|demasiado|demasiados|mucha|muchas|mucho|muchos|ninguna|ningunas|ningún|ninguno|ningunos|otra|otras|otro|otros|poca|pocas|poco|pocos|sendas|sendos|tantas|tanta|tantos|tanto|todas|toda|todos|todo|nada|unas|una|unos|un|varias|varios|ellas|ellos|las|les|los|nos|nosotras|nosotros|nuestras|nuestros|os|ustedes|vosotras|vosotros|vuestras|vuestro|conmigo|contigo|él|ella|la|le|lo|me|mía|mí|mío|nuestra|nuestro|nuestro|suya|suyo|suyo|te|ti|tú|tuya|tuyo|tuyo|usted|vos|vuestra|vuestro|vuestro|yo|la|las|mía|mías|nosotras|mucha|muchas|mucho|muchos|nada|nadie|naide|quienesquiera|quienquiera
+ACRO_NEXT_WORD_ES = [A]lgun[ao]s?|[A]lgún|[A]mb[ao]s?|[B]astantes|[C]ada|[C]onmigo|[C]ontigo|[C]ualesquier|[C]ualquier|[C]uant[ao]s?|[É]l|[E]ll[ao]s?|[D]emasiad[ao]s?|[L]l[aeo]s?|[M][eí]|[M]í[ao]s?|[M]uch[ao]s?|[N]ada|[N]adie|[N]aide|[N]ingun[ao]s?|[N]os|[N]nosotr[ao]s?|[N]nuestr[ao]s?|[O]s|[O]tr[ao]s?|[P]oc[ao]s?|[Q]uienesquiera|[Q]uienquiera|[S]end[ao]s?|[S]uy[ao]s?|[T][eiú]|[T]uy[ao]s?|[T]ant[ao]s?|[T]od[ao]s?|[U]n[ao]s?|[U]n|[V]ari[ao]s|[U]sted|[U]stedes|[V]osotr[ao]s?|[V]uestr[ao]s?|[V]os|[Y]o|[S]obre|[S]egún|[A]demás|[A]dicionalmente|[D]espués|[L]uego|[A]ntes|[A]nteriormente|[A]l|[E]n|[A]quí|[S]in?|[P]ero|[Ú]ltimamente|[D]esde|[T]an|[M]ientras|[A]ún|[A]unque
 
-ACRO_NEXT_WORD = {ACRO_NEXT_WORD_EN}
+ACRO_NEXT_WORD = {ACRO_NEXT_WORD_EN}|{ACRO_NEXT_WORD_ES}
 
-/* In the caseless world S.p.A. "Società Per Azioni (Italian: shared company)" is also an acronym */
+/* Contains also acronyms with lower words */
 ACRONYM = [A-Za-z](\.[A-Za-z])+|(Canada|Sino|Korean|EU|Japan|non)-U\.S|U\.S\.-(U\.K|U\.S\.S\.R)
 ACRONYMS = ({ACRONYM})\.
 
@@ -466,7 +465,7 @@ ACRONYMS = ({ACRONYM})\.
  * Maybe also "op." for "op. cit." but also get a photo op. 
  */
 
-ABBREV_NUMBER = (al|ca|figs?|prop|nos?|Nr|art|bldg|prop|pp|op)\.
+ABBREV_NUMBER = (al|ca|figs?|prop|nos?|Nrs?|art|bldg|prop|pp|op)\.
 
 ////////////////////////////////////////////////
 //// DATES AND COMPANIES + LOWERCASE  WORDS ////
@@ -506,7 +505,13 @@ ABBREV_PREFIX_ES = A\.C|Apdo|Av|Bco|CC\.AA|Da|Dep|Dn|Dr|Dra|EE\.UU|Excmo|FF\.CC|
 
 ABBREV_PREFIX_FREELING = a\.a|a\.a\.a|a\.a\.u|a\.b|a\.b\.a|abbr|abr|a\.c|acad|aclu|a\.d|a\.e\.c|a\.f\.l|afl\-cio|afrik|a\.i\.a|a\.k\.c|a\.l|a\.l\.a|alt|alta|a\.m|a\.m\.a|a\.m\.p|a\.m\.u|antilog|a\.p|arab|ariz|ark|a\.s|ascap|at\.no|at\.wt|a\.u|aug|a\.v|avdp|ave|b\.a|b\.b\.c|b\.c|b\.d|b\.lit|b\.mus|b\.p|brig\.gen|b\.s|b\.t\.u|bul|bulg|cal|calif|cant|capt|c\.c|c\.d|cent|cento|c\.e\.o|c\.g\.s|chem|chin|chron|c\.i\.a|c\.i\.d|c\.i\.o|c\.m|co|col|coll|colo|comdr|comp|com\.pop|conn|cor|corp|cos|cot|coul|c\.p\.a|c\.p\.l|c\.p\.o|c\.s\.c|c\.u|dan|dar|d\.c|d\.c\.l|d\.d|d\.d\.s|d\.d\.t|dec|del|dept|deut|dist|div|dr|d\.sc|du|e\.c|e\.c\.a|eccles|ecclus|ed|e\.d\.c|e\.e|e\.e\.a|e\.e\.c|e\.e\.o\.c|e\.f\.t\.a|e\.g|e\.m\.f|e\.m\.u|eng|enl|eph|e\.r\.a|e\.r\.p|e\.s\.c|esp|est|e\.u|ev|ex|ezek|f\.a\.a|fac|f\.a\.o|f\.b\.i|f\.c\.c|f\.d\.a|feb|f\.e\.p\.c|finn|fl|fla|floz|f\.m|fr|ft|f\.t\.c|ga|gal|gall|gatt|g\.d\.p|gen|ger|g\.m\.t|g\.n\.p|g\.o\.p|gov|gr|grad|hab|hag|heb|h\.m\.s|hon|hr|hung|hz|i\.a\.u|i\.b\.m|i\.b\.t|i\.c\.a\.o|i\.c\.b\.m|i\.c\.c|icel|i\.e|i\.g\.y|ilgwu|ill|i\.l\.o|i\.m\.f|inc|ind|inst|introd|i\.q|i\.r\.a|i\.r\.b\.m|i\.r\.s|isa|ital|i\.t\.u|i\.u\.p\.a\.c|i\.w\.w|jan|jap|j\.d|jer|j\.g|jr|kc|kg|kgb|kgm|k\.k\.k|kl|km|kw|kwh|ky|la|lam|lat|lb|lev|l\.h\.d|lib|lith|litt\.b|litt\.d|ll\.b|ll\.d|l\.s\.d|lt|lt\.col|ltd|lt\.gen|lt\.gov|m\.a|mac|maj\.gen|mal|mass|mass\.no|m\.d|md|m\.e|mev|mex|mg|m\.h\.g|mi|mich|min|minn|miss|mks|ml|mlle|mm|mme|mo|mont|m\.p|mph|m\.p\.h|mr|mrs|m\.s|ms|msgr|ms|mss|mt|mts|mus|mus\.b|mus\.d|n\.a\.a\.c\.p|n\.a\.f\.t\.a|n\.a\.s\.a|n\.a\.s\.d\.a\.q|n\.a\.t\.o|n\.b|n\.b\.a|n\.c|n\.c\.a\.a|n\.c\.o|n\.dak|n\.e|n\.e\.a|nebr|neh|nev|n\.f|n\.f\.l|n\.h|n\.h\.l|n\.j|nl|n\.l\.r\.b|n\.mex|nnw|no|nor|nov|n\.r\.a|n\.r\.c|n\.s|n\.s\.f|num|n\.y|n\.y\.a|n\.y\.s\.e|o\.a\.s|obad|oct|o\.e|o\.e\.c\.d|o\.e\.o|o\.e\.s|o\.fr|o\.h\.g|okla|o\.n|ont|op|o\.p\.a|o\.s|o\.s\.c\.e|o\.s\.s|o\.z|pa|p\.a\.u|pd\.d|p\.e\.i|pers|p\.f\.c|p\.g\.a|ph\.b|ph\.d|philip|pl|plc|p\.m|po|pol|pop|port|prov|prov(s)|ps|pseud|pss|pt|pub|pvt|p\.w\.a|q\.t|que|r\.a|r\.a\.f|repr|rev|r\.i|r\.n|r\.n\.a|rom|r\.o\.t\.c|r\.p\.m|rpm|r\.r|r\.s\.f\.s\.r|r\.s\.v|rt\.rev|rus|r\.v|sam|sask|s\.c|sc\.d|s\.dak|s\.e|s\.e\.a\.t\.o|sec|sept|ser|sgt|s\.j|skt|s\.o\.s|span|s\.p\.c\.a|s\.p\.c\.c|sp\.gr|s\.q|sr|s\.s|s\.s\.r|st|s\.t\.d|s\.t\.e|s\.t\.p|s\.w|swed|t\.a\.n|t\.a\.s\.s|tenn|thess|tim|t\.n\.t|tr|turk|t\.v\.a|u\.a\.w|u\.h\.f|ukr|u\.m\.w|u\.n|uninc|univ|u\.n\.r\.r\.a|u\.p\.i|u\.s|u\.s\.a|u\.s\.a\.f|u\.s\.c\.g|u\.s\.m\.c|u\.s\.n|u\.s\.o|u\.s\.s|u\.s\.s\.r|u\.t|va|var|ved|v\.f\.w|v\.h\.f|vol|vs|vt|w\.a\.c|w\.c\.t\.u|w\.e\.u|w\.f\.t\.u|wis|wmo|wpa|wt|wto|w\.va|wyo|yd|y\.m\.c\.a|y\.m\.h\.a|y\.w\.c\.a|y\.w\.h\.a|zech|zeph|v|vs|i\.e|rev|e\.g
 
-ABBREV_PREFIX = {ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FREELING}|{ABBREV_PREFIX_ES}
+ABBREV_PREFIX_DE=I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii|xiii|xiv|xv|xvi|xvii|xviii|xix|xx|Mio|Mrd|bzw|v|vs|usw|d\.h|z\.B|u\.a|etc|Mrd|MwSt|ggf|d\.J|D\.h|m\.E|vgl|I\.F|z\.T|sogen|ff|u\.E|g\.U|g\.g\.A|c\.-à-d|Buchst|u\.s\.w|sog|u\.ä|Std|evtl|Zt|Chr|u\.U|o\.ä|Ltd|b\.A|z\.Zt|spp|sen|SA|k\.o|jun|i\.H\.v|dgl|dergl|Co|zzt|usf|s\.p\.a|Dkr|Corp|bzgl|BSE|No|Nos|Art|Nr|pp|ca|Ca|([0-9][0-9])
+
+ABBREV_PREFIX_FR=A\.C\.N|A\.M|art|ann|apr|av|auj|lib|B\.P|boul|ca|c\.-à-d|cf|ch\.-l|chap|contr|C\.P\.I|C\.Q\.F\.D|C\.N|C\.N\.S|C\.S|dir|éd|e\.g|env|al|etc|E\.V|ex|fasc|fém|fig|fr|hab|ibid|id|i\.e|inf|LL\.AA|LL\.AA\.II|LL\.AA\.RR|LL\.AA\.SS|L\.D|LL\.EE|LL\.MM|LL\.MM\.II\.RR|loc\.cit|masc|MM|ms|N\.B|N\.D\.A|N\.D\.L\.R|N\.D\.T|n\.réf|NN\.SS|N\.S|N\.D|N\.P\.A\.I|p\.c\.c|pl|pp|p\.ex|p\.j|P\.S|R\.A\.S|R\.-V|R\.P|R\.I\.P|SS|S\.S|S\.A|S\.A\.I|S\.A\.R|S\.A\.S|S\.E|sec|sect|sing|S\.M|S\.M\.I\.R|sq|sqq|suiv|sup|suppl|tél|T\.S\.V\.P|vb|vol|vs|X\.O|Z\.I
+
+ABBREV_PREFIX_NL=bacc|bc|bgen|c.i|dhr|dr|dr.h.c|drs|drs|ds|eint|fa|Fa|fam|gen|genm|ing|ir|jhr|jkvr|jr|kand|kol|lgen|lkol|Lt|maj|Mej|mevr|Mme|mr|mr|Mw|o.b.s|plv|prof|ritm|tint|Vz|Z.D|Z.D.H|Z.E|Z.Em|Z.H|Z.K.H|Z.K.M|Z.M|z.v|a.g.v|bijv|bijz|bv|d.w.z|e.c|e.g|e.k|ev|i.p.v|i.s.m|i.t.t|i.v.m|m.a.w|m.b.t|m.b.v|m.h.o|m.i|m.i.v|v.w.t
+
+ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_FREELING}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
 
 /* SPECIAL_ABBREV_PREFIX are list of titles. 
  * These are often followed by upper-case names, but do not indicate sentence breaks
