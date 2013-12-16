@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Rodrigo Agerri
+ *Copyright 2013 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
    limitations under the License.
  */
 
-package ixa.pipe.resources;
+package ixa.pipe.tok;
 
-import java.io.InputStream;
+/**
+ * Interface for a Sentence Segmenter
+ * 
+ * @author ragerri
+ * 
+ */
+public interface Segmenter {
 
-public class Resources {
-
-  private InputStream nonBreaker;
-
-  public InputStream getNonBreakingPrefixes(String cmdOption) {
-    if (cmdOption.equalsIgnoreCase("en")) {
-      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.en");
-    }
-
-    if (cmdOption.equalsIgnoreCase("es")) {
-      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.es");
-    }
-    return nonBreaker;
-  }
+  public String[] segmentSentence(String line);
 
 }

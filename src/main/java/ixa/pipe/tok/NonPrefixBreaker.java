@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.resources;
+package ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,10 +58,6 @@ public class NonPrefixBreaker {
   public static Pattern MULTI_DOTS_STARTERS = Pattern
       .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
   
-  // segment wrongly introduced periods; Centraal.There
-  public static Pattern WRONG_PERIODS = Pattern.
-      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
-  
   // some sort of punctuation inside a quote or parenthetical followed
   // by a possible sentence starter punctuation and upper case
   public static Pattern END_INSIDE_QUOTES = Pattern
@@ -70,7 +66,7 @@ public class NonPrefixBreaker {
   // end with some sort of punctuation and followed by a sentence
   // starter punctuation and upper case
   public static Pattern PUNCT_UPPER = Pattern
-      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]+[\\ ]*[\\p{Lu}])");
+      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\ ]*[\\p{Lu}])");
 
   // SPECIAL PUNCTUATION CASES COVERED. These patterns check for remaining
   // periods in the nonbreakingprefixes functions
@@ -88,10 +84,6 @@ public class NonPrefixBreaker {
   // //////////////////////////
   // // Tokenizer Patterns ////
   // //////////////////////////
-
-  public static Pattern MULTI_SPACE = Pattern.compile("\\s+");
-  // every control character not "printable"
-  public static Pattern ASCII_HEX = Pattern.compile("[\\x00-\\x19]");
 
 
   public static Pattern SPECIALS = Pattern

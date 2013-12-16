@@ -1,4 +1,4 @@
-/*
+/* 
  *Copyright 2013 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,10 @@
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
-import ixa.pipe.resources.Normalizer;
-import ixa.pipe.resources.Resources;
-import ixa.pipe.seg.SegmenterMoses;
-import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
@@ -38,9 +33,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * ixa-pipe tokenization
  * 
- * This module implements a rule-based loosely inspired by the moses tokenizer
- * (https://github.com/moses-smt/mosesdecoder)
- * 
+ *  
  * @author ragerri
  * @version 1.0
  * 
@@ -59,8 +52,6 @@ public class CLI {
    */
 
   public static void main(String[] args) throws IOException {
-
-    //TODO check offsets when we normalize 
     
     Namespace parsedArguments = null;
 
@@ -68,22 +59,36 @@ public class CLI {
     ArgumentParser parser = ArgumentParsers
         .newArgumentParser("ixa-pipe-tok-1.0.jar")
         .description(
-            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group.\n");
+            "ixa-pipe-tok-1.0 is a multilingual Tokenizer developed by IXA NLP Group.\n");
 
-    // specify language
+    // specify language (for language dependent treatment of apostrophes)
     parser
         .addArgument("-l", "--lang")
-        .choices("en", "es")
+        .choices("de", "en", "es", "fr", "it", "nl")
         .required(true)
         .help(
-            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
+            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
+    
+    parser.addArgument("-n","--normalize").choices("ancora", "en", "ptb3", "sptb3")
+          .required(false).setDefault("en").help("Set normalization method; (s)ptb3 and ancora comply with " +
+          		"Penn Treebank and Ancora normalizations respectively; the default option does not escape " +
+          		"brackets or forward slashes. See README for more details.\n");
+    
+    parser.addArgument("--nokaf").action(Arguments.storeFalse())
+          .help("Do not print tokens in KAF format, but plain text.\n");
+    
+    parser.addArgument("-o", "--outputFormat").choices("conll", "oneline")
+            .setDefault("oneline")
+            .required(false)
+            .help("Choose between conll format (one token per line) or running tokenized text.\n");
 
+    // input tokenized and segmented text 
     parser.addArgument("--notok").action(Arguments.storeTrue())
-        .help("Build KAF with already tokenized and segmented text");
+        .help("Build a KAF document with already tokenized text.\n");
     
     // specify whether input if a KAF/NAF file
     parser.addArgument("-k", "--kaf").action(Arguments.storeTrue())
-        .help("Use this option if input is a KAF/NAF document with <raw> layer.");
+        .help("Use this option if input is a KAF/NAF document with <raw> layer.\n");
 
     // specify KAF version
     parser.addArgument("--kafversion").setDefault("v1.opener")
@@ -104,69 +109,62 @@ public class CLI {
     }
 
     /*
-     * Load language and tokenizer method parameters and construct annotators,
-     * read and write kaf
+     * Load language and tokenizer method parameters
      */
-
+    String outputFormat = parsedArguments.getString("outputFormat");
+    String normalize = parsedArguments.getString("normalize");
     String lang = parsedArguments.getString("lang");
-    String method = parsedArguments.getString("method");
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
-    Resources resourceRetriever = new Resources();
-    Normalizer formatter = new Normalizer();
-    Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
+    TokenFactory tokenFactory = new TokenFactory();
     KAFDocument kaf;
-
-    // choosing tokenizer and resources by language
-
-    InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
-    nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    TokTokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
-
+  
     // reading standard input, segment and tokenize
     try {
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
       String text;
+      
 
       //TODO if this option is used, get language from lang attribute in KAF 
       if (inputKafRaw) {
         // read KAF from standard input
-        kaf = KAFDocument.createFromStream(breader);
-        text = kaf.getRawText();
-      } else {
-        kaf = new KAFDocument(lang, kafVersion);
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = breader.readLine()) != null) {
-          line = formatter.cleanWeirdChars(line);
-          sb.append(line).append("<JA>");
+        //kaf = KAFDocument.createFromStream(breader);
+        //text = kaf.getRawText();
+      } 
+      else {
+        // write kaf
+        if (parsedArguments.getBoolean("nokaf")) {
+        kaf = new KAFDocument(lang, "v1.opener");
+        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
+        
+          if (parsedArguments.getBoolean("notok")) {
+            Annotate annotator = new Annotate(breader);
+            bwriter.write(annotator.tokenizedTextToKAF(breader,kaf));
+          }
+          else {
+            Annotate annotator = new Annotate(breader,tokenFactory,normalize);
+            bwriter.write(annotator.tokensToKAF(kaf)); 
+          }
+        }// kaf options end here
+        
+        else {
+          Annotate annotator = new Annotate(breader,tokenFactory,normalize);
+          if (outputFormat.equalsIgnoreCase("conll")) { 
+            bwriter.write(annotator.tokensToCoNLL());
+          }
+          else { 
+            bwriter.write(annotator.tokensToText());
+          }
         }
-        text = sb.toString();
-      }
-      // tokenize and create KAF
-      if (parsedArguments.getBoolean("notok")) {
-        annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
-
-      } else {
-        annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
-      }
-      // write kaf document
-      kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
-      if (inputKafRaw) {
-        // empty raw layer ?
-        // kaf.setRawText("");
-      }
-      bwriter.write(kaf.toString());
+      }// annotation options end here
       bwriter.close();
-
+      breader.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
 }
