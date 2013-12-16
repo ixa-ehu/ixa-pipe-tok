@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 %caseless
 %char
 %state SPTB3 PTB3 EN ANCORA
-%debug
 /* 
  * Member variables and functions
  */
@@ -455,7 +454,7 @@ ACRO_NEXT_WORD_EN = [A]bout|[A]ccording|[A]dditionally|[A]fter|[A]n|[A]|[A]s|[A]
 
 ACRO_NEXT_WORD_ES = alguna|algún|algunas|alguno|algunos|ambas|ambos|bastantes|cada|cualesquier|cualquier|cuantas|cuantos|demasiada|demasiadas|demasiado|demasiados|mucha|muchas|mucho|muchos|ninguna|ningunas|ningún|ninguno|ningunos|otra|otras|otro|otros|poca|pocas|poco|pocos|sendas|sendos|tantas|tanta|tantos|tanto|todas|toda|todos|todo|nada|unas|una|unos|un|varias|varios|ellas|ellos|las|les|los|nos|nosotras|nosotros|nuestras|nuestros|os|ustedes|vosotras|vosotros|vuestras|vuestro|conmigo|contigo|él|ella|la|le|lo|me|mía|mí|mío|nuestra|nuestro|nuestro|suya|suyo|suyo|te|ti|tú|tuya|tuyo|tuyo|usted|vos|vuestra|vuestro|vuestro|yo|la|las|mía|mías|nosotras|mucha|muchas|mucho|muchos|nada|nadie|naide|quienesquiera|quienquiera
 
-ACRO_NEXT_WORD = {ACRO_NEXT_WORD_EN}|{ACRO_NEXT_WORD_ES}
+ACRO_NEXT_WORD = {ACRO_NEXT_WORD_EN}
 
 /* In the caseless world S.p.A. "Società Per Azioni (Italian: shared company)" is also an acronym */
 ACRONYM = [A-Za-z](\.[A-Za-z])+|(Canada|Sino|Korean|EU|Japan|non)-U\.S|U\.S\.-(U\.K|U\.S\.S\.R)
