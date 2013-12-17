@@ -139,7 +139,7 @@ public class CLI {
       
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
-      // TODO if this option is used, get language from lang attribute in KAF
+      // load KAF/NAF document
       if (inputKafRaw) {
         BufferedReader kafReader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
         // read KAF from standard input
@@ -147,7 +147,8 @@ public class CLI {
         String text = kaf.getRawText();
         StringReader stringReader = new StringReader(text);
         breader = new BufferedReader(stringReader);
-      } else {// take plain text and create a new KAFDocument
+      } else {
+    	// take plain text and create a new KAFDocument
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       }
