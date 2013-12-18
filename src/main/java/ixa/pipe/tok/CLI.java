@@ -32,16 +32,18 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * ixa-pipe-tok provides several configuration parameters: 
+ * ixa-pipe-tok provides several configuration parameters:
  * 
  * <ol>
- *   <li> lang: choose language to create the lang attribute in KAF header
- *   <li> normalize: choose normalization method (see @link JFlexLexerTokenizer)
- *   <li> nokaf: do not output KAF/NAF document.
- *   <li> outputFormat: if --nokaf is used, choose between oneline or conll format output. 
- *   <li> notok: take already tokenized text as input and create a KAFDocument with it. 
- *   <li> kaf: take a KAFDocument as input instead of plain text file. 
- *   <li> kafversion: specify the KAF version as parameter
+ * <li>lang: choose language to create the lang attribute in KAF header
+ * <li>normalize: choose normalization method (see @link JFlexLexerTokenizer)
+ * <li>nokaf: do not output KAF/NAF document.
+ * <li>outputFormat: if --nokaf is used, choose between oneline or conll format
+ * output.
+ * <li>notok: take already tokenized text as input and create a KAFDocument with
+ * it.
+ * <li>kaf: take a KAFDocument as input instead of plain text file.
+ * <li>kafversion: specify the KAF version as parameter
  * </ol>
  * 
  * 
@@ -53,8 +55,8 @@ public class CLI {
 
   /**
    * BufferedReader (from standard input) and BufferedWriter are opened. The
-   * module takes plain text or KAF from standard input and produces tokenized text by
-   * sentences. The tokens are then placed into the <wf> elements of KAF
+   * module takes plain text or KAF from standard input and produces tokenized
+   * text by sentences. The tokens are then placed into the <wf> elements of KAF
    * document. The KAF document is passed via standard output.
    * 
    * @param args
@@ -145,24 +147,27 @@ public class CLI {
 
     // reading standard input, segment and tokenize
     try {
-      
+
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
-      // load KAF/NAF document
+      // read KAF/NAF document to tokenize raw element
       if (inputKafRaw) {
-        BufferedReader kafReader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+
+        BufferedReader kafReader = new BufferedReader(new InputStreamReader(
+            System.in, "UTF-8"));
         // read KAF from standard input
         kaf = KAFDocument.createFromStream(kafReader);
         String text = kaf.getRawText();
         StringReader stringReader = new StringReader(text);
         breader = new BufferedReader(stringReader);
-      } else {
-    	// take plain text and create a new KAFDocument
+      } else {// read plain text from standard input and create a new
+              // KAFDocument
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       }
       // tokenize in kaf
       if (parsedArguments.getBoolean("nokaf")) {
+
         kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
         if (parsedArguments.getBoolean("notok")) {
           Annotate annotator = new Annotate(breader);
@@ -181,7 +186,7 @@ public class CLI {
           bwriter.write(annotator.tokensToText());
         }
       }// annotation options end here
-      
+
       bwriter.close();
       breader.close();
     } catch (IOException e) {
