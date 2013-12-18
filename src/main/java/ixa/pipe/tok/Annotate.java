@@ -23,10 +23,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * This class provides the annotation functions to output 
+ * the tokenized text into: 
+ * <ol>
+ *   <li> A list of <WF> elements inside a KAF document (DEFAULT)
+ *   <li> As running tokenized and segemented text
+ *   <li> CoNLL format, namely, one token per line and two newlines for each 
+ *        sentence. 
+ *   <li> It also provides a tokenizedTextToKAF method which takes already
+ *        tokenized text as input and formats it into KAF WF elements. 
+ * </ol> 
+ * 
+ * All these four options are configurable by using the --nokaf boolean
+ * parameter and the -outputFormat parameter of the CLI. 
+ * 
+ * @author ragerri
+ * @version 2013-18-12
+ *
+ */
 public class Annotate {
 
-  private IXATokenizer<Token> tokenizer;
-  private IXASegmenter segmenter;
+  private JFlexLexerTokenizer<Token> tokenizer;
+  private Segmenter segmenter;
 
   // counters
   int noSents = 0;
@@ -34,20 +53,41 @@ public class Annotate {
   int current_index = 0;
   int previous_index = 0;
 
+  /**
+   * Constructs an annotator taking into account the normalization options
+   * to be applied. 
+   * 
+   * @param breader
+   * @param tokenFactory
+   * @param normalize
+   */
   public Annotate(BufferedReader breader, TokenFactory tokenFactory,
       String normalize) {
-    tokenizer = new IXATokenizer<Token>(breader, tokenFactory, normalize);
-    segmenter = new IXASegmenter();
+    tokenizer = new JFlexLexerTokenizer<Token>(breader, tokenFactory, normalize);
+    segmenter = new Segmenter();
   }
 
+  /**
+   * Constructs an annotator with no options. This is to use the 
+   * tokenizedTextToKAF method 
+   * 
+   * @param breader
+   */
   public Annotate(BufferedReader breader) {
 
   }
 
+  /**
+   * Tokenize, segment and creates the WF elements into 
+   * a KAF document
+   * 
+   * @param kaf
+   * @return KAFDocument kaf containing WF with tokens
+   */
   public String tokensToKAF(KAFDocument kaf) {
 
     List<Token> tokens = tokenizer.tokenize();
-    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
+    List<List<Token>> sentences = segmenter.segment(tokens);
     for (List<Token> sentence : sentences) {
 
       // initiate sentence counter
@@ -60,10 +100,17 @@ public class Annotate {
     return kaf.toString();
   }
 
+  /**
+   * Tokenizes and segments input text. Outputs tokenized text 
+   * in conll format: one token per sentence and two newlines to 
+   * divide sentences. 
+   * 
+   * @return String tokenized text
+   */
   public String tokensToCoNLL() {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
-    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
+    List<List<Token>> sentences = segmenter.segment(tokens);
 
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
@@ -75,10 +122,16 @@ public class Annotate {
     return sb.toString();
   }
 
+  /**
+   * Tokenize and Segment input text. Outputs tokens in running text 
+   * format one sentence per line. 
+   * 
+   * @return String tokenized text
+   */
   public String tokensToText() {
    
     List<Token> tokens = tokenizer.tokenize();
-    List<List<Token>> sentences = segmenter.wordsToSentences(tokens);
+    List<List<Token>> sentences = segmenter.segment(tokens);
     StringBuilder sb = new StringBuilder();
 
     for (List<Token> sentence : sentences) {
@@ -91,6 +144,15 @@ public class Annotate {
     return sb.toString();
   }
 
+  /**
+   * Super-horrible method to create sentences from tokenized text. 
+   * Used in the tokenizedTextToKAF to create a KAFDocument with WF 
+   * elements out of already tokenized text. 
+   * 
+   * @param breader
+   * @return String text to be tokenized
+   * @throws IOException
+   */
   private String buildText(BufferedReader breader) throws IOException {
 
     StringBuilder sb = new StringBuilder();
@@ -107,6 +169,15 @@ public class Annotate {
     return text;
   }
 
+  /**
+   * Takes already tokenized text as input and creates a KAFDocument
+   * with WF holding the tokens. 
+   * 
+   * @param breader
+   * @param kaf
+   * @return String holding a KAFDocument with WF elements
+   * @throws IOException
+   */
   public String tokenizedTextToKAF(BufferedReader breader, KAFDocument kaf)
       throws IOException {
 

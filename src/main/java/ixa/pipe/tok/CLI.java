@@ -32,19 +32,28 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * ixa-pipe tokenization
+ * ixa-pipe-tok provides several configuration parameters: 
+ * 
+ * <ol>
+ *   <li> lang: choose language to create the lang attribute in KAF header
+ *   <li> normalize: choose normalization method (see @link JFlexLexerTokenizer)
+ *   <li> nokaf: do not output KAF/NAF document.
+ *   <li> outputFormat: if --nokaf is used, choose between oneline or conll format output. 
+ *   <li> notok: take already tokenized text as input and create a KAFDocument with it. 
+ *   <li> kaf: take a KAFDocument as input instead of plain text file. 
+ *   <li> kafversion: specify the KAF version as parameter
+ * </ol>
  * 
  * 
  * @author ragerri
- * @version 1.0
- * 
+ * @version 2013-18-12
  */
 
 public class CLI {
 
   /**
    * BufferedReader (from standard input) and BufferedWriter are opened. The
-   * module takes plain text from standard input and produces tokenized text by
+   * module takes plain text or KAF from standard input and produces tokenized text by
    * sentences. The tokens are then placed into the <wf> elements of KAF
    * document. The KAF document is passed via standard output.
    * 
@@ -72,9 +81,9 @@ public class CLI {
 
     parser
         .addArgument("-n", "--normalize")
-        .choices("ancora", "en", "ptb3", "sptb3")
+        .choices("ancora", "default", "ptb3", "sptb3")
         .required(false)
-        .setDefault("en")
+        .setDefault("default")
         .help(
             "Set normalization method; (s)ptb3 and ancora comply with "
                 + "Penn Treebank and Ancora normalizations respectively; the default option does not escape "

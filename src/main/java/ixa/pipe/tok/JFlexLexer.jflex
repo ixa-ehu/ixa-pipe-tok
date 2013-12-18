@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 
 %%
 
-%class JFlexTokenizer
+%class JFlexLexer
 %unicode
 %type Token
 %caseless
 %char
-%state SPTB3 PTB3 EN ANCORA
+%state SPTB3 PTB3 ANCORA
 /* 
  * Member variables and functions
  */
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 %{
 
   private TokenFactory tokenFactory;
-  private static final Logger LOGGER = Logger.getLogger(JFlexTokenizer.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(JFlexLexer.class.getName());
   private boolean seenUntokenizableCharacter;
   private enum UntokenizableOptions { NONE_DELETE, FIRST_DELETE, ALL_DELETE, NONE_KEEP, FIRST_KEEP, ALL_KEEP }
   private UntokenizableOptions untokenizable = UntokenizableOptions.FIRST_DELETE;
@@ -55,13 +55,13 @@ import java.util.regex.Pattern;
   private boolean ptb3Ldots = true;
   private boolean unicodeLdots = true;
  
-  public JFlexTokenizer(Reader breader, TokenFactory tokenFactory, String options) {
+  public JFlexLexer(Reader breader, TokenFactory tokenFactory, String options) {
     this(breader);
     this.tokenFactory = tokenFactory;
     if (options == null) {
       options = "";
     }
-    else if (options.equalsIgnoreCase("en")) {
+    else if (options.equalsIgnoreCase("default")) {
          //americanize = false;
           escapeForwardSlash = false;
           normalizeBrackets = false;
@@ -101,7 +101,7 @@ import java.util.regex.Pattern;
     }
     if (sptb3Normalize) {
       yybegin(SPTB3);
-    } 
+    }
     else {
       yybegin(PTB3);
     }
