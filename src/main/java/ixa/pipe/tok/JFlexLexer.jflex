@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
   private boolean normalizeCurrency = true;
   private boolean ptb3Ldots = true;
   private boolean unicodeLdots = true;
+  private boolean tokenizeParagraphs = true;
  
   public JFlexLexer(Reader breader, TokenFactory tokenFactory, String options) {
     this(breader);
@@ -296,10 +297,10 @@ import java.util.regex.Pattern;
   //// ELLIPSIS ////
   //////////////////
   
+  public static final String NEWLINE_TOKEN = "*NL*";
+  public static final String PARAGRAPH_TOKEN = "*<P>*";
   public static final String ptbMultiDots = "...";
   public static final String unicodeMultiDots = "\u2026";
-  /** For tokenizing carriage returns.  (JS) */
-  public static final String NEWLINE_TOKEN = "*NL*";
   
   private Token normalizeMultiDots(final String token) {
     if (ptb3Ldots) {
@@ -502,17 +503,15 @@ ABBREV_DATES = ({ABBREV_MONTH}|{ABBREV_DAYS}|{ABBREV_STATE}|{ABBREV_COMP}|{ABBRE
 
 ABBREV_PREFIX_EN = Adj|Adm|Adv|Assoc|Asst|Attys?|Ave|Bart|Bldg|Brig|Bros|Capt|Col|Co?mdr|Con|Corp|Cpl|Det|DR|Drs?|Ens|Ft|Gen|Govs?|Hon|Hr|Hosp|Insp|Lieut|Lt|Maj|Messrs|[M]iss|Mlle|Mme|MM|MR|MRS|MS|Mr|Mrs|Msgr|Ms|Msgr|Mt|Op|Ord|Ph|Pfc|Pres|Profs?|Pvt|Reps?|Res|Rev|Sens?|Sfc|Sgt|Sr|Ste?|Spc|Supts?|Surg
 
-ABBREV_PREFIX_ES = A\.C|Apdo|Av|Bco|CC\.AA|Da|Dep|Dn|Dr|Dra|EE\.UU|Excmo|FF\.CC|Fil|Gral|J\.C|Let|Lic|N\.B|P\.D|P\.V\.P|Prof|Pts|Rte|S\.A|S\.A\.R|S\.E|S\.L|S\.R\.C|Sr|Sra|Srta|Sta|Sto|T\.V\.E|Tel|Ud|Uds|V\.B|V\.E|Vd|Vds|a\/c|adj|admón|afmo|apdo|av|c|c\.f|c\.g|cap|cm|cta|dcha|doc|ej|entlo|esq|etc|f\.c|gr|grs|izq|kg|km|mg|mm|núm|núm|p|p\.a|p\.ej|ptas|pág|págs|pág|págs|q\.e\.g\.e|q\.e\.s\.m|s|s\.s\.s|vid|vol|aa\.rr|abr|abrev|a\.c|adj|adm|admón|afma|afmas|afmo|afmos|ag|ago|am|ap|apdo|art|arts|arz|arzbpo|assn|atte|av|avda|bros|bv|cap|caps|cg|cgo|cia|cía|cit|co|col|corp|cos|cta|cte|ctra|cts|d\.c|dcha|dept|depto|dic|doc|docs|dpt|dpto|dr|dra|dras|dres|dto|dupdo|ed|ee\.uu|ej|emma|emmas|emmo|emmos|ene|entlo|entpo|esp|etc|ex|excm|excma|excmas|excmo|excmos|fasc|fdo|feb|fig|figs|fol|fra|gb|gral|hnos|hros|ib|ibid|ibíd|id|íd|ilm|ilma|ilmas|ilmo|ilmos|iltre|inc|intr|ít|izq|izqda|izqdo|jr|jul|jun|lám|lda|ldo|lib|lim|loc|ltd|ltda|mar|máx|may|mín|mons|mr|mrs|ms|mss|mtro|nov|ntra|ntro|núm|ob|obpo|oct|op|pág|págs|párr|pd|ph|pje|pl|plc|pm|pp|ppal|pral|prof|pról|prov|ps|pta|ptas|pte|pts|pza|rda|rdo|ref|reg|rel|rev|revda|revdo|rma|rmo|r\.p\.m|rte|sdad|sec|secret|sep|sig|smo|sr|sra|sras|sres|srs|srta|ss\.mm|sta|sto|sust|tech|tel|teléf|telf|ten|tfono|tít|tlf|ud|uds|vda|vdo|vid|vol|vols|vra|vro|vta
+ABBREV_PREFIX_ES = Apdo|Av|Bco|CC\.AA|Da|Dep|Dn|Dr|Dra|EE\.UU|Excmo|FF\.CC|Fil|Gral|Let|Lic|Prof|Pts|Rte|Sr|Sra|Srta|Sta
 
-ABBREV_PREFIX_FREELING = a\.a|a\.a\.a|a\.a\.u|a\.b|a\.b\.a|abbr|abr|a\.c|acad|aclu|a\.d|a\.e\.c|a\.f\.l|afl\-cio|afrik|a\.i\.a|a\.k\.c|a\.l|a\.l\.a|alt|alta|a\.m|a\.m\.a|a\.m\.p|a\.m\.u|antilog|a\.p|arab|ariz|ark|a\.s|ascap|at\.no|at\.wt|a\.u|aug|a\.v|avdp|ave|b\.a|b\.b\.c|b\.c|b\.d|b\.lit|b\.mus|b\.p|brig\.gen|b\.s|b\.t\.u|bul|bulg|cal|calif|cant|capt|c\.c|c\.d|cent|cento|c\.e\.o|c\.g\.s|chem|chin|chron|c\.i\.a|c\.i\.d|c\.i\.o|c\.m|co|col|coll|colo|comdr|comp|com\.pop|conn|cor|corp|cos|cot|coul|c\.p\.a|c\.p\.l|c\.p\.o|c\.s\.c|c\.u|dan|dar|d\.c|d\.c\.l|d\.d|d\.d\.s|d\.d\.t|dec|del|dept|deut|dist|div|dr|d\.sc|du|e\.c|e\.c\.a|eccles|ecclus|ed|e\.d\.c|e\.e|e\.e\.a|e\.e\.c|e\.e\.o\.c|e\.f\.t\.a|e\.g|e\.m\.f|e\.m\.u|eng|enl|eph|e\.r\.a|e\.r\.p|e\.s\.c|esp|est|e\.u|ev|ex|ezek|f\.a\.a|fac|f\.a\.o|f\.b\.i|f\.c\.c|f\.d\.a|feb|f\.e\.p\.c|finn|fl|fla|floz|f\.m|fr|ft|f\.t\.c|ga|gal|gall|gatt|g\.d\.p|gen|ger|g\.m\.t|g\.n\.p|g\.o\.p|gov|gr|grad|hab|hag|heb|h\.m\.s|hon|hr|hung|hz|i\.a\.u|i\.b\.m|i\.b\.t|i\.c\.a\.o|i\.c\.b\.m|i\.c\.c|icel|i\.e|i\.g\.y|ilgwu|ill|i\.l\.o|i\.m\.f|inc|ind|inst|introd|i\.q|i\.r\.a|i\.r\.b\.m|i\.r\.s|isa|ital|i\.t\.u|i\.u\.p\.a\.c|i\.w\.w|jan|jap|j\.d|jer|j\.g|jr|kc|kg|kgb|kgm|k\.k\.k|kl|km|kw|kwh|ky|la|lam|lat|lb|lev|l\.h\.d|lib|lith|litt\.b|litt\.d|ll\.b|ll\.d|l\.s\.d|lt|lt\.col|ltd|lt\.gen|lt\.gov|m\.a|mac|maj\.gen|mal|mass|mass\.no|m\.d|md|m\.e|mev|mex|mg|m\.h\.g|mi|mich|min|minn|miss|mks|ml|mlle|mm|mme|mo|mont|m\.p|mph|m\.p\.h|mr|mrs|m\.s|ms|msgr|ms|mss|mt|mts|mus|mus\.b|mus\.d|n\.a\.a\.c\.p|n\.a\.f\.t\.a|n\.a\.s\.a|n\.a\.s\.d\.a\.q|n\.a\.t\.o|n\.b|n\.b\.a|n\.c|n\.c\.a\.a|n\.c\.o|n\.dak|n\.e|n\.e\.a|nebr|neh|nev|n\.f|n\.f\.l|n\.h|n\.h\.l|n\.j|nl|n\.l\.r\.b|n\.mex|nnw|no|nor|nov|n\.r\.a|n\.r\.c|n\.s|n\.s\.f|num|n\.y|n\.y\.a|n\.y\.s\.e|o\.a\.s|obad|oct|o\.e|o\.e\.c\.d|o\.e\.o|o\.e\.s|o\.fr|o\.h\.g|okla|o\.n|ont|op|o\.p\.a|o\.s|o\.s\.c\.e|o\.s\.s|o\.z|pa|p\.a\.u|pd\.d|p\.e\.i|pers|p\.f\.c|p\.g\.a|ph\.b|ph\.d|philip|pl|plc|p\.m|po|pol|pop|port|prov|prov(s)|ps|pseud|pss|pt|pub|pvt|p\.w\.a|q\.t|que|r\.a|r\.a\.f|repr|rev|r\.i|r\.n|r\.n\.a|rom|r\.o\.t\.c|r\.p\.m|rpm|r\.r|r\.s\.f\.s\.r|r\.s\.v|rt\.rev|rus|r\.v|sam|sask|s\.c|sc\.d|s\.dak|s\.e|s\.e\.a\.t\.o|sec|sept|ser|sgt|s\.j|skt|s\.o\.s|span|s\.p\.c\.a|s\.p\.c\.c|sp\.gr|s\.q|sr|s\.s|s\.s\.r|st|s\.t\.d|s\.t\.e|s\.t\.p|s\.w|swed|t\.a\.n|t\.a\.s\.s|tenn|thess|tim|t\.n\.t|tr|turk|t\.v\.a|u\.a\.w|u\.h\.f|ukr|u\.m\.w|u\.n|uninc|univ|u\.n\.r\.r\.a|u\.p\.i|u\.s|u\.s\.a|u\.s\.a\.f|u\.s\.c\.g|u\.s\.m\.c|u\.s\.n|u\.s\.o|u\.s\.s|u\.s\.s\.r|u\.t|va|var|ved|v\.f\.w|v\.h\.f|vol|vs|vt|w\.a\.c|w\.c\.t\.u|w\.e\.u|w\.f\.t\.u|wis|wmo|wpa|wt|wto|w\.va|wyo|yd|y\.m\.c\.a|y\.m\.h\.a|y\.w\.c\.a|y\.w\.h\.a|zech|zeph|v|vs|i\.e|rev|e\.g
+ABBREV_PREFIX_DE= Dkr
 
-ABBREV_PREFIX_DE=I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii|xiii|xiv|xv|xvi|xvii|xviii|xix|xx|Mio|Mrd|bzw|v|vs|usw|d\.h|z\.B|u\.a|etc|Mrd|MwSt|ggf|d\.J|D\.h|m\.E|vgl|I\.F|z\.T|sogen|ff|u\.E|g\.U|g\.g\.A|c\.-à-d|Buchst|u\.s\.w|sog|u\.ä|Std|evtl|Zt|Chr|u\.U|o\.ä|Ltd|b\.A|z\.Zt|spp|sen|SA|k\.o|jun|i\.H\.v|dgl|dergl|Co|zzt|usf|s\.p\.a|Dkr|Corp|bzgl|BSE|No|Nos|Art|Nr|pp|ca|Ca|([0-9][0-9])
+ABBREV_PREFIX_FR= Msr
 
-ABBREV_PREFIX_FR=A\.C\.N|A\.M|art|ann|apr|av|auj|lib|B\.P|boul|ca|c\.-à-d|cf|ch\.-l|chap|contr|C\.P\.I|C\.Q\.F\.D|C\.N|C\.N\.S|C\.S|dir|éd|e\.g|env|al|etc|E\.V|ex|fasc|fém|fig|fr|hab|ibid|id|i\.e|inf|LL\.AA|LL\.AA\.II|LL\.AA\.RR|LL\.AA\.SS|L\.D|LL\.EE|LL\.MM|LL\.MM\.II\.RR|loc\.cit|masc|MM|ms|N\.B|N\.D\.A|N\.D\.L\.R|N\.D\.T|n\.réf|NN\.SS|N\.S|N\.D|N\.P\.A\.I|p\.c\.c|pl|pp|p\.ex|p\.j|P\.S|R\.A\.S|R\.-V|R\.P|R\.I\.P|SS|S\.S|S\.A|S\.A\.I|S\.A\.R|S\.A\.S|S\.E|sec|sect|sing|S\.M|S\.M\.I\.R|sq|sqq|suiv|sup|suppl|tél|T\.S\.V\.P|vb|vol|vs|X\.O|Z\.I
+ABBREV_PREFIX_NL=Lt|maj|Mej|mevr|Mme|mr|mr|Mw|o.b.s|plv|prof
 
-ABBREV_PREFIX_NL=bacc|bc|bgen|c.i|dhr|dr|dr.h.c|drs|drs|ds|eint|fa|Fa|fam|gen|genm|ing|ir|jhr|jkvr|jr|kand|kol|lgen|lkol|Lt|maj|Mej|mevr|Mme|mr|mr|Mw|o.b.s|plv|prof|ritm|tint|Vz|Z.D|Z.D.H|Z.E|Z.Em|Z.H|Z.K.H|Z.K.M|Z.M|z.v|a.g.v|bijv|bijz|bv|d.w.z|e.c|e.g|e.k|ev|i.p.v|i.s.m|i.t.t|i.v.m|m.a.w|m.b.t|m.b.v|m.h.o|m.i|m.i.v|v.w.t
-
-ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_FREELING}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
+ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
 
 /* SPECIAL_ABBREV_PREFIX are list of titles. 
  * These are often followed by upper-case names, but do not indicate sentence breaks
@@ -890,14 +889,19 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 /* invert quote - often but not always right */
 '/[A-Za-z][^ \t\n\r\u00A0] 	{ return normalizeQuotes(yytext(), true); }
                                          
-{APOS_AUX}        			{ return normalizeQuotes(yytext(), false); }
-{QUOTES}        			{ return normalizeQuotes(yytext(), false); }
-{FAKEDUCKFEET}  			{ return makeToken(); }
-{MISC_SYMBOL}    			{ return makeToken(); }
+{APOS_AUX}        			{   return normalizeQuotes(yytext(), false); }
+{QUOTES}        			{   return normalizeQuotes(yytext(), false); }
+{FAKEDUCKFEET}  			{   return makeToken(); }
+{MISC_SYMBOL}    			{   return makeToken(); }
 
-{NEWLINE}      				{ 	if (tokenizeNLs) {
-                      			return makeToken(NEWLINE_TOKEN); // js: for tokenizing carriage returns
-                				}
+{NEWLINE}/{NEWLINE}+                    {   if (tokenizeParagraphs) { 
+                                                return makeToken(PARAGRAPH_TOKEN);
+                                            }
+                                        } 
+
+{NEWLINE}      				{   if (tokenizeNLs) {
+                      			        return makeToken(NEWLINE_TOKEN); 
+                			    }
                 			}							
 
 

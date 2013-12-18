@@ -40,7 +40,8 @@ import java.io.IOException;
  *       rules for splitting apostrophes. 
  *  <li> multilingual support for non-breaking prefixes, adding language-specific 
  *       acronyms and person titles, etc., for Dutch, German, French, Italian and Spanish. 
- *  <li> normalization for Ancora corpus in Spanish 
+ *  <li> normalization for Ancora corpus in Spanish
+ *  <li> paragraph tokenization to provide paragraph information
  *  </ol> 
  *      
  * By default, the tokenizer does PTB3 normalization style except brackets and forward 
@@ -66,7 +67,7 @@ import java.io.IOException;
  * 
  * The normalization performed by the four options above are (in the order in which
  * they appear in the @link JFlexLexer specification):
- * <ol>
+ * <ol> 
  *   <li>tokenizeNLs: create Token objects with newline characters
  *   <li>escapeForwardSlash: escape / and * -> \/ \*
  *   <li>normalizeBrackets: Normalize ( and ) into -LRB- and -RRB- respectively
@@ -87,6 +88,7 @@ import java.io.IOException;
  *   <li>ptb3Ldots: Normalize ellipses into ...
  *   <li>unicodeLdots: Normalize dot and optional space sequences into the Unicode 
  *       ellipsis character (U+2026). Dots order of application is ptb3Ldots -> UnicodeLdots.
+ *   <li>tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
  * </ol>
  
  * @author ragerri

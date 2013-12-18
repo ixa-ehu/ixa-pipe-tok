@@ -48,6 +48,7 @@ public class Annotate {
   private Segmenter segmenter;
 
   // counters
+  int noParas = 1;
   int noSents = 0;
   int offsetCounter = 0;
   int current_index = 0;
@@ -79,7 +80,8 @@ public class Annotate {
 
   /**
    * Tokenize, segment and creates the WF elements into 
-   * a KAF document
+   * a KAF document: wf, sent, para, offset and length
+   * attributes are provided. 
    * 
    * @param kaf
    * @return KAFDocument kaf containing WF with tokens
@@ -88,13 +90,20 @@ public class Annotate {
 
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
+    
     for (List<Token> sentence : sentences) {
 
-      // initiate sentence counter
+      // initialize sentence counter  
       noSents = noSents + 1;
       for (Token token : sentence) {
-        WF wf = kaf.newWF(token.value(), token.startOffset());
-        wf.setSent(noSents);
+        if (token.value().equals(JFlexLexer.PARAGRAPH_TOKEN)) {
+          noParas++;
+        }
+        else {
+          WF wf = kaf.newWF(token.value(), token.startOffset());
+          wf.setPara(noParas);
+          wf.setSent(noSents);
+        }
       }
     }
     return kaf.toString();
@@ -184,7 +193,7 @@ public class Annotate {
     String text = buildText(breader);
     // this creates the actual sentences to be passed to the sentence detector
     String[] sentences = text.split("<P>");
-
+    
     for (String sent : sentences) {
       // clean extra spaces
       sent = sent.trim();

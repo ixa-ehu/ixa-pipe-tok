@@ -65,7 +65,7 @@ public class Segmenter {
    */
   public static final Set<String> DEFAULT_SENTENCE_BOUNDARIES_TO_DISCARD = new HashSet<String>(
       Arrays.asList("\n", JFlexLexer.NEWLINE_TOKEN));
-
+  
   private boolean allowEmptySentences = false;
 
   /**
@@ -101,6 +101,7 @@ public class Segmenter {
     boundaryTokens = Pattern.compile(boundaryTokenRegex);
     sentenceBoundaryFollowers = boundaryFollowers;
     setSentenceBoundariesToDiscard(boundariesToDiscard);
+    
     if (DEBUG) {
       System.err.println("segmenter: boundaryTokens=" + boundaryTokenRegex);
       System.err.println("  boundaryFollowers=" + boundaryFollowers);
@@ -124,7 +125,8 @@ public class Segmenter {
     }
     return false;
   }
-
+  
+  
   public boolean allowEmptySentences() {
     return allowEmptySentences;
   }
@@ -133,7 +135,7 @@ public class Segmenter {
    * Splits tokenized text into sentences and it returns a List of Sentences.
    * Each sentence is itself a List<Token>. This function reads a List<Token>
    * and creates sublists when a boundaryToken is found. It adds tokens to a
-   * currentList until a boundaryToken is found when the current list is added
+   * currentList until a boundaryToken is found. Then the current list is added
    * to the List<List<Token>> segmented Sentences and a new sublist is created
    * to add the following tokens until a new boundaryToken is found. The
    * exception is when a boundaryFollower is found that is added directly to the
