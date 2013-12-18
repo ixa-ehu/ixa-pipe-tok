@@ -2,12 +2,6 @@
 
 This module uses the following APIs:
 
-    + Apache OpenNLP
-      Copyright [2013] The Apache Software Foundation
-
-      This product includes software developed at
-      The Apache Software Foundation (http://www.apache.org/).
-
     + JDOM Project (http://www.jdom.org/).
     + argparse4j (http://argparse4j.sourceforge.net/)
 
