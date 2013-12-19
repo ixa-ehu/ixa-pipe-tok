@@ -478,19 +478,29 @@ ABBREV_NUMBER = (al|ca|figs?|prop|nos?|Nrs?|art|bldg|prop|pp|op)\.
  * If followed by uppercase, a sentence boundary is assumed.
  */
 
+ABBREV_MONTH_DE = Jän|März|Mai|Okt|Dez
 ABBREV_MONTH_EN = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
-ABBREV_MONTH_ES = Ene|Abr|May|Abr|Jun|Jul|Ag|Sept|Oct|Nov|Dic
-ABBREV_MONTH = {ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}
+ABBREV_MONTH_ES = Ene|Febr|May|Abr|Ag|Dic
+ABBREV_MONTH_FR = janv|févr|mars|avril|juin|juil|août|déc
+ABBREV_MONTH_IT = genn|febbr|magg|giugno|luglio|sett|ott
+ABBREV_MONTH_NL = maart|mei|juni|juli|okt
+ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
 
-ABBREV_DAYS_EN = Mon|Tue|Tues|Wed|Thu|Thurs|Fri
-ABBREV_DAYS_ES = Lun|Miér|Jue|Vier|Sáb|Dom
-ABBREV_DAYS = {ABBREV_DAYS_EN}|{ABBREV_DAYS_ES}
+
+ABBREV_DAYS_DE = So|Mo|Di|Mi|Do|Fr|Sa
+ABBREV_DAYS_EN = Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun
+ABBREV_DAYS_ES = Lun|Mar|Miér|Jue|Vier|Sáb|Dom
+ABBREV_DAYS_FR = lun|mer|jeu|ven|sam|dim
+ABBREV_DAYS_IT = mar|gio|ven|sab
+ABBREV_DAYS_NL = ma|woe|vrij|za|zo|wo|vr 
+
+ABBREV_DAYS = {ABBREV_DAYS_DE}|{ABBREV_DAYS_EN}|{ABBREV_DAYS_ES}|{ABBREV_DAYS_FR}|{ABBREV_DAYS_IT}|{ABBREV_DAYS_NL}
 
 ABBREV_STATE = Ala|Ariz|[A]rk|Calif|Colo|Conn|Dak|Del|Fla|Ga|[I]ll|Ind|Kans?|Ky|La|[M]ass|Md|Mich|Minn|[M]iss|Mo|Mont|Neb|Nev|Okla|[O]re|Pa|Penn|Tenn|Tex|Va|Vt|[W]ash|Wisc?|Wyo
 
 /* Bhd is Malaysian companies! Rt. is Hungarian? */
 /* Special case: Change the class of Pty when followed by Ltd to not sentence break (in main code below)... */
-ABBREV_COMP = Inc|Cos?|Corp|Pp?t[ye]s?|Ltd|Plc|Rt|Bancorp|Dept|Bhd|Assn|Univ|Intl|Sys|S\.A|S\.L|Dep|Fac|Coop|Soc
+ABBREV_COMP = Inc|Cos?|Corp|Pp?t[ye]s?|Ltd|Plc|Rt|Bancorp|Dept|Bhd|Assn|Univ|Intl|Sys|Dep|Fac|Coop|Soc
 
 /* Don't included fl. oz. since Oz turns up too much in caseless tokenizer. ft now allows upper after it for "Fort" use. */
 ABBREV_NUM = Ph|tel|est|ext|sq
@@ -507,9 +517,9 @@ ABBREV_PREFIX_ES = Apdo|Av|Bco|CC\.AA|Da|Dep|Dn|Dr|Dra|EE\.UU|Excmo|FF\.CC|Fil|G
 
 ABBREV_PREFIX_DE= Dkr
 
-ABBREV_PREFIX_FR= Msr
+ABBREV_PREFIX_FR= Msr|Mgr
 
-ABBREV_PREFIX_NL=Lt|maj|Mej|mevr|Mme|mr|mr|Mw|o.b.s|plv|prof
+ABBREV_PREFIX_NL=Lt|maj|Mej|mevr|Mme|Mw|plv
 
 ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
 
