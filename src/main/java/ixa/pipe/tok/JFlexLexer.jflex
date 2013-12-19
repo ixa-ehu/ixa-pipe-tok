@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 %caseless
 %char
 %state SPTB3 PTB3 ANCORA
+ 
 /* 
  * Member variables and functions
  */
@@ -360,7 +361,7 @@ NEWLINE = \r|\r?\n|\u2028|\u2029|\u000B|\u000C|\u0085
 SPACENL = ({SPACE}|{NEWLINE})
 SPACENLS = {SPACENL}+
 SENTEND = {SPACENL}({SPACENL}|[:uppercase:])
-
+PARAGRAPH = [\n\u2028\u2029\u000B\u000C\u0085]{1,123}
 
 /*---- APOSTROPHES and PUNCTUATION ----*/
 
@@ -904,7 +905,7 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
 {FAKEDUCKFEET}  			{   return makeToken(); }
 {MISC_SYMBOL}    			{   return makeToken(); }
 
-{NEWLINE}/{NEWLINE}+                    {   if (tokenizeParagraphs) { 
+{PARAGRAPH}                             {   if (tokenizeParagraphs) { 
                                                 return makeToken(PARAGRAPH_TOKEN);
                                             }
                                         } 
@@ -913,7 +914,6 @@ gonna|gotta|lemme|gimme|wanna   { yypushback(2) ; return makeToken(); }
                       			        return makeToken(NEWLINE_TOKEN); 
                 			    }
                 			}							
-
 
 /*---- skip non printable characters ----*/
 
