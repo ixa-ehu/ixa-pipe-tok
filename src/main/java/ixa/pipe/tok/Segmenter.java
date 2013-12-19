@@ -134,9 +134,9 @@ public class Segmenter {
   /**
    * Splits tokenized text into sentences and it returns a List of Sentences.
    * Each sentence is itself a List<Token>. This function reads a List<Token>
-   * and creates sublists when a boundaryToken is found. It adds tokens to a
+   * and creates a sublist whenever a boundaryToken is found. It adds tokens to a
    * currentList until a boundaryToken is found. Then the current list is added
-   * to the List<List<Token>> segmented Sentences and a new sublist is created
+   * to the List<List<Token>> segmentedSentences and a new sublist is created
    * to add the following tokens until a new boundaryToken is found. The
    * exception is when a boundaryFollower is found that is added directly to the
    * previous Sentence, if not empty. This function requires that the input be a

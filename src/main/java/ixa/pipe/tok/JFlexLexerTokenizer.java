@@ -89,6 +89,7 @@ import java.io.IOException;
  *   <li>unicodeLdots: Normalize dot and optional space sequences into the Unicode 
  *       ellipsis character (U+2026). Dots order of application is ptb3Ldots -> UnicodeLdots.
  *   <li>tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
+ *       Paragraphs are denoted by "*<P>*"
  * </ol>
  
  * @author ragerri

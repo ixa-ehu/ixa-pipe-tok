@@ -4,10 +4,10 @@
 	<groupId>ixa</groupId>
 	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>1.3</version>
 	<name>ixa-pipe-tok</name>
-	<description>Tokenizer module of the IXA-pipeline, a multilingual Natural Language Processing Pipeline based on Apache OpenNLP API.
-	All models have been trained by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).
+	<description>Tokenizer module of the IXA pipeline, a multilingual Natural Language Processing 
+	Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).
         </description>
 	<developers>
 		<developer>
@@ -25,14 +25,14 @@
 	<url>http://maven.apache.org</url>
 
 	<repositories>
-	<repository>
-      <id>ixa-ehu.github</id>
-      <url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </repository>
+		<repository>
+			<id>ixa-ehu.github</id>
+			<url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -45,15 +45,13 @@
 		<dependency>
 			<groupId>net.sourceforge.argparse4j</groupId>
 			<artifactId>argparse4j</artifactId>
-			<version>0.3.2</version>
+			<version>0.4.1</version>
 		</dependency>
-
 		<dependency>
-		  <groupId>ixa.kaflib</groupId>
-		  <artifactId>kaflib-naf</artifactId>
-		  <version>1.0-SNAPSHOT</version>
+			<groupId>ixa.kaflib</groupId>
+			<artifactId>kaflib-naf</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -74,12 +72,11 @@
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>ixa.pipe.tok.CLI</Main-Class>
-										<!-- <Class-Path>../models/models.jar</Class-Path> -->
 									</manifestEntries>
 								</transformer>
 							</transformers>
 							<artifactSet>
-							<excludes></excludes>
+								<excludes></excludes>
 							</artifactSet>
 						</configuration>
 					</execution>

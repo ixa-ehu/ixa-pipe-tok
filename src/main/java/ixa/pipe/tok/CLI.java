@@ -39,11 +39,11 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * <li>normalize: choose normalization method (see @link JFlexLexerTokenizer)
  * <li>nokaf: do not output KAF/NAF document.
  * <li>outputFormat: if --nokaf is used, choose between oneline or conll format
- * output.
+ *     output.
  * <li>notok: take already tokenized text as input and create a KAFDocument with
- * it.
- * <li>kaf: take a KAFDocument as input instead of plain text file.
- * <li>kafversion: specify the KAF version as parameter
+ *     it.
+ * <li>inputkaf: take a KAF/NAF Document as input instead of plain text file.
+ * <li>kafversion: specify the KAF version as parameter. 
  * </ol>
  * 
  * 
@@ -69,9 +69,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-pipe-tok-1.0.jar")
+        .newArgumentParser("ixa-pipe-tok-1.3.jar")
         .description(
-            "ixa-pipe-tok-1.0 is a multilingual Tokenizer developed by IXA NLP Group.\n");
+            "ixa-pipe-tok-1.3 is a multilingual Tokenizer developed by IXA NLP Group.\n");
 
     // specify language (for language dependent treatment of apostrophes)
     parser
@@ -108,7 +108,7 @@ public class CLI {
 
     // specify whether input if a KAF/NAF file
     parser
-        .addArgument("-k", "--kaf")
+        .addArgument("--inputkaf")
         .action(Arguments.storeTrue())
         .help(
             "Use this option if input is a KAF/NAF document with <raw> layer.\n");
@@ -127,7 +127,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-1.0.jar -help for details");
+          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-$version.jar -help for details");
       System.exit(1);
     }
 
@@ -138,7 +138,7 @@ public class CLI {
     String normalize = parsedArguments.getString("normalize");
     String lang = parsedArguments.getString("lang");
     String kafVersion = parsedArguments.getString("kafversion");
-    Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
+    Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
 
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
@@ -168,7 +168,7 @@ public class CLI {
       // tokenize in kaf
       if (parsedArguments.getBoolean("nokaf")) {
 
-        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
+        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.3");
         if (parsedArguments.getBoolean("notok")) {
           Annotate annotator = new Annotate(breader);
           bwriter.write(annotator.tokenizedTextToKAF(breader, kaf));
