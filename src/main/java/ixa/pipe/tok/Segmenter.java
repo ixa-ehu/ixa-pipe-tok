@@ -143,8 +143,7 @@ public class Segmenter {
    * List of Tokens including boundary Tokens (e.g., {@link JFlexLexerTokenizer}
    * ).
    * 
-   * @param List
-   *          <Token> tokens a list of tokens
+   * @param tokens a list of Token objects
    * @return A list of Sentences, which is a List of Lists
    * @see #Segmenter(String, Set, Set)
    */

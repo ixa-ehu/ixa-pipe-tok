@@ -10,7 +10,8 @@ ixa-pipe-tok outputs tokenized and segmented text in three formats:
 
     + KAF/NAF (default): KAF is used to represent tokenized text but also to
       as an interchange format between other modules in IXA pipeline
-      (http://github.com/ixa-ehu)
+      (http://github.com/ixa-ehu). KAF/NAF is generated using Kaflib
+      (http://github.com/ixa-ehu/kaflib). 
     + Running text: tokenized text with one sentence per line and markers
       (*<P>*) for paragraphs. 
     + Conll: one token per line, two newlines per sentence and markers for
@@ -23,7 +24,7 @@ ixa-pipe-tok provides several configuration parameters:
     + nokaf: do not output KAF/NAF document.
     + outputFormat: if --nokaf is used, choose between oneline or conll format output.
     + notok: take already tokenized text as input and create a KAFDocument with
-    + kaf: take a KAFDocument as input instead of plain text file.
+    + inputkaf: take a KAFDocument as input instead of plain text file.
     + kafversion: specify the KAF version as parameter
   
 

@@ -54,10 +54,9 @@ public class TokenFactory {
    * which to calculate start and end position of the Token. (Does not take
    * substring).
    * 
-   * @param String
-   *          tokenString the string to be added to a Token object
-   * @param int offset the starting offset of the Token
-   * @param int the length of the string
+   * @param tokenString string to be added to a Token object
+   * @param offset the starting offset of the Token
+   * @param length of the string
    * @return a new Token object
    * 
    */
