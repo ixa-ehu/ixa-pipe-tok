@@ -12,9 +12,9 @@ ixa-pipe-tok outputs tokenized and segmented text in three formats:
       as an interchange format between other modules in IXA pipeline
       (http://github.com/ixa-ehu)
     + Running text: tokenized text with one sentence per line and markers
-      (\*<P>\*) for paragraphs. 
+      (*<P>*) for paragraphs. 
     + Conll: one token per line, two newlines per sentence and markers for
-      paragraphs (\*<P>\*). 
+      paragraphs (*<P>*). 
 
 ixa-pipe-tok provides several configuration parameters:
 
@@ -60,7 +60,8 @@ To change these options, the ixa-pipe-tok CLI currently provides four options, a
         + ancora: Ancora corpus based normalization. Like default, except that every 
           quote is normalized into ascii quotes. 
  
-The normalizations performed by the four options above are (in the order in which
+The normalizations (rules based on Stanford CoreNLP 3.2.0 tokenizer) 
+performed by the four options above are (in the order in which
 they appear in the JFlexLexer specification):
  
      + tokenizeNLs: create Token objects with newline characters
