@@ -28,7 +28,7 @@ import java.util.List;
  * the tokenized text into: 
  * <ol>
  *   <li> A list of <WF> elements inside a KAF document (DEFAULT)
- *   <li> As running tokenized and segemented text
+ *   <li> As running tokenized and segmented text
  *   <li> CoNLL format, namely, one token per line and two newlines for each 
  *        sentence. 
  *   <li> It also provides a tokenizedTextToKAF method which takes already
@@ -180,7 +180,8 @@ public class Annotate {
 
   /**
    * Takes already tokenized text as input and creates a KAFDocument
-   * with WF holding the tokens. 
+   * with WF holding the tokens. This implementation is quite crap,
+   * need to change it in accordance to the JFlexLexerTokenizer. 
    * 
    * @param breader
    * @param kaf

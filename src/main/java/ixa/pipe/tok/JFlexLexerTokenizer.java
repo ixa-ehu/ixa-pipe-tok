@@ -124,7 +124,7 @@ public class JFlexLexerTokenizer<T> extends AbstractTokenizer<T> {
    */
   @Override
   @SuppressWarnings("unchecked")
-  protected T getToken() {
+  public T getToken() {
     try {
       return (T) jlexer.yylex();
     } catch (IOException e) {
