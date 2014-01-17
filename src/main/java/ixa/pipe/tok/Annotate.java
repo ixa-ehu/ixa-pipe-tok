@@ -66,6 +66,7 @@ public class Annotate {
       String normalize) {
     tokenizer = new JFlexLexerTokenizer<Token>(breader, tokenFactory, normalize);
     segmenter = new Segmenter();
+
   }
 
   /**
@@ -123,7 +124,28 @@ public class Annotate {
 
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
-        sb.append(token.value()).append(" ").append(token.startOffset())
+          sb.append(token.value()).append("\n");
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+  
+  /**
+   * Tokenizes and segments input text. Outputs tokenized text 
+   * in conll format: one token per sentence and two newlines to 
+   * divide sentences plus offsets and lenght information about tokens. 
+   * 
+   * @return String tokenized text
+   */
+  public String tokensToCoNLLOffsets() {
+    StringBuilder sb = new StringBuilder();
+    List<Token> tokens = tokenizer.tokenize();
+    List<List<Token>> sentences = segmenter.segment(tokens);
+
+    for (List<Token> sentence : sentences) {
+      for (Token token : sentence) {
+          sb.append(token.value()).append(" ").append(token.startOffset())
             .append(" ").append(token.tokenLength()).append("\n");
       }
       sb.append("\n");
@@ -145,7 +167,7 @@ public class Annotate {
 
     for (List<Token> sentence : sentences) {
 
-      for (Token token : sentence) {
+      for (Token token : sentence) {   
         sb.append(token.value()).append(" ");
       }
       sb.append("\n");
@@ -154,7 +176,7 @@ public class Annotate {
   }
 
   /**
-   * Super-horrible method to create sentences from tokenized text. 
+   * Crap method to create sentences from tokenized text. 
    * Used in the tokenizedTextToKAF to create a KAFDocument with WF 
    * elements out of already tokenized text. 
    * 

@@ -101,6 +101,12 @@ public class CLI {
         .required(false)
         .help(
             "Choose between conll format (one token per line) or running tokenized text.\n");
+    
+    parser.addArgument("--noparas").action(Arguments.storeFalse())
+        .help("Do not print paragraph characters in CoNLL or oneline formats");
+    
+    parser.addArgument("--offsets").action(Arguments.storeFalse())
+        .help("Do not print offset and lenght information of tokens in CoNLL format");
 
     // input tokenized and segmented text
     parser.addArgument("--notok").action(Arguments.storeTrue())
@@ -181,9 +187,33 @@ public class CLI {
       else {
         Annotate annotator = new Annotate(breader, tokenFactory, normalize);
         if (outputFormat.equalsIgnoreCase("conll")) {
-          bwriter.write(annotator.tokensToCoNLL());
-        } else {
-          bwriter.write(annotator.tokensToText());
+          if (parsedArguments.getBoolean("offsets")) {
+            if (parsedArguments.getBoolean("noparas")) { 
+              bwriter.write(annotator.tokensToCoNLL());
+            }
+            else { 
+              String outputText = annotator.tokensToCoNLL().replaceAll("\\*\\<P\\>\\*\\s+","");
+              bwriter.write(outputText);
+            }
+          }//noOffset options end here
+          
+          if (parsedArguments.getBoolean("noparas")) {
+            bwriter.write(annotator.tokensToCoNLLOffsets());
+          }
+          else { 
+            String outputText = annotator.tokensToCoNLLOffsets().replaceAll("\\*\\<P\\>\\*\\s+\\d+\\s+\\d+\n","");
+            bwriter.write(outputText);
+          }
+        }//conll options end here
+        
+        else {
+          if (parsedArguments.getBoolean("noparas")) { 
+            bwriter.write(annotator.tokensToText());
+          }
+          else { 
+            String outputText = annotator.tokensToText().replaceAll("\\*\\<P\\>\\*", "");
+            bwriter.write(outputText);
+          }
         }
       }// annotation options end here
 
