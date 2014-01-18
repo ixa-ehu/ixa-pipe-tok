@@ -71,10 +71,10 @@ they appear in the JFlexLexer specification):
      + escapeForwardSlash: escape / and * -> \/ \*
      + normalizeBrackets: Normalize ( and ) into -LRB- and -RRB- respectively
      + normalizeOtherBrackets: Normalize {} and[] into -LCB-, -LRB- and -RCB-, -RRB-
-     + latexQuotes: Normalize to ``, `, ', '' for every quote (discouraged by Unicode).
+     + latexQuotes: Normalize to ``, `, '', '' for every quote (discouraged by Unicode).
      + unicodeQuotes: Normalize quotes to the range U+2018-U+201D,
        following Unicode recommendation. 
-     + asciiQuotes: Normalize quote characters to ascii ' and ". The quotes preference 
+     + asciiQuotes: Normalize quote characters to ascii '' and "". The quotes preference 
        default order is latex -> Unicode -> ascii
      + sptb3Normalize: normalize fractions and Acronyms as described by the sptb3 option above.
      + ptb3Dashes: Normalize various dash characters into "--", 
