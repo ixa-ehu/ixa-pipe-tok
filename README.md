@@ -57,11 +57,11 @@ To change these options, the ixa-pipe-tok CLI currently provides four options, a
          in sptb3 is "U.S." for which the last dot is duplicated. 
         + This option returns fractions such as "2 3/4" as a Token object, 
           but sptb3 separate them into two Token objects. 
-        + default: ptb3 minus (all types of) brackets and escapeForwardSlash normalizations.
-        + ancora: Ancora corpus based normalization. Like default, except that every 
+    + default: ptb3 minus (all types of) brackets and escapeForwardSlash normalizations.
+    + ancora: Ancora corpus based normalization. Like default, except that every 
           quote is normalized into ascii quotes. 
  
-The normalizations (rules based on Stanford CoreNLP 3.2.0 tokenizer) 
+The normalizations (most of the rules are based on Stanford CoreNLP 3.2.0 tokenizer) 
 performed by the four options above are (in the order in which
 they appear in the JFlexLexer specification):
  
