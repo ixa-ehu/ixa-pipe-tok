@@ -123,8 +123,9 @@ public class Annotate {
     List<List<Token>> sentences = segmenter.segment(tokens);
 
     for (List<Token> sentence : sentences) {
+      
       for (Token token : sentence) {
-          sb.append(token.value()).append("\n");
+        sb.append(token.value()).append("\n");
       }
       sb.append("\n");
     }
@@ -167,8 +168,13 @@ public class Annotate {
 
     for (List<Token> sentence : sentences) {
 
-      for (Token token : sentence) {   
-        sb.append(token.value()).append(" ");
+      for (Token token : sentence) {
+        if (token.value().equals(JFlexLexer.PARAGRAPH_TOKEN)) { 
+          sb.append(token.value()).append("\n");
+        }
+        else { 
+          sb.append(token.value()).append(" ");
+        }
       }
       sb.append("\n");
     }
