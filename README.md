@@ -23,11 +23,13 @@ ixa-pipe-tok provides several configuration parameters:
     + normalize: choose normalization method (see @link JFlexLexerTokenizer)
     + nokaf: do not output KAF/NAF document.
     + outputFormat: if --nokaf is used, choose between oneline or conll format output.
+        + If -o conll is chosen, it is possible to choose whether to print
+        offset information (--offsets) or not 
+    + noparas: do not print paragraph markers, e.g., *<P>*;
     + notok: take already tokenized text as input and create a KAFDocument with
     + inputkaf: take a KAFDocument as input instead of plain text file.
     + kafversion: specify the KAF version as parameter
   
-
 This Tokenizer also provides normalization functions 
 to comply with annotation in corpora such as Penn Treebank for English and 
 Ancora Corpus for Spanish. Most of the normalization rules have been adapted from 
