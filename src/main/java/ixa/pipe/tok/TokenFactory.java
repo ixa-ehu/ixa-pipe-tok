@@ -49,6 +49,7 @@ public class TokenFactory {
     this.addOffsets = addOffsets;
   }
 
+  
   /**
    * Constructs a Token as a String with corresponding offsets and length from
    * which to calculate start and end position of the Token. (Does not take

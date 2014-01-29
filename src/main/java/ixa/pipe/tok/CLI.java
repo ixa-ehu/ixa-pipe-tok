@@ -43,7 +43,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * <li>notok: take already tokenized text as input and create a KAFDocument with
  *     it.
  * <li>inputkaf: take a KAF/NAF Document as input instead of plain text file.
- * <li>kafversion: specify the KAF version as parameter. 
+ * <li>kafversion: specify the KAF version as parameter.
+ * <li>eval: input reference corpus and raw corpus to evaluate the tokenizer. 
  * </ol>
  * 
  * 
