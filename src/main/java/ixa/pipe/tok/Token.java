@@ -15,6 +15,7 @@
  */
 package ixa.pipe.tok;
 
+
 /**
  * A <code>Token</code> object contains a single String, which sets or returns
  * in response to requests.
@@ -37,7 +38,7 @@ public class Token {
    * Length of the word in the original input string
    */
   private int tokenLength = -1;
-
+  
   /**
    * Create a new <code>Token</code> with a null content (i.e., str).
    */

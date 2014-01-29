@@ -21,10 +21,15 @@ import ixa.pipe.tok.eval.TokenizerEvaluator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -125,7 +130,7 @@ public class CLI {
     parser.addArgument("--kafversion").setDefault("v1.opener")
         .help("Set kaf document version.");
     
-    parser.addArgument("-e","--eval").nargs(2).help("Input reference and raw text files to evaluate the tokenizer");
+    parser.addArgument("-e","--eval").nargs(1).help("Input reference file to evaluate the tokenizer");
 
     /*
      * Parse the command line arguments
@@ -153,18 +158,23 @@ public class CLI {
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
     TokenFactory tokenFactory = new TokenFactory();
-    TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
+    
     KAFDocument kaf;
 
     // reading standard input, segment and tokenize
     try {
-
-      //if (parsedArguments.getList("eval").isEmpty() == false) {
-        //String reference = parsedArguments.<String>getList("eval").get(0);
-        //String rawText = parsedArguments.<String>getList("eval").get(1);
-        //tokenizerEvaluator.evaluate(reference,rawText);
-      //}
       
+      if (parsedArguments.getList("eval").isEmpty() == false) {
+        breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+        File reference = new File(parsedArguments.<String>getList("eval").get(0));
+        List<String> references = FileUtils.readLines(reference);
+        Annotate annotator = new Annotate(breader,tokenFactory,normalize);
+        TokenizerEvaluator tokenizerEvaluator = annotator.evaluateTokenizer(references);
+        System.out.println("Tokenizer Evaluator: ");
+        System.out.println(tokenizerEvaluator.getFMeasure());
+        }
+
+
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
       // read KAF/NAF document to tokenize raw element
@@ -185,7 +195,7 @@ public class CLI {
       }
       // tokenize in kaf
       if (parsedArguments.getBoolean("nokaf")) {
-
+        
         kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.3");
         if (parsedArguments.getBoolean("notok")) {
           Annotate annotator = new Annotate(breader);

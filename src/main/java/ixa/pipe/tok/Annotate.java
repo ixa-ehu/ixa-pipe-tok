@@ -18,6 +18,7 @@ package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
+import ixa.pipe.tok.eval.TokenizerEvaluator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -181,6 +182,17 @@ public class Annotate {
     return sb.toString();
   }
 
+
+  public TokenizerEvaluator evaluateTokenizer(List<String> testSamples) throws IOException {
+    // evaluate Tokenizer
+    List<Token> tokens = tokenizer.tokenize();
+    TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
+    tokenizerEvaluator.evaluate(testSamples, tokens);
+    return tokenizerEvaluator;
+  }
+  
+  
+  
   /**
    * Crap method to create sentences from tokenized text. 
    * Used in the tokenizedTextToKAF to create a KAFDocument with WF 
