@@ -17,6 +17,7 @@
 package ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
+import ixa.pipe.tok.eval.TokenizerEvaluator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -123,6 +124,8 @@ public class CLI {
     // specify KAF version
     parser.addArgument("--kafversion").setDefault("v1.opener")
         .help("Set kaf document version.");
+    
+    parser.addArgument("-e","--eval").nargs(2).help("Input reference and raw text files to evaluate the tokenizer");
 
     /*
      * Parse the command line arguments
@@ -150,11 +153,18 @@ public class CLI {
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
     TokenFactory tokenFactory = new TokenFactory();
+    TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
     KAFDocument kaf;
 
     // reading standard input, segment and tokenize
     try {
 
+      //if (parsedArguments.getList("eval").isEmpty() == false) {
+        //String reference = parsedArguments.<String>getList("eval").get(0);
+        //String rawText = parsedArguments.<String>getList("eval").get(1);
+        //tokenizerEvaluator.evaluate(reference,rawText);
+      //}
+      
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
       // read KAF/NAF document to tokenize raw element
@@ -167,8 +177,9 @@ public class CLI {
         String text = kaf.getRawText();
         StringReader stringReader = new StringReader(text);
         breader = new BufferedReader(stringReader);
-      } else {// read plain text from standard input and create a new
-              // KAFDocument
+      } 
+      else {// read plain text from standard input and create a new
+            // KAFDocument
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       }
