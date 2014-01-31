@@ -1,5 +1,5 @@
 /* 
- *Copyright 2013 Rodrigo Agerri
+ *Copyright 2014 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,14 +22,10 @@ import ixa.pipe.tok.eval.TokenizerEvaluator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -37,25 +33,29 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import org.apache.commons.io.FileUtils;
+
 /**
  * ixa-pipe-tok provides several configuration parameters:
  * 
  * <ol>
- * <li>lang: choose language to create the lang attribute in KAF header
- * <li>normalize: choose normalization method (see @link JFlexLexerTokenizer)
+ * <li>lang: choose language to create the lang attribute in KAF header.
+ * <li>tokenizer: choose between default tokenizer and WhiteSpace tokenizer.
+ * <li>normalize: choose normalization method (see @link IxaPipeTokenizer).
+ * <li>paragraphs: choose to print paragraph symbols.
  * <li>nokaf: do not output KAF/NAF document.
  * <li>outputFormat: if --nokaf is used, choose between oneline or conll format
- *     output.
+ * output.
  * <li>notok: take already tokenized text as input and create a KAFDocument with
- *     it.
+ * it. This options uses the WhiteSpace tokenizer. 
  * <li>inputkaf: take a KAF/NAF Document as input instead of plain text file.
  * <li>kafversion: specify the KAF version as parameter.
- * <li>eval: input reference corpus and raw corpus to evaluate the tokenizer. 
+ * <li>eval: input reference corpus to evaluate a tokenizer. 
  * </ol>
  * 
  * 
  * @author ragerri
- * @version 2013-18-12
+ * @version 2014-01-31
  */
 
 public class CLI {
@@ -76,9 +76,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-pipe-tok-1.3.jar")
+        .newArgumentParser("ixa-pipe-tok-1.5.jar")
         .description(
-            "ixa-pipe-tok-1.3 is a multilingual Tokenizer developed by IXA NLP Group.\n");
+            "ixa-pipe-tok-1.5 is a multilingual Tokenizer developed by IXA NLP Group.\n");
 
     // specify language (for language dependent treatment of apostrophes)
     parser
@@ -87,6 +87,14 @@ public class CLI {
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
+
+    parser
+        .addArgument("-t", "--tokenizer")
+        .choices("ixa", "white")
+        .required(false)
+        .setDefault("ixa")
+        .help(
+            "Choose between using the IXA pipe tokenizer (default) or a WhiteSpace tokenizer.\n");
 
     parser
         .addArgument("-n", "--normalize")
@@ -98,6 +106,14 @@ public class CLI {
                 + "Penn Treebank and Ancora normalizations respectively; the default option does not escape "
                 + "brackets or forward slashes. See README for more details.\n");
 
+    parser
+        .addArgument("-p", "--paragraphs")
+        .choices("yes", "no")
+        .setDefault("yes")
+        .required(false)
+        .help(
+            "Choose to print paragraph characters in CoNLL or oneline formats.\n");
+
     parser.addArgument("--nokaf").action(Arguments.storeFalse())
         .help("Do not print tokens in KAF format, but plain text.\n");
 
@@ -108,12 +124,12 @@ public class CLI {
         .required(false)
         .help(
             "Choose between conll format (one token per line) or running tokenized text.\n");
-    
-    parser.addArgument("--noparas").action(Arguments.storeFalse())
-        .help("Do not print paragraph characters in CoNLL or oneline formats");
-    
-    parser.addArgument("--offsets").action(Arguments.storeFalse())
-        .help("Do not print offset and lenght information of tokens in CoNLL format");
+
+    parser
+        .addArgument("--offsets")
+        .action(Arguments.storeFalse())
+        .help(
+            "Do not print offset and lenght information of tokens in CoNLL format.\n");
 
     // input tokenized and segmented text
     parser.addArgument("--notok").action(Arguments.storeTrue())
@@ -128,9 +144,10 @@ public class CLI {
 
     // specify KAF version
     parser.addArgument("--kafversion").setDefault("v1.opener")
-        .help("Set kaf document version.");
-    
-    parser.addArgument("-e","--eval").nargs(1).help("Input reference file to evaluate the tokenizer");
+        .help("Set kaf document version.\n");
+
+    parser.addArgument("-e", "--eval").help(
+        "Input reference file to evaluate the tokenizer.\n");
 
     /*
      * Parse the command line arguments
@@ -139,41 +156,45 @@ public class CLI {
     // catch errors and print help
     try {
       parsedArguments = parser.parseArgs(args);
+      //System.err.println(parser.parseArgs(args));
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-$version.jar -help for details");
+          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-$version.jar -help for details.\n");
       System.exit(1);
     }
 
     /*
      * Load language and tokenizer method parameters
      */
+    String tokenizerType = parsedArguments.getString("tokenizer");
     String outputFormat = parsedArguments.getString("outputFormat");
     String normalize = parsedArguments.getString("normalize");
+    String paras = parsedArguments.getString("paragraphs");
     String lang = parsedArguments.getString("lang");
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
 
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
-    TokenFactory tokenFactory = new TokenFactory();
-    
+
     KAFDocument kaf;
 
-    // reading standard input, segment and tokenize
     try {
-      
-      if (parsedArguments.getList("eval").isEmpty() == false) {
+
+      if (parsedArguments.getString("eval") != null) {
+        // tokenize standard input text
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-        File reference = new File(parsedArguments.<String>getList("eval").get(0));
-        List<String> references = FileUtils.readLines(reference);
-        Annotate annotator = new Annotate(breader,tokenFactory,normalize);
-        TokenizerEvaluator tokenizerEvaluator = annotator.evaluateTokenizer(references);
+        Annotate annotator = new Annotate(breader, normalize, "no",
+            tokenizerType);
+        // evaluate wrt to reference set
+        File reference = new File(parsedArguments.getString("eval"));
+        String references = FileUtils.readFileToString(reference);
+        TokenizerEvaluator tokenizerEvaluator = annotator
+            .evaluateTokenizer(references);
         System.out.println("Tokenizer Evaluator: ");
         System.out.println(tokenizerEvaluator.getFMeasure());
-        }
-
+      }
 
       bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
@@ -187,55 +208,40 @@ public class CLI {
         String text = kaf.getRawText();
         StringReader stringReader = new StringReader(text);
         breader = new BufferedReader(stringReader);
-      } 
-      else {// read plain text from standard input and create a new
-            // KAFDocument
+      }
+      // read plain text from standard input and create a new
+      // KAFDocument
+      else {
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
       }
       // tokenize in kaf
       if (parsedArguments.getBoolean("nokaf")) {
-        
-        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.3");
+
+        kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.5");
         if (parsedArguments.getBoolean("notok")) {
-          Annotate annotator = new Annotate(breader);
-          bwriter.write(annotator.tokenizedTextToKAF(breader, kaf));
+          Annotate annotator = new Annotate(breader, normalize, paras, "white");
+          bwriter.write(annotator.tokensToKAF(kaf));
         } else {
-          Annotate annotator = new Annotate(breader, tokenFactory, normalize);
+          Annotate annotator = new Annotate(breader, normalize, paras, tokenizerType);
           bwriter.write(annotator.tokensToKAF(kaf));
         }
       }// kaf options end here
 
       else {
-        Annotate annotator = new Annotate(breader, tokenFactory, normalize);
+        Annotate annotator = new Annotate(breader, normalize, paras,
+            tokenizerType);
         if (outputFormat.equalsIgnoreCase("conll")) {
           if (parsedArguments.getBoolean("offsets")) {
-            if (parsedArguments.getBoolean("noparas")) { 
-              bwriter.write(annotator.tokensToCoNLL());
-            }
-            else { 
-              String outputText = annotator.tokensToCoNLL().replaceAll("\\*\\<P\\>\\*\\s+","");
-              bwriter.write(outputText);
-            }
-          }//noOffset options end here
-          
-          if (parsedArguments.getBoolean("noparas")) {
+            bwriter.write(annotator.tokensToCoNLL());
+          }// noOffset options end here
+          else {
             bwriter.write(annotator.tokensToCoNLLOffsets());
           }
-          else { 
-            String outputText = annotator.tokensToCoNLLOffsets().replaceAll("\\*\\<P\\>\\*\\s+\\d+\\s+\\d+\n","");
-            bwriter.write(outputText);
-          }
-        }//conll options end here
-        
+        }// conll options end here
+
         else {
-          if (parsedArguments.getBoolean("noparas")) { 
-            bwriter.write(annotator.tokensToText());
-          }
-          else { 
-            String outputText = annotator.tokensToText().replaceAll("\\*\\<P\\>\\*", "");
-            bwriter.write(outputText);
-          }
+          bwriter.write(annotator.tokensToText());
         }
       }// annotation options end here
 

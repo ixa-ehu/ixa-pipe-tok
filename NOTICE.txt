@@ -4,6 +4,7 @@ This module uses the following APIs:
 
     + JDOM Project (http://www.jdom.org/).
     + argparse4j (http://argparse4j.sourceforge.net/)
+    + apache commons io 
     + Kaflib (http://github.com/ixa-ehu/kaflib)
 
 Note that we do not redistribute those libraries in any form (binary

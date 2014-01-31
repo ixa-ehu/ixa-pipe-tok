@@ -22,68 +22,62 @@ import ixa.pipe.tok.eval.TokenizerEvaluator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 /**
- * This class provides the annotation functions to output 
- * the tokenized text into: 
+ * This class provides the annotation functions to output the tokenized text
+ * into:
  * <ol>
- *   <li> A list of <WF> elements inside a KAF document (DEFAULT)
- *   <li> As running tokenized and segmented text
- *   <li> CoNLL format, namely, one token per line and two newlines for each 
- *        sentence. 
- *   <li> It also provides a tokenizedTextToKAF method which takes already
- *        tokenized text as input and formats it into KAF WF elements. 
- * </ol> 
+ * <li>A list of <WF> elements inside a KAF document (DEFAULT)
+ * <li>As running tokenized and segmented text
+ * <li>CoNLL format, namely, one token per line and two newlines for each
+ * sentence.
+ * <li>Evaluate the tokenizer against a reference text.
+ * </ol>
  * 
- * All these four options are configurable by using the --nokaf boolean
- * parameter and the -outputFormat parameter of the CLI. 
+ * All these options are configurable by using the --nokaf boolean parameter and
+ * the -outputFormat parameter of the CLI.
  * 
  * @author ragerri
- * @version 2013-18-12
- *
+ * @version 2013-01-31
+ * 
  */
 public class Annotate {
 
-  private JFlexLexerTokenizer<Token> tokenizer;
+  private Tokenizer<Token> tokenizer;
   private Segmenter segmenter;
+  private TokenFactory tokenFactory;
 
-  // counters
+  // counters for paragraphs and sentences
   int noParas = 1;
   int noSents = 0;
-  int offsetCounter = 0;
-  int current_index = 0;
-  int previous_index = 0;
 
   /**
-   * Constructs an annotator taking into account the normalization options
-   * to be applied. 
+   * Constructs an annotator taking into account the normalization options and
+   * paragraph options.
    * 
    * @param breader
-   * @param tokenFactory
    * @param normalize
+   * @param options
+   * @param tokenizerType
    */
-  public Annotate(BufferedReader breader, TokenFactory tokenFactory,
-      String normalize) {
-    tokenizer = new JFlexLexerTokenizer<Token>(breader, tokenFactory, normalize);
+  public Annotate(BufferedReader breader, String normalize, String options,
+      String tokenizerType) {
+    this.tokenFactory = new TokenFactory();
+    if (tokenizerType.equalsIgnoreCase("white")) {
+      tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, options);
+    } else {
+      tokenizer = new IxaPipeTokenizer<Token>(breader, tokenFactory, normalize,
+          options);
+    }
     segmenter = new Segmenter();
 
   }
 
   /**
-   * Constructs an annotator with no options. This is to use the 
-   * tokenizedTextToKAF method 
-   * 
-   * @param breader
-   */
-  public Annotate(BufferedReader breader) {
-
-  }
-
-  /**
-   * Tokenize, segment and creates the WF elements into 
-   * a KAF document: wf, sent, para, offset and length
-   * attributes are provided. 
+   * Tokenize, segment and creates the WF elements into a KAF document: wf,
+   * sent, para, offset and length attributes are provided.
    * 
    * @param kaf
    * @return KAFDocument kaf containing WF with tokens
@@ -92,16 +86,15 @@ public class Annotate {
 
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
-    
+
     for (List<Token> sentence : sentences) {
 
-      // initialize sentence counter  
+      // initialize sentence counter
       noSents = noSents + 1;
       for (Token token : sentence) {
-        if (token.value().equals(JFlexLexer.PARAGRAPH_TOKEN)) {
+        if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
           noParas++;
-        }
-        else {
+        } else {
           WF wf = kaf.newWF(token.value(), token.startOffset());
           wf.setPara(noParas);
           wf.setSent(noSents);
@@ -112,9 +105,8 @@ public class Annotate {
   }
 
   /**
-   * Tokenizes and segments input text. Outputs tokenized text 
-   * in conll format: one token per sentence and two newlines to 
-   * divide sentences. 
+   * Tokenizes and segments input text. Outputs tokenized text in conll format:
+   * one token per sentence and two newlines to divide sentences.
    * 
    * @return String tokenized text
    */
@@ -124,7 +116,7 @@ public class Annotate {
     List<List<Token>> sentences = segmenter.segment(tokens);
 
     for (List<Token> sentence : sentences) {
-      
+
       for (Token token : sentence) {
         sb.append(token.value()).append("\n");
       }
@@ -132,11 +124,11 @@ public class Annotate {
     }
     return sb.toString();
   }
-  
+
   /**
-   * Tokenizes and segments input text. Outputs tokenized text 
-   * in conll format: one token per sentence and two newlines to 
-   * divide sentences plus offsets and lenght information about tokens. 
+   * Tokenizes and segments input text. Outputs tokenized text in conll format:
+   * one token per sentence and two newlines to divide sentences plus offsets
+   * and lenght information about tokens.
    * 
    * @return String tokenized text
    */
@@ -148,21 +140,21 @@ public class Annotate {
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
           sb.append(token.value()).append(" ").append(token.startOffset())
-            .append(" ").append(token.tokenLength()).append("\n");
-      }
+              .append(" ").append(token.tokenLength()).append("\n");
+        }
       sb.append("\n");
     }
     return sb.toString();
   }
 
   /**
-   * Tokenize and Segment input text. Outputs tokens in running text 
-   * format one sentence per line. 
+   * Tokenize and Segment input text. Outputs tokens in running text format one
+   * sentence per line.
    * 
    * @return String tokenized text
    */
   public String tokensToText() {
-   
+
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
     StringBuilder sb = new StringBuilder();
@@ -170,7 +162,7 @@ public class Annotate {
     for (List<Token> sentence : sentences) {
 
       for (Token token : sentence) {
-        if (token.value().equals(JFlexLexer.PARAGRAPH_TOKEN)) { 
+        if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) { 
           sb.append(token.value()).append("\n");
         }
         else { 
@@ -182,79 +174,36 @@ public class Annotate {
     return sb.toString();
   }
 
-
-  public TokenizerEvaluator evaluateTokenizer(List<String> testSamples) throws IOException {
-    // evaluate Tokenizer
+  /**
+   * This function takes a reference tokenized text, performs 
+   * tokenization on some input raw text and builds a 
+   * @link TokenizerEvaluator to compare the reference tokenization
+   * againts the predicted tokenization. 
+   * 
+   * This function is used in the CLI to obtain the F score of 
+   * a tokenizer via the --eval parameter. 
+   * 
+   * @param referenceText the reference tokenized text
+   * @return a Tokenizer Evaluator 
+   * @throws IOException
+   */
+  public TokenizerEvaluator evaluateTokenizer(String referenceText)
+      throws IOException {
+    // tokenize input text
     List<Token> tokens = tokenizer.tokenize();
+    // construct whitespace tokenizer to obtain the Token objects from reference
+    // text
+    
+    StringReader stringReader = new StringReader(referenceText);
+    BufferedReader refReader = new BufferedReader(stringReader);
+    Tokenizer<Token> whiteSpacer = new WhiteSpaceTokenizer<Token>(refReader,
+        tokenFactory, "no");
+    // createn Token objects out from the reference text
+    List<Token> references = whiteSpacer.tokenize();
+    // evaluate
     TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
-    tokenizerEvaluator.evaluate(testSamples, tokens);
+    tokenizerEvaluator.evaluate(references, tokens);
     return tokenizerEvaluator;
   }
-  
-  
-  
-  /**
-   * Crap method to create sentences from tokenized text. 
-   * Used in the tokenizedTextToKAF to create a KAFDocument with WF 
-   * elements out of already tokenized text. 
-   * 
-   * @param breader
-   * @return String text to be tokenized
-   * @throws IOException
-   */
-  private String buildText(BufferedReader breader) throws IOException {
 
-    StringBuilder sb = new StringBuilder();
-    String text;
-    String line;
-    while ((line = breader.readLine()) != null) {
-      sb.append(line).append("<JA>");
-    }
-    text = sb.toString();
-    text = text.replaceAll("(<JA><JA>)+", "<P>");
-    text = text.replaceAll("<JA>", " ");
-    text = text.replaceAll("\\s+", " ");
-    text = text.trim();
-    return text;
-  }
-
-  /**
-   * Takes already tokenized text as input and creates a KAFDocument
-   * with WF holding the tokens. This implementation is quite crap,
-   * need to change it in accordance to the JFlexLexerTokenizer. 
-   * 
-   * @param breader
-   * @param kaf
-   * @return String holding a KAFDocument with WF elements
-   * @throws IOException
-   */
-  public String tokenizedTextToKAF(BufferedReader breader, KAFDocument kaf)
-      throws IOException {
-
-    String text = buildText(breader);
-    // this creates the actual sentences to be passed to the sentence detector
-    String[] sentences = text.split("<P>");
-    
-    for (String sent : sentences) {
-      // clean extra spaces
-      sent = sent.trim();
-      sent = sent.replaceAll("\\s+", " ");
-
-      // "tokenize" 
-      String[] tokens = sent.split(" ");
-      // get sentence counter
-      noSents = noSents + 1;
-
-      for (int i = 0; i < tokens.length; i++) {
-        // get offsets; offsets here will not be the original document
-        current_index = sent.indexOf(tokens[i], previous_index);
-        int offset = offsetCounter + current_index;
-        WF wf = kaf.newWF(tokens[i], offset);
-        wf.setSent(noSents);
-        previous_index = current_index + tokens[i].length();
-      }
-      offsetCounter += sent.length();
-    }
-    return kaf.toString();
-  }
 }

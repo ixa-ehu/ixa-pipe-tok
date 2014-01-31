@@ -17,7 +17,8 @@ package ixa.pipe.tok;
 
 
 /**
- * A <code>Token</code> object contains a single String, which sets or returns
+ * A <code>Token</code> object contains a single String, a startOffset and 
+ * the length of the String. These attributes are set or returned
  * in response to requests.
  * 
  * @author ragerri

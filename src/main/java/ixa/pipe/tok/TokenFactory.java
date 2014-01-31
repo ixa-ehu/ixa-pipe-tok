@@ -17,9 +17,9 @@
 package ixa.pipe.tok;
 
 /**
- * This class provides the functionality to create Token objects. E.g., the @link
- * JFlexLexerTokenizer uses the createToken function of this class to create
- * every Token
+ * This class provides the functionality to create {@link Token} objects. E.g., the 
+ * {@link IxaPipeTokenizer} uses the createToken function of this class to create
+ * every {@link Token}
  * 
  * @author ragerri
  * @version 2013-11-25

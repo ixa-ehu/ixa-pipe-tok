@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 /**
  * Sentence segmenter
  * 
- * Splits tokenized text into sentences if boundary Tokens are themselves
- * tokens. {@code JFlexLexerTokenizer}
+ * Splits tokenized text into sentences if boundary {@link Token} are themselves
+ * tokens. {@link Token}
  * 
  * @author ragerri
  * @version 2013-18-12
@@ -59,12 +59,12 @@ public class Segmenter {
    * For ending sentences with [\")\]\}]\.[!?]+
    */
   public static final Set<String> DEFAULT_BOUNDARY_FOLLOWERS = new HashSet<String>(
-      Arrays.asList(")", "]", "\"", "\'", "''", "-RRB-", "-RSB-", "-RCB-"));
+      Arrays.asList(")", "]", "''", "-RRB-", "-RSB-", "-RCB-"));
   /**
    * Do not keep newline tokens
    */
   public static final Set<String> DEFAULT_SENTENCE_BOUNDARIES_TO_DISCARD = new HashSet<String>(
-      Arrays.asList("\n", JFlexLexer.NEWLINE_TOKEN));
+      Arrays.asList("\n", IxaPipeLexer.NEWLINE_TOKEN));
   
   private boolean allowEmptySentences = false;
 
@@ -140,7 +140,7 @@ public class Segmenter {
    * to add the following tokens until a new boundaryToken is found. The
    * exception is when a boundaryFollower is found that is added directly to the
    * previous Sentence, if not empty. This function requires that the input be a
-   * List of Tokens including boundary Tokens (e.g., {@link JFlexLexerTokenizer}
+   * List of Tokens including boundary Tokens (e.g., {@link IxaPipeTokenizer}
    * ).
    * 
    * @param tokens a list of Token objects
