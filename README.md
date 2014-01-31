@@ -15,28 +15,33 @@ ixa-pipe-tok outputs tokenized and segmented text in three formats:
     + Running text: tokenized text with one sentence per line and markers
       (*<P>*) for paragraphs. 
     + Conll: one token per line, two newlines per sentence and markers for
-      paragraphs (*<P>*). 
+      paragraphs (*<P>*) and offsets. 
 
 ixa-pipe-tok provides several configuration parameters:
 
     + lang: choose language to create the lang attribute in KAF header
-    + normalize: choose normalization method (see @link JFlexLexerTokenizer)
+    + tokenizer: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
+    + normalize: choose normalization method (see @link IxaPipeTokenizer)
     + nokaf: do not output KAF/NAF document.
     + outputFormat: if --nokaf is used, choose between oneline or conll format output.
         + If -o conll is chosen, it is possible to choose whether to print
         offset information (--offsets) or not 
-    + noparas: do not print paragraph markers, e.g., *<P>*;
-    + notok: take already tokenized text as input and create a KAFDocument with
+    + paragraphs: do not print paragraph markers, e.g., *<P>*;
+    + notok: take already tokenized text as input and create a KAFDocument 
     + inputkaf: take a KAFDocument as input instead of plain text file.
     + kafversion: specify the KAF version as parameter
+    + eval: evaluate a tokenizer with respect to a tokenized gold standard. The
+      input gold standard needs to be in conll (one token per line, two
+      newlines to separate tokens) or in oneline (tokenized text with one
+      sentence per line) formats. 
   
-This Tokenizer also provides normalization functions 
+The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions 
 to comply with annotation in corpora such as Penn Treebank for English and 
 Ancora Corpus for Spanish. Most of the normalization rules have been adapted from 
 the PTBTokenizer of Stanford CoreNLP version 3.2.0, and many changes have been
 added to deal with other normalization requirements, such as those of the Ancora corpus. 
 Specifically, apart from English Penn Treebank-compliant tokenization, 
-this Tokenizer provides:
+the IxaPipeTokenizer provides:
   
     + multilingual treatment of apostrophes for Catalan, French and Italian styles 
       (l' aquila, c' est, etc.) possibly applying to other languages with the same 
@@ -67,6 +72,8 @@ The normalizations (most of the rules are based on Stanford CoreNLP 3.2.0 tokeni
 performed by the four options above are (in the order in which
 they appear in the JFlexLexer specification):
  
+     + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
+       Paragraphs are denoted by "*<P>*"
      + tokenizeNLs: create Token objects with newline characters
      + escapeForwardSlash: escape / and * -> \/ \*
      + normalizeBrackets: Normalize ( and ) into -LRB- and -RRB- respectively
@@ -87,8 +94,6 @@ they appear in the JFlexLexer specification):
      + ptb3Ldots: Normalize ellipses into ...
      + unicodeLdots: Normalize dot and optional space sequences into the Unicode 
        ellipsis character (U+2026). Dots order of application is ptb3Ldots -> UnicodeLdots.
-     + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
-       Paragraphs are denoted by "*<P>*"
 
 Contents
 ========
@@ -223,13 +228,21 @@ https://github.com/ixa-ehu/naf
 To run the program execute:
 
 ````shell
-cat file.(txt|kaf|naf) | java -jar $PATH/target/ixa-pipe-tok-1.3.jar -l $lang
+cat file.(txt|kaf|naf) | java -jar $PATH/target/ixa-pipe-tok-$version.jar -l $lang
 ````
+
+For evaluation use: 
+
+cat file.txt | java -jar $PATH/target/ixa-pipe-tok-$version.jar -l $lang --nokaf -e reference-file.txt 
+
+Remember that the reference file to evaluate needs to be in conll format (one
+token per line and two newlines to separate sentences) or in tokenized text
+with one sentence per line. 
 
 For a summary of options available, run:
 
 ````shell
-java -jar $PATH/target/ixa-pipe-tok-1.3.jar -help
+java -jar $PATH/target/ixa-pipe-tok-$version.jar -help
 ````
 
 GENERATING JAVADOC
@@ -241,7 +254,7 @@ You can also generate the javadoc of the module by executing:
 mvn javadoc:jar
 ````
 
-Which will create a jar file core/target/ixa-pipe-tok-1.3-javadoc.jar
+Which will create a jar file core/target/ixa-pipe-tok-$version-javadoc.jar
 
 
 Contact information
