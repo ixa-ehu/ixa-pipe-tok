@@ -70,7 +70,7 @@ To change these options, the ixa-pipe-tok CLI currently provides four options, a
  
 The normalizations (most of the rules are based on Stanford CoreNLP 3.2.0 tokenizer) 
 performed by the four options above are (in the order in which
-they appear in the JFlexLexer specification):
+they appear in the IxaPipeLexer specification):
  
      + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
        Paragraphs are denoted by "*<P>*"
