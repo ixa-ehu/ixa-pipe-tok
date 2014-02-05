@@ -32,7 +32,7 @@ ixa-pipe-tok provides several configuration parameters:
     + kafversion: specify the KAF version as parameter
     + eval: evaluate a tokenizer with respect to a tokenized gold standard. The
       input gold standard needs to be in conll (one token per line, two
-      newlines to separate tokens) or in oneline (tokenized text with one
+      newlines to separate sentences) or in oneline (tokenized text with one
       sentence per line) formats. 
   
 The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions 
