@@ -32,7 +32,7 @@ ixa-pipe-tok provides several configuration parameters:
     + kafversion: specify the KAF version as parameter
     + eval: evaluate a tokenizer with respect to a tokenized gold standard. The
       input gold standard needs to be in conll (one token per line, two
-      newlines to separate tokens) or in oneline (tokenized text with one
+      newlines to separate sentences) or in oneline (tokenized text with one
       sentence per line) formats. 
   
 The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions 
@@ -70,7 +70,7 @@ To change these options, the ixa-pipe-tok CLI currently provides four options, a
  
 The normalizations (most of the rules are based on Stanford CoreNLP 3.2.0 tokenizer) 
 performed by the four options above are (in the order in which
-they appear in the JFlexLexer specification):
+they appear in the IxaPipeLexer specification):
  
      + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
        Paragraphs are denoted by "*<P>*"
