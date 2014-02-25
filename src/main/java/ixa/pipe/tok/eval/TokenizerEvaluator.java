@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 public class TokenizerEvaluator {
 
   private FMeasure fmeasure = new FMeasure();
-  public static final boolean DEBUG = false;
+  public static final boolean DEBUG = true;
 
   private List<List<String>> referenceTokens(List<Token> referenceList) {
 
