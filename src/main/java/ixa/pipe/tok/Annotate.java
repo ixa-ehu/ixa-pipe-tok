@@ -114,11 +114,9 @@ public class Annotate {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
-
     for (List<Token> sentence : sentences) {
-
       for (Token token : sentence) {
-        sb.append(token.value()).append("\n");
+        sb.append(token.value().trim()).append("\n");
       }
       sb.append("\n");
     }
@@ -136,10 +134,9 @@ public class Annotate {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
-
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
-          sb.append(token.value()).append(" ").append(token.startOffset())
+          sb.append(token.value().trim()).append(" ").append(token.startOffset())
               .append(" ").append(token.tokenLength()).append("\n");
         }
       sb.append("\n");
@@ -154,24 +151,21 @@ public class Annotate {
    * @return String tokenized text
    */
   public String tokensToText() {
-
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
     StringBuilder sb = new StringBuilder();
-
     for (List<Token> sentence : sentences) {
-
       for (Token token : sentence) {
-        if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) { 
+        if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
           sb.append(token.value()).append("\n");
         }
-        else { 
-          sb.append(token.value()).append(" ");
+        else {
+          sb.append(token.value().trim()).append(" ");
         }
       }
       sb.append("\n");
     }
-    return sb.toString();
+    return sb.toString().trim();
   }
 
   /**
