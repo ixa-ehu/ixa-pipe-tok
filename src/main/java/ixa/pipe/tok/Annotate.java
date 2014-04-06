@@ -83,7 +83,7 @@ public class Annotate {
    * @return KAFDocument kaf containing WF with tokens
    */
   public String tokensToKAF(KAFDocument kaf) {
-    //TODO numers 11. and 11.1. 
+    //TODO post-process <P> and then lowercase word
     List<Token> tokens = tokenizer.tokenize();
     List<List<Token>> sentences = segmenter.segment(tokens);
     for (List<Token> sentence : sentences) {
