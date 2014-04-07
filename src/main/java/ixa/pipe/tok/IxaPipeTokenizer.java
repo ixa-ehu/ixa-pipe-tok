@@ -130,7 +130,6 @@ public class IxaPipeTokenizer<T> extends AbstractTokenizer<T> {
     try {
       return (T) jlexer.yylex();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return nextToken;

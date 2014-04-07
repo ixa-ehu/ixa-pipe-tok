@@ -23,6 +23,8 @@ import ixa.pipe.tok.eval.TokenizerEvaluator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -83,15 +85,22 @@ public class Annotate {
    * @return KAFDocument kaf containing WF with tokens
    */
   public String tokensToKAF(KAFDocument kaf) {
-    //TODO post-process <P> and then lowercase word
     List<Token> tokens = tokenizer.tokenize();
+    // remove paragraphs followed by lowercase words
+    List<Integer> spuriousParas = getSpuriousParas(tokens);
+    removeSpuriousParas(tokens,spuriousParas);
+    //segment
     List<List<Token>> sentences = segmenter.segment(tokens);
     for (List<Token> sentence : sentences) {
-      // initialize sentence counter
       noSents = noSents + 1;
       for (Token token : sentence) {
         if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
-          noParas++;
+          ++noParas;
+          //TODO sentences without end markers;
+          //this is a crappy rule
+          while (noParas > noSents) {
+            ++noSents;
+          }
         } else {
           WF wf = kaf.newWF(token.value(), token.startOffset());
           wf.setPara(noParas);
@@ -111,6 +120,9 @@ public class Annotate {
   public String tokensToCoNLL() {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
+    // remove paragraphs followed by lowercase words
+    List<Integer> spuriousParas = getSpuriousParas(tokens);
+    removeSpuriousParas(tokens,spuriousParas);
     List<List<Token>> sentences = segmenter.segment(tokens);
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
@@ -131,6 +143,9 @@ public class Annotate {
   public String tokensToCoNLLOffsets() {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
+    // remove paragraphs followed by lowercase words
+    List<Integer> spuriousParas = getSpuriousParas(tokens);
+    removeSpuriousParas(tokens,spuriousParas);
     List<List<Token>> sentences = segmenter.segment(tokens);
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
@@ -150,6 +165,9 @@ public class Annotate {
    */
   public String tokensToText() {
     List<Token> tokens = tokenizer.tokenize();
+    // remove paragraphs followed by lowercase words
+    List<Integer> spuriousParas = getSpuriousParas(tokens);
+    removeSpuriousParas(tokens,spuriousParas);
     List<List<Token>> sentences = segmenter.segment(tokens);
     StringBuilder sb = new StringBuilder();
     for (List<Token> sentence : sentences) {
@@ -196,6 +214,24 @@ public class Annotate {
     TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
     tokenizerEvaluator.evaluate(references, tokens);
     return tokenizerEvaluator;
+  }
+  
+  private static List<Integer> getSpuriousParas(List<Token> tokens) {
+    List<Integer> spuriousTokens = new ArrayList<Integer>();
+    for (int i = 1; i < (tokens.size() -1); ++i) {
+      if (tokens.get(i).value().equals(IxaPipeLexer.PARAGRAPH_TOKEN) && 
+          tokens.get(i+1).value().matches("[a-z]+")) {
+        spuriousTokens.add(i);
+      }
+    }
+    return spuriousTokens;
+  }
+  
+  private static void removeSpuriousParas(List<Token> tokens, List<Integer> spuriousParas) {
+    Collections.sort(spuriousParas, Collections.reverseOrder());
+    for (int paraIndex : spuriousParas) {
+      tokens.remove(paraIndex);
+    }
   }
 
 }
