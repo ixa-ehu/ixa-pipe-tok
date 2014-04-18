@@ -1,4 +1,4 @@
-package ixa.pipe.tok.eval;
+package es.ehu.si.ixa.pipe.tok.eval;
 
 import java.util.Arrays;
 import java.util.List;

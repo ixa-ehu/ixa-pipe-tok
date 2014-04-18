@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package es.ehu.si.ixa.pipe.tok;
   
 import java.util.ArrayList;
 import java.util.List;

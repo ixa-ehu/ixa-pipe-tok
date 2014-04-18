@@ -14,9 +14,8 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok.eval;
+package es.ehu.si.ixa.pipe.tok.eval;
 
-import ixa.pipe.tok.Token;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+
+import es.ehu.si.ixa.pipe.tok.Token;
 
 /**
  * The {@link TokenizerEvaluator} measures the performance of a 

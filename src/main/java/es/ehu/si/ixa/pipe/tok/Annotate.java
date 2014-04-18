@@ -14,11 +14,10 @@
  limitations under the License.
  */
 
-package ixa.pipe.tok;
+package es.ehu.si.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
-import ixa.pipe.tok.eval.TokenizerEvaluator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +25,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
 /**
  * This class provides the annotation functions to output the tokenized text
@@ -84,7 +85,7 @@ public class Annotate {
    * @param kaf
    * @return KAFDocument kaf containing WF with tokens
    */
-  public String tokensToKAF(KAFDocument kaf) {
+  public void tokensToKAF(KAFDocument kaf) {
     List<Token> tokens = tokenizer.tokenize();
     // remove paragraphs followed by lowercase words
     List<Integer> spuriousParas = getSpuriousParas(tokens);
@@ -108,7 +109,6 @@ public class Annotate {
         }
       }
     }
-    return kaf.toString();
   }
 
   /**

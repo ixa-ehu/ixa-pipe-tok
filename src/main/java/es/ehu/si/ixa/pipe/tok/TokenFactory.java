@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package es.ehu.si.ixa.pipe.tok;
 
 /**
  * This class provides the functionality to create {@link Token} objects. E.g., the 

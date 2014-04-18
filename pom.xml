@@ -1,14 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.ixa-ehu</groupId>
+	<groupId>es.ehu.si</groupId>
 	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5</version>
+	<version>1.5.0</version>
 	<name>ixa-pipe-tok</name>
-	<description>Tokenizer module of the IXA-pipeline, a multilingual Natural Language 
-	Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa.si.ehu.es).
-        </description>
+	<description>Tokenizer module of the IXA Pipeline, a multilingual Natural Language Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa2.si.ehu.es/ixa-pipes).</description>
 	<developers>
 		<developer>
 			<id>ragerri</id>
@@ -22,7 +20,7 @@
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
-	<url>http://maven.apache.org</url>
+	<url>http://ixa2.si.ehu.es/ixa-pipes</url>
 
 	<repositories>
 		<repository>
@@ -76,7 +74,10 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
-										<Main-Class>ixa.pipe.tok.CLI</Main-Class>
+										<Main-Class>es.ehu.si.ixa.pipe.tok.CLI</Main-Class>
+										<groupId>${project.groupId}</groupId>
+                                        <artifactId>${project.artifactId}</artifactId>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
 									</manifestEntries>
 								</transformer>
 							</transformers>
@@ -93,7 +94,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>ixa.pipe.tok.CLI</mainClass>
+					<mainClass>es.ehu.si.ixa.pipe.tok.CLI</mainClass>
 				</configuration>
 			</plugin>
 
@@ -105,4 +106,12 @@
 
 		</plugins>
 	</build>
+	<organization>
+		<name>IXA Pipeline</name>
+		<url>http://ixa2.si.ehu.es/ixa-pipes</url>
+	</organization>
+	<scm>
+		<url>https://github.com/ixa-ehu/ixa-pipe-tok</url>
+		<developerConnection>ragerri</developerConnection>
+	</scm>
 </project>
