@@ -22,15 +22,15 @@ such as Dutch, German, English, French, Italian and Spanish. ixa-pipe-tok is par
 IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the 
 IXA NLP Group (ixa.si.ehu.es). 
 
-ixa-pipe-tok outputs tokenized and segmented text in three formats: 
+**ixa-pipe-tok outputs** tokenized and segmented text in **three formats**: 
 
-  + NAF (default): KAF is used to represent tokenized text but also to
+  + **NAF (default)**: KAF is used to represent tokenized text but also to
     as an interchange format between other modules in IXA pipeline
     (http://github.com/ixa-ehu).NAF is generated using Kaflib
     (http://github.com/ixa-ehu/kaflib). 
-  + Running text: tokenized text with one sentence per line and markers
-    (*<P>*) for paragraphs. 
-  + Conll: one token per line, two newlines per sentence and markers for
+  + **Oneline**: tokenized text with one sentence per line and markers
+    (\*<P>\*) for paragraphs, if that option is chosen. 
+  + **Conll**: one token per line, two newlines per sentence and markers for
     paragraphs (*<P>*) and offsets. 
 
 The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions 
@@ -73,7 +73,7 @@ they appear in the IxaPipeLexer specification):
   + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
     Paragraphs are denoted by "*<P>*"
   + tokenizeNLs: create Token objects with newline characters
-  + escapeForwardSlash: escape / and * -> \/ \*
+  + escapeForwardSlash: escape / and * 
   + normalizeBrackets: Normalize ( and ) into -LRB- and -RRB- respectively
   + normalizeOtherBrackets: Normalize {} and[] into -LCB-, -LRB- and -RCB-, -RRB-
   + latexQuotes: Normalize to ``, `, '', '' for every quote (discouraged by Unicode).
@@ -132,7 +132,7 @@ There are several options to tokenize with ixa-pipe-tok:
   + **nokaf**: do not output NAF format.
   + **outputFormat**: if --nokaf is used, choose between oneline or conll format output.
     + If -o conll is chosen, it is possible to choose whether to print
-      offset information (--offsets) or not 
+      offset information (--offsets) or not. 
   + **paragraphs**: do not print paragraph markers, e.g., *<P>*;
   + **notok**: take already tokenized text as input and create a KAFDocument 
   + **inputkaf**: take a NAF document as input instead of plain text file.
@@ -146,12 +146,11 @@ cat file.txt java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
 
 ### Evaluation
 
-The eval subcommand provides the following options (**still experimental**):
+The eval subcommand provides the following options:
 
   + **goldSet**: evaluate a tokenizer with respect to a tokenized gold standard. The
-  input gold standard needs to be in conll (one token per line, two
-  newlines to separate sentences) or in oneline (tokenized text with one
-  sentence per line) formats. 
+    input gold standard format must be *oneline* (tokenized text with one
+    sentence per line) format. 
   + **tokenizer**: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
   + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
 

@@ -60,7 +60,7 @@ import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
  * 
  * 
  * @author ragerri
- * @version 2014-01-31
+ * @version 2014-04-24
  */
 
 public class CLI {
@@ -77,7 +77,7 @@ public class CLI {
   ArgumentParser argParser = ArgumentParsers.newArgumentParser(
       "ixa-pipe-tok-" + version + ".jar").description(
       "ixa-pipe-tok-" + version
-          + " is a multilingual Tokenizer developed by IXA NLP Group.\n");
+          + " is a multilingual tokenizer developed by the IXA NLP Group.\n");
   /**
    * Sub parser instance.
    */
@@ -125,7 +125,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-tok-" + version
-          + ".jar (tok|train|eval) -help for details");
+          + ".jar (tok|eval) -help for details");
       System.exit(1);
     }
   }
@@ -148,7 +148,6 @@ public class CLI {
 
     // read KAF/NAF document to tokenize raw element
     if (inputKafRaw) {
-
       BufferedReader kafReader = new BufferedReader(new InputStreamReader(
           System.in, "UTF-8"));
       // read KAF from standard input

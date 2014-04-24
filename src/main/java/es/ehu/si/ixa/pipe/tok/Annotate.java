@@ -43,7 +43,7 @@ import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
  * the -outputFormat parameter of the CLI.
  * 
  * @author ragerri
- * @version 2013-01-31
+ * @version 2013-03-31
  * 
  */
 public class Annotate {
@@ -98,7 +98,7 @@ public class Annotate {
         if (token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
           ++noParas;
           //TODO sentences without end markers;
-          //this is a crappy rule
+          //crap rule
           while (noParas > noSents) {
             ++noSents;
           }
@@ -194,7 +194,7 @@ public class Annotate {
    * a tokenizer via the --eval parameter. 
    * 
    * @param referenceText the reference tokenized text
-   * @return a Tokenizer Evaluator 
+   * @return a tokenizer Evaluator 
    * @throws IOException
    */
   public TokenizerEvaluator evaluateTokenizer(String referenceText)
@@ -208,7 +208,7 @@ public class Annotate {
     BufferedReader refReader = new BufferedReader(stringReader);
     Tokenizer<Token> whiteSpacer = new WhiteSpaceTokenizer<Token>(refReader,
         tokenFactory, "no");
-    // createn Token objects out from the reference text
+    // create Token objects out from the reference text
     List<Token> references = whiteSpacer.tokenize();
     // evaluate
     TokenizerEvaluator tokenizerEvaluator = new TokenizerEvaluator();
