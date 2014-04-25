@@ -31,7 +31,7 @@ IXA NLP Group (ixa.si.ehu.es).
   + **Oneline**: tokenized text with one sentence per line and markers
     (\*<P>\*) for paragraphs, if that option is chosen. 
   + **Conll**: one token per line, two newlines per sentence and markers for
-    paragraphs (*<P>*) and offsets. 
+    paragraphs (\*<P\>\*) and offsets. 
 
 The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions 
 to comply with annotation in corpora such as Penn Treebank for English and 
