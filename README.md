@@ -71,12 +71,12 @@ performed by the four options above **are** (in the order in which
 they appear in the IxaPipeLexer specification):
  
   + tokenizeParagraphs: creates Paragraph Tokens when more than newlines are found.
-    Paragraphs are denoted by "*<P>*"
+    Paragraphs are denoted by "\*\<P\>\*"
   + tokenizeNLs: create Token objects with newline characters
   + escapeForwardSlash: escape / and * 
   + normalizeBrackets: Normalize ( and ) into -LRB- and -RRB- respectively
   + normalizeOtherBrackets: Normalize {} and[] into -LCB-, -LRB- and -RCB-, -RRB-
-  + latexQuotes: Normalize to ``, `, '', '' for every quote (discouraged by Unicode).
+  + latexQuotes: Normalize to \`\`, \`, '', '' for every quote (discouraged by Unicode).
   + unicodeQuotes: Normalize quotes to the range U+2018-U+201D,
     following Unicode recommendation. 
   + asciiQuotes: Normalize quote characters to ascii '' and "". The quotes preference 
