@@ -133,7 +133,7 @@ There are several options to tokenize with ixa-pipe-tok:
   + **outputFormat**: if --nokaf is used, choose between oneline or conll format output.
     + If -o conll is chosen, it is possible to choose whether to print
       offset information (--offsets) or not. 
-  + **paragraphs**: do not print paragraph markers, e.g., *<P>*;
+  + **paragraphs**: do not print paragraph markers, e.g., \*\<P\>\*;
   + **notok**: take already tokenized text as input and create a KAFDocument 
   + **inputkaf**: take a NAF document as input instead of plain text file.
   + **kafversion**: specify the NAF version as parameter
