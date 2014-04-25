@@ -26,7 +26,7 @@ IXA NLP Group (ixa.si.ehu.es).
 
   + **NAF (default)**: KAF is used to represent tokenized text but also to
     as an interchange format between other modules in IXA pipeline
-    (http://github.com/ixa-ehu).NAF is generated using Kaflib
+    (http://github.com/ixa-ehu). NAF is generated using Kaflib
     (http://github.com/ixa-ehu/kaflib). 
   + **Oneline**: tokenized text with one sentence per line and markers
     (\*\<P\>\*) for paragraphs, if that option is chosen. 
