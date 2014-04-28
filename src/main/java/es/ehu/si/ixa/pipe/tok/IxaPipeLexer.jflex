@@ -1,4 +1,4 @@
-package ixa.pipe.tok;
+package es.ehu.si.ixa.pipe.tok;
 
 /* --------------------------Usercode Section------------------------ */
 
