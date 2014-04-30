@@ -3,12 +3,12 @@ ixa-pipe-tok
 ============
 
 ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter. 
-ixa-pipe-tok is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed 
+ixa-pipe-tok is part of IXA pipes, a multilingual NLP pipeline developed 
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. 
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
-pipeline tools but also for **official releases, including source code and binary
-packages for all the tools in the IXA pipeline**.
+pipes tools but also for **official releases, including source code and binary
+packages for all the tools in the IXA pipes toolkit**.
 
 This document is intended to be the **usage guide of ixa-pipe-tok**. If you really need to clone
 and install this repository instead of using the releases provided in
@@ -18,14 +18,12 @@ the [installation instructions](#installation).
 ## OVERVIEW
 
 This module provides Multilingual Sentence Segmentation and Tokenization for a number of languages, 
-such as Dutch, German, English, French, Italian and Spanish. ixa-pipe-tok is part of 
-IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the 
-IXA NLP Group (ixa.si.ehu.es). 
-
+such as Dutch, German, English, French, Italian and Spanish.
+ 
 **ixa-pipe-tok outputs** tokenized and segmented text in **three formats**: 
 
   + **NAF (default)**: KAF is used to represent tokenized text but also to
-    as an interchange format between other modules in IXA pipeline
+    as an interchange format between other ixa pipes tools
     (http://github.com/ixa-ehu). NAF is generated using Kaflib
     (http://github.com/ixa-ehu/kaflib). 
   + **Oneline**: tokenized text with one sentence per line and markers
