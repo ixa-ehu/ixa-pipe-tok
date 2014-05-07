@@ -220,7 +220,8 @@ public class Annotate {
     List<Integer> spuriousTokens = new ArrayList<Integer>();
     for (int i = 1; i < (tokens.size() -1); ++i) {
       if (tokens.get(i).value().equals(IxaPipeLexer.PARAGRAPH_TOKEN) && 
-          tokens.get(i+1).value().matches("[a-z]+")) {
+          ( tokens.get(i+1).value().matches("[a-z]+") || 
+              tokens.get(i+1).value().equals(IxaPipeLexer.PARAGRAPH_TOKEN))) {
         spuriousTokens.add(i);
       }
     }
