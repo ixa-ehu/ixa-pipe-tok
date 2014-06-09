@@ -167,14 +167,9 @@ public class CLI {
 
       KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version);
       newLp.setBeginTimestamp();
-      if (parsedArguments.getBoolean("notok")) {
-        Annotate annotator = new Annotate(breader, normalize, paras, "white");
-        annotator.tokensToKAF(kaf);
-      } else {
         Annotate annotator = new Annotate(breader, normalize, paras,
             tokenizerType);
         annotator.tokensToKAF(kaf);
-      }
       newLp.setEndTimestamp();
       bwriter.write(kaf.toString());
     }// kaf options end here
@@ -245,10 +240,6 @@ public class CLI {
         .action(Arguments.storeFalse())
         .help(
             "Do not print offset and lenght information of tokens in CoNLL format.\n");
-
-    // input tokenized and segmented text
-    annotateParser.addArgument("--notok").action(Arguments.storeTrue())
-        .help("Build a KAF document with already tokenized text.\n");
     // specify whether input if a KAF/NAF file
     annotateParser
         .addArgument("--inputkaf")
