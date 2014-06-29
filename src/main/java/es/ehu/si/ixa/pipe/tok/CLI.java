@@ -37,6 +37,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -52,7 +53,7 @@ import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
  * <li>outputFormat: if --nokaf is used, choose between oneline or conll format
  * output.
  * <li>notok: take already tokenized text as input and create a KAFDocument with
- * it. This options uses the WhiteSpace tokenizer.
+ * it.
  * <li>inputkaf: take a KAF/NAF Document as input instead of plain text file.
  * <li>kafversion: specify the KAF version as parameter.
  * <li>eval: input reference corpus to evaluate a tokenizer.
@@ -139,7 +140,7 @@ public class CLI {
     String lang = parsedArguments.getString("lang");
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
-
+    Boolean noTok = parsedArguments.getBoolean("notok");
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
 
@@ -169,7 +170,13 @@ public class CLI {
       newLp.setBeginTimestamp();
         Annotate annotator = new Annotate(breader, normalize, paras,
             tokenizerType);
-        annotator.tokensToKAF(kaf);
+        if (noTok) {
+          annotator.tokensToKAF(breader, kaf);
+        }
+        else {
+          annotator.tokenizedToKAF(kaf);
+        }
+        
       newLp.setEndTimestamp();
       bwriter.write(kaf.toString());
     }// kaf options end here
@@ -179,15 +186,15 @@ public class CLI {
           tokenizerType);
       if (outputFormat.equalsIgnoreCase("conll")) {
         if (parsedArguments.getBoolean("offsets")) {
-          bwriter.write(annotator.tokensToCoNLL());
+          bwriter.write(annotator.tokenizeToCoNLL());
         }// noOffset options end here
         else {
-          bwriter.write(annotator.tokensToCoNLLOffsets());
+          bwriter.write(annotator.tokenizeToCoNLLOffsets());
         }
       }// conll options end here
 
       else {
-        bwriter.write(annotator.tokensToText());
+        bwriter.write(annotator.tokenizeToText());
       }
     }// annotation options end here
 
@@ -246,6 +253,9 @@ public class CLI {
         .action(Arguments.storeTrue())
         .help(
             "Use this option if input is a KAF/NAF document with <raw> layer.\n");
+    annotateParser.addArgument("--notok")
+        .action(Arguments.storeTrue())
+        .help("Build a KAF document from an already tokenized sentence per line file.\n");
     // specify KAF version
     annotateParser.addArgument("--kafversion").setDefault("v1.naf")
         .help("Set kaf document version.\n");

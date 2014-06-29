@@ -21,10 +21,13 @@ import ixa.kaflib.WF;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -85,7 +88,7 @@ public class Annotate {
    * @param kaf
    * @return KAFDocument kaf containing WF with tokens
    */
-  public void tokensToKAF(KAFDocument kaf) {
+  public void tokenizedToKAF(KAFDocument kaf) {
     List<Token> tokens = tokenizer.tokenize();
     // remove paragraphs followed by lowercase words
     List<Integer> spuriousParas = getSpuriousParas(tokens);
@@ -117,7 +120,7 @@ public class Annotate {
    * 
    * @return String tokenized text
    */
-  public String tokensToCoNLL() {
+  public String tokenizeToCoNLL() {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
     // remove paragraphs followed by lowercase words
@@ -140,7 +143,7 @@ public class Annotate {
    * 
    * @return String tokenized text
    */
-  public String tokensToCoNLLOffsets() {
+  public String tokenizeToCoNLLOffsets() {
     StringBuilder sb = new StringBuilder();
     List<Token> tokens = tokenizer.tokenize();
     // remove paragraphs followed by lowercase words
@@ -163,7 +166,7 @@ public class Annotate {
    * 
    * @return String tokenized text
    */
-  public String tokensToText() {
+  public String tokenizeToText() {
     List<Token> tokens = tokenizer.tokenize();
     // remove paragraphs followed by lowercase words
     List<Integer> spuriousParas = getSpuriousParas(tokens);
@@ -232,6 +235,29 @@ public class Annotate {
     Collections.sort(spuriousParas, Collections.reverseOrder());
     for (int paraIndex : spuriousParas) {
       tokens.remove(paraIndex);
+    }
+  }
+  
+  public void tokensToKAF(Reader breader, KAFDocument kaf) throws IOException {
+    List<String> sentences = IOUtils.readLines(breader);
+    for (String sentence : sentences) {
+      noSents = noSents + 1;
+      String[] tokens = sentence.split(" ");
+      for (String token : tokens) {
+        if (token.equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
+          ++noParas;
+          //TODO sentences without end markers;
+          //crap rule
+          while (noParas > noSents) {
+            ++noSents;
+          }
+        } else {
+          //TODO add offset
+          WF wf = kaf.newWF(token);
+          wf.setPara(noParas);
+          wf.setSent(noSents);
+        }
+      }
     }
   }
 
