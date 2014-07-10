@@ -4,7 +4,7 @@
   <groupId>es.ehu.si</groupId>
   <artifactId>ixa-pipe-tok</artifactId>
   <name>ixa-pipe-tok</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <description>Tokenizer module of the IXA Pipeline, a multilingual Natural Language Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa2.si.ehu.es/ixa-pipes).</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
@@ -22,14 +22,21 @@
     <url>https://github.com/ixa-ehu/ixa-pipe-tok</url>
   </scm>
   <organization>
-    <name>IXA Pipeline</name>
+    <name>ixa-pipes</name>
     <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   </organization>
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.0</version>
+        <version>2.3</version>
         <executions>
           <execution>
             <phase>package</phase>
