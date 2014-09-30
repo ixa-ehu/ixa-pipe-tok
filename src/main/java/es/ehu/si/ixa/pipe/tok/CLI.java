@@ -37,7 +37,7 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.jdom2.JDOMException;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -100,7 +100,7 @@ public class CLI {
     loadEvalParameters();
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, JDOMException {
 
     CLI cmdLine = new CLI();
     cmdLine.parseCLI(args);
@@ -113,8 +113,9 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
+   * @throws JDOMException 
    */
-  public final void parseCLI(final String[] args) throws IOException {
+  public final void parseCLI(final String[] args) throws IOException, JDOMException {
     try {
       parsedArguments = argParser.parseArgs(args);
       System.err.println("CLI options: " + parsedArguments);
@@ -132,7 +133,7 @@ public class CLI {
   }
 
   public final void annotate(final InputStream inputStream,
-      final OutputStream outputStream) throws IOException {
+      final OutputStream outputStream) throws IOException, JDOMException {
     String tokenizerType = parsedArguments.getString("tokenizer");
     String outputFormat = parsedArguments.getString("outputFormat");
     String normalize = parsedArguments.getString("normalize");
