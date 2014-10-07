@@ -498,19 +498,21 @@ ABBREV_MONTH_DE = Jän|März|Mai|Okt|Dez
 ABBREV_MONTH_EN = Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec
 ABBREV_MONTH_ES = Ene|Febr|May|Abr|Ag|Dic
 ABBREV_MONTH_FR = janv|févr|mars|avril|juin|juil|août|déc
+ABBREV_MONTH_GL = Xan|Feb|Mar|Abr|Mai|Xuñ|Xul|Ago|Set|Out|Nov|Dec
 ABBREV_MONTH_IT = genn|febbr|magg|giugno|luglio|sett|ott
 ABBREV_MONTH_NL = maart|mei|juni|juli|okt
-ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
+ABBREV_MONTH = {ABBREV_MONTH_DE}|{ABBREV_MONTH_EN}|{ABBREV_MONTH_ES}|{ABBREV_MONTH_FR}|{ABBREV_MONTH_GL}|{ABBREV_MONTH_IT}|{ABBREV_MONTH_NL}
 
 
 ABBREV_DAYS_DE = So|Mo|Di|Mi|Do|Fr|Sa
 ABBREV_DAYS_EN = Mon|Tue|Tues|Wed|Thu|Thurs|Fri|Sat|Sun
 ABBREV_DAYS_ES = Lun|Mar|Miér|Jue|Vier|Sáb|Dom
 ABBREV_DAYS_FR = lun|mer|jeu|ven|sam|dim
+ABBREV_DAYS_GL = Lun|Ma|Mér|Xov|Ven|Sáb|Dom
 ABBREV_DAYS_IT = mar|gio|ven|sab
 ABBREV_DAYS_NL = ma|woe|vrij|za|zo|wo|vr 
 
-ABBREV_DAYS = {ABBREV_DAYS_DE}|{ABBREV_DAYS_EN}|{ABBREV_DAYS_ES}|{ABBREV_DAYS_FR}|{ABBREV_DAYS_IT}|{ABBREV_DAYS_NL}
+ABBREV_DAYS = {ABBREV_DAYS_DE}|{ABBREV_DAYS_EN}|{ABBREV_DAYS_ES}|{ABBREV_DAYS_FR}|{ABBREV_DAYS_GL}|{ABBREV_DAYS_IT}|{ABBREV_DAYS_NL}
 
 ABBREV_STATE = Ala|Ariz|[A]rk|Calif|Colo|Conn|Dak|Del|Fla|Ga|[I]ll|Ind|Kans?|Ky|La|[M]ass|Md|Mich|Minn|[M]iss|Mo|Mont|Neb|Nev|Okla|[O]re|Pa|Penn|Tenn|Tex|Va|Vt|[W]ash|Wisc?|Wyo
 
@@ -535,9 +537,11 @@ ABBREV_PREFIX_DE= Dkr
 
 ABBREV_PREFIX_FR= Msr|Mgr
 
+ABBREV_PREFIX_GL = Apdo|Avda|asdo|CC\.AA|coord|D|dir|Dpto|Dna|Dr|Dra|dta|ed|EE\.UU|esq|etc|Excma|Excmo|ext|hab|Ilma|Ilmo|Lic|máx|mín|Mgfca|Mgfco|núm|P|páx|pral|Prof|s|Sr|Sra|S\.L|S\.A|tfno|Univ|vol
+
 ABBREV_PREFIX_NL=Lt|maj|Mej|mevr|Mme|Mw|plv
 
-ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
+ABBREV_PREFIX = {ABBREV_PREFIX_DE}|{ABBREV_PREFIX_EN}|{ABBREV_PREFIX_FR}|{ABBREV_PREFIX_GL}|{ABBREV_PREFIX_ES}|{ABBREV_PREFIX_NL}
 
 /* SPECIAL_ABBREV_PREFIX are list of titles. 
  * These are often followed by upper-case names, but do not indicate sentence breaks
