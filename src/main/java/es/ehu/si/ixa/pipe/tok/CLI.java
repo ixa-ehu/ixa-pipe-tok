@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -56,6 +57,7 @@ import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
  * it.
  * <li>inputkaf: take a KAF/NAF Document as input instead of plain text file.
  * <li>kafversion: specify the KAF version as parameter.
+ * <li>clean: specify to remove sentences that are not 90% lowercased.
  * <li>eval: input reference corpus to evaluate a tokenizer.
  * </ol>
  * 
@@ -66,6 +68,8 @@ import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
 public class CLI {
 
+  
+  public static String DEFAULT_PARAGRAPH_OPTION = "yes";
   /**
    * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
    * file.
@@ -142,6 +146,8 @@ public class CLI {
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
     Boolean noTok = parsedArguments.getBoolean("notok");
+    Boolean cleanForBrown = parsedArguments.getBoolean("clean");
+    Properties properties = setAnnotateProperties(lang, tokenizerType, normalize, paras, cleanForBrown);
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
 
@@ -169,8 +175,7 @@ public class CLI {
 
       KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version);
       newLp.setBeginTimestamp();
-        Annotate annotator = new Annotate(breader, normalize, paras,
-            tokenizerType);
+        Annotate annotator = new Annotate(breader, properties);
         if (noTok) {
           annotator.tokensToKAF(breader, kaf);
         }
@@ -183,8 +188,7 @@ public class CLI {
     }// kaf options end here
 
     else {
-      Annotate annotator = new Annotate(breader, normalize, paras,
-          tokenizerType);
+      Annotate annotator = new Annotate(breader, properties);
       if (outputFormat.equalsIgnoreCase("conll")) {
         if (parsedArguments.getBoolean("offsets")) {
           bwriter.write(annotator.tokenizeToCoNLL());
@@ -260,6 +264,21 @@ public class CLI {
     // specify KAF version
     annotateParser.addArgument("--kafversion").setDefault("v1.naf")
         .help("Set kaf document version.\n");
+    
+    // clean option for tokenizing large corpus for word representation processing
+    annotateParser.addArgument("--clean")
+        .action(Arguments.storeTrue())
+        .help("Use this option to remove sentences which are not 90% lowercased.\n");
+  }
+  
+  private Properties setAnnotateProperties(String lang, String tokenizer, String normalize, String paragraphs, boolean cleanForBrown) {
+    Properties annotateProperties = new Properties();
+    annotateProperties.setProperty("language", lang);
+    annotateProperties.setProperty("tokenizer", tokenizer);
+    annotateProperties.setProperty("normalize", normalize);
+    annotateProperties.setProperty("paragraphs", paragraphs);
+    annotateProperties.setProperty("cleanForBrown", Boolean.toString(cleanForBrown));
+    return annotateProperties;
   }
 
   public final void eval() throws IOException {
@@ -267,9 +286,11 @@ public class CLI {
     String testset = parsedArguments.getString("goldSet");
     String normalize = parsedArguments.getString("normalize");
     String tokenizerType = parsedArguments.getString("tokenizer");
+    String paragraphs = "no";
     // tokenize standard input text
     breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-    Annotate annotator = new Annotate(breader, normalize, "no", tokenizerType);
+    Properties properties = setEvalProperties(tokenizerType, normalize, paragraphs);
+    Annotate annotator = new Annotate(breader, properties);
     // evaluate wrt to reference set
     File reference = new File(testset);
     String references = FileUtils.readFileToString(reference);
@@ -277,7 +298,14 @@ public class CLI {
         .evaluateTokenizer(references);
     System.out.println("Tokenizer Evaluator: ");
     System.out.println(tokenizerEvaluator.getFMeasure());
-
+  }
+  
+  private Properties setEvalProperties(String tokenizer, String normalize, String paragraphs) {
+    Properties annotateProperties = new Properties();
+    annotateProperties.setProperty("tokenizer", tokenizer);
+    annotateProperties.setProperty("normalize", normalize);
+    annotateProperties.setProperty("paragraphs", paragraphs);
+    return annotateProperties;
   }
 
   private void loadEvalParameters() {

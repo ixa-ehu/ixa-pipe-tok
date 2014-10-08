@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 
@@ -54,6 +55,7 @@ public class Annotate {
   private Tokenizer<Token> tokenizer;
   private Segmenter segmenter;
   private TokenFactory tokenFactory;
+  private Boolean clean;
 
   // counters for paragraphs and sentences
   int noParas = 1;
@@ -68,14 +70,14 @@ public class Annotate {
    * @param options
    * @param tokenizerType
    */
-  public Annotate(BufferedReader breader, String normalize, String options,
-      String tokenizerType) {
+  public Annotate(BufferedReader breader, Properties properties) {
     this.tokenFactory = new TokenFactory();
+    this.clean = Boolean.parseBoolean(properties.getProperty("cleanForBrown"));
+    String tokenizerType = properties.getProperty("tokenizer");
     if (tokenizerType.equalsIgnoreCase("white")) {
-      tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, options);
+      tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, properties);
     } else {
-      tokenizer = new IxaPipeTokenizer<Token>(breader, tokenFactory, normalize,
-          options);
+      tokenizer = new IxaPipeTokenizer<Token>(breader, tokenFactory, properties);
     }
     segmenter = new Segmenter();
 
@@ -126,8 +128,10 @@ public class Annotate {
     // remove paragraphs followed by lowercase words
     List<Integer> spuriousParas = getSpuriousParas(tokens);
     removeSpuriousParas(tokens,spuriousParas);
-    List<List<Token>> sents = segmenter.segment(tokens);
-    List<List<Token>> sentences = cleanUpperCaseSentences(sents);
+    List<List<Token>> sentences = segmenter.segment(tokens);
+    if (clean) {
+      cleanUpperCaseSentences(sentences);
+    }
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
         sb.append(token.value().trim()).append("\n");
@@ -193,29 +197,29 @@ public class Annotate {
    * @param sentences the list of sentences
    * @return the list of sentences that contain more than 90% lowercase characters
    */
-  public List<List<Token>> cleanUpperCaseSentences(List<List<Token>> sentences) {
+  public void cleanUpperCaseSentences(List<List<Token>> sentences) {
     List<List<Token>> cleanSents = new ArrayList<List<Token>>();
     for (List<Token> sentence : sentences) {
-      int lowerCaseCounter = 0;
+      double lowerCaseCounter = 0;
       StringBuilder sb = new StringBuilder();
       for (Token token : sentence) {
-       sb.append(token.value());
+       if (!token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
+         sb.append(token.value());
+       }
       }
-      System.err.println(sb.toString());
       char[] sentChars = sb.toString().toCharArray();
       for (char let : sentChars) {
         if (Character.isLowerCase(let)) {
           lowerCaseCounter++;
         }
       }
-      System.err.println(lowerCaseCounter);
-      int percent = lowerCaseCounter / sentChars.length;
-      System.err.println(percent);
+      double percent = lowerCaseCounter / (double) sentChars.length;
       if (percent >= 0.9) {
         cleanSents.add(sentence);
       }
     }
-    return cleanSents;
+    sentences.clear();
+    sentences.addAll(cleanSents);
   }
 
   /**
@@ -237,11 +241,12 @@ public class Annotate {
     List<Token> tokens = tokenizer.tokenize();
     // construct whitespace tokenizer to obtain the Token objects from reference
     // text
-    
+    Properties properties = new Properties();
+    properties.setProperty("paragraphs", "no");
     StringReader stringReader = new StringReader(referenceText);
     BufferedReader refReader = new BufferedReader(stringReader);
     Tokenizer<Token> whiteSpacer = new WhiteSpaceTokenizer<Token>(refReader,
-        tokenFactory, "no");
+        tokenFactory, properties);
     // create Token objects out from the reference text
     List<Token> references = whiteSpacer.tokenize();
     // evaluate
