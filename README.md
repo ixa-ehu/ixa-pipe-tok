@@ -18,7 +18,7 @@ the [installation instructions](#installation).
 ## OVERVIEW
 
 This module provides Multilingual Sentence Segmentation and Tokenization for a number of languages, 
-such as Dutch, German, English, French, Italian and Spanish.
+such as Dutch, German, English, French, Galician, Italian and Spanish.
  
 **ixa-pipe-tok outputs** tokenized and segmented text in **three formats**: 
 
@@ -43,7 +43,7 @@ Specifically, apart from English Penn Treebank-compliant tokenization,
     (l' aquila, c' est, etc.) possibly applying to other languages with the same 
     rules for splitting apostrophes. 
   + **multilingual support for non-breaking prefixes**, adding language-specific 
-    non-breaking exceptions for Dutch, German, French, Italian and Spanish.
+    non-breaking exceptions for Dutch, German, French, Galician, Italian and Spanish.
   + **Ancora normalization** in Spanish
   + **paragraph tokenization** to provide paragraph information
    

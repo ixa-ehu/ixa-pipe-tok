@@ -4,7 +4,7 @@
 	<groupId>es.ehu.si</groupId>
 	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5.2</version>
+	<version>1.5.3</version>
 	<name>ixa-pipe-tok</name>
 	<description>Tokenizer module of the IXA Pipeline, a multilingual Natural Language Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa2.si.ehu.es/ixa-pipes).</description>
 	<developers>
@@ -88,7 +88,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -97,11 +96,19 @@
 					<mainClass>es.ehu.si.ixa.pipe.tok.CLI</mainClass>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
 			</plugin>
 
 		</plugins>
