@@ -126,7 +126,8 @@ public class Annotate {
     // remove paragraphs followed by lowercase words
     List<Integer> spuriousParas = getSpuriousParas(tokens);
     removeSpuriousParas(tokens,spuriousParas);
-    List<List<Token>> sentences = segmenter.segment(tokens);
+    List<List<Token>> sents = segmenter.segment(tokens);
+    List<List<Token>> sentences = cleanUpperCaseSentences(sents);
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
         sb.append(token.value().trim()).append("\n");
@@ -185,6 +186,36 @@ public class Annotate {
       sb.append("\n");
     }
     return sb.toString().trim();
+  }
+  
+  /**
+   * Do not print a sentence if is less than 90% lowercase.
+   * @param sentences the list of sentences
+   * @return the list of sentences that contain more than 90% lowercase characters
+   */
+  public List<List<Token>> cleanUpperCaseSentences(List<List<Token>> sentences) {
+    List<List<Token>> cleanSents = new ArrayList<List<Token>>();
+    for (List<Token> sentence : sentences) {
+      int lowerCaseCounter = 0;
+      StringBuilder sb = new StringBuilder();
+      for (Token token : sentence) {
+       sb.append(token.value());
+      }
+      System.err.println(sb.toString());
+      char[] sentChars = sb.toString().toCharArray();
+      for (char let : sentChars) {
+        if (Character.isLowerCase(let)) {
+          lowerCaseCounter++;
+        }
+      }
+      System.err.println(lowerCaseCounter);
+      int percent = lowerCaseCounter / sentChars.length;
+      System.err.println(percent);
+      if (percent >= 0.9) {
+        cleanSents.add(sentence);
+      }
+    }
+    return cleanSents;
   }
 
   /**
