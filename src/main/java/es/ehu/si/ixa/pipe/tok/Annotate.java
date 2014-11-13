@@ -130,7 +130,7 @@ public class Annotate {
     removeSpuriousParas(tokens,spuriousParas);
     List<List<Token>> sentences = segmenter.segment(tokens);
     if (clean) {
-      cleanUpperCaseSentences(sentences);
+      brownCleanUpperCase(sentences);
     }
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
@@ -193,11 +193,11 @@ public class Annotate {
   }
   
   /**
-   * Do not print a sentence if is less than 90% lowercase.
+   * Do not print a sentence if is less than 90% lowercase a-z.
    * @param sentences the list of sentences
    * @return the list of sentences that contain more than 90% lowercase characters
    */
-  public void cleanUpperCaseSentences(List<List<Token>> sentences) {
+  public void brownCleanUpperCase(List<List<Token>> sentences) {
     List<List<Token>> cleanSents = new ArrayList<List<Token>>();
     for (List<Token> sentence : sentences) {
       double lowerCaseCounter = 0;
@@ -209,12 +209,12 @@ public class Annotate {
       }
       char[] sentChars = sb.toString().toCharArray();
       for (char let : sentChars) {
-        if (Character.isLowerCase(let)) {
+        if (Character.toString(let).matches("[a-z]")) {
           lowerCaseCounter++;
         }
       }
       double percent = lowerCaseCounter / (double) sentChars.length;
-      if (percent >= 0.9) {
+      if (percent > 0.9) {
         cleanSents.add(sentence);
       }
     }
