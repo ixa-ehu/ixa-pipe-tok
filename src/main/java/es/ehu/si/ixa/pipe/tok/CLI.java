@@ -267,11 +267,6 @@ public class CLI {
     // specify KAF version
     annotateParser.addArgument("--kafversion").setDefault("v1.naf")
         .help("Set kaf document version.\n");
-    
-    // clean option for tokenizing large corpus for word representation processing
-    annotateParser.addArgument("--clean")
-        .action(Arguments.storeTrue())
-        .help("Use this option to remove sentences which are not 90% lowercased.\n");
   }
   
   private Properties setAnnotateProperties(String lang, String tokenizer, String normalize, String paragraphs, boolean cleanForBrown) {
@@ -280,7 +275,6 @@ public class CLI {
     annotateProperties.setProperty("tokenizer", tokenizer);
     annotateProperties.setProperty("normalize", normalize);
     annotateProperties.setProperty("paragraphs", paragraphs);
-    annotateProperties.setProperty("cleanForBrown", Boolean.toString(cleanForBrown));
     return annotateProperties;
   }
 
