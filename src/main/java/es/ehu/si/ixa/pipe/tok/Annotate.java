@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.CharStreams;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -240,7 +240,7 @@ public class Annotate {
   }
   
   public void tokensToKAF(Reader breader, KAFDocument kaf) throws IOException {
-    List<String> sentences = IOUtils.readLines(breader);
+	  List<String> sentences = CharStreams.readLines(breader);
     for (String sentence : sentences) {
       noSents = noSents + 1;
       String[] tokens = sentence.split(" ");

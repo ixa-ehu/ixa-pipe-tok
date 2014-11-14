@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.tok.Token;
 
@@ -47,7 +49,7 @@ public class TokenizerEvaluator {
         StringBuilder sb = new StringBuilder();
         sb.append(referenceList.get(i).value()).append(" ").append(reference).append("\n");
         try {
-          FileUtils.writeStringToFile(new File("reference-tokens.log"), sb.toString(), true);
+          Files.append(sb.toString(), new File("reference-tokens.log"), Charsets.UTF_8);
         } catch (IOException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -68,7 +70,7 @@ public class TokenizerEvaluator {
         StringBuilder sb = new StringBuilder();
         sb.append(predictionList.get(j).value()).append(" ").append(prediction).append("\n");
         try {
-          FileUtils.writeStringToFile(new File("prediction-tokens.log"), sb.toString(), true);
+          Files.append(sb.toString(), new File("prediction-tokens.log"), Charsets.UTF_8);
         } catch (IOException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();

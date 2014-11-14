@@ -37,8 +37,10 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
-import org.apache.commons.io.FileUtils;
 import org.jdom2.JDOMException;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -76,6 +78,7 @@ public class CLI {
    */
   private final String version = CLI.class.getPackage()
       .getImplementationVersion();
+  private final String commit = CLI.class.getPackage().getSpecificationVersion();
   Namespace parsedArguments = null;
 
   // create Argument Parser
@@ -173,7 +176,7 @@ public class CLI {
     // tokenize in kaf
     if (parsedArguments.getBoolean("nokaf")) {
 
-      KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version);
+      KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version + "-" + commit);
       newLp.setBeginTimestamp();
         Annotate annotator = new Annotate(breader, properties);
         if (noTok) {
@@ -293,7 +296,7 @@ public class CLI {
     Annotate annotator = new Annotate(breader, properties);
     // evaluate wrt to reference set
     File reference = new File(testset);
-    String references = FileUtils.readFileToString(reference);
+    String references = Files.toString(reference, Charsets.UTF_8);
     TokenizerEvaluator tokenizerEvaluator = annotator
         .evaluateTokenizer(references);
     System.out.println("Tokenizer Evaluator: ");
