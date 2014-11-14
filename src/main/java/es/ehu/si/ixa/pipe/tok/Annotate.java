@@ -209,7 +209,7 @@ public class Annotate {
       }
       char[] sentChars = sb.toString().toCharArray();
       for (char let : sentChars) {
-        if (Character.toString(let).matches("[a-z]")) {
+        if (Character.isLowerCase(let)) {
           lowerCaseCounter++;
         }
       }
