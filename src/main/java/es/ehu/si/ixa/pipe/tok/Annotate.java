@@ -55,7 +55,6 @@ public class Annotate {
   private Tokenizer<Token> tokenizer;
   private Segmenter segmenter;
   private TokenFactory tokenFactory;
-  private Boolean clean;
 
   // counters for paragraphs and sentences
   int noParas = 1;
@@ -72,7 +71,6 @@ public class Annotate {
    */
   public Annotate(BufferedReader breader, Properties properties) {
     this.tokenFactory = new TokenFactory();
-    this.clean = Boolean.parseBoolean(properties.getProperty("cleanForBrown"));
     String tokenizerType = properties.getProperty("tokenizer");
     if (tokenizerType.equalsIgnoreCase("white")) {
       tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, properties);
@@ -129,9 +127,6 @@ public class Annotate {
     List<Integer> spuriousParas = getSpuriousParas(tokens);
     removeSpuriousParas(tokens,spuriousParas);
     List<List<Token>> sentences = segmenter.segment(tokens);
-    if (clean) {
-      brownCleanUpperCase(sentences);
-    }
     for (List<Token> sentence : sentences) {
       for (Token token : sentence) {
         sb.append(token.value().trim()).append("\n");
@@ -192,36 +187,6 @@ public class Annotate {
     return sb.toString().trim();
   }
   
-  /**
-   * Do not print a sentence if is less than 90% lowercase a-z.
-   * @param sentences the list of sentences
-   * @return the list of sentences that contain more than 90% lowercase characters
-   */
-  public void brownCleanUpperCase(List<List<Token>> sentences) {
-    List<List<Token>> cleanSents = new ArrayList<List<Token>>();
-    for (List<Token> sentence : sentences) {
-      double lowerCaseCounter = 0;
-      StringBuilder sb = new StringBuilder();
-      for (Token token : sentence) {
-       if (!token.value().equals(IxaPipeLexer.PARAGRAPH_TOKEN)) {
-         sb.append(token.value());
-       }
-      }
-      char[] sentChars = sb.toString().toCharArray();
-      for (char let : sentChars) {
-        if (Character.isLowerCase(let)) {
-          lowerCaseCounter++;
-        }
-      }
-      double percent = lowerCaseCounter / (double) sentChars.length;
-      if (percent > 0.9) {
-        cleanSents.add(sentence);
-      }
-    }
-    sentences.clear();
-    sentences.addAll(cleanSents);
-  }
-
   /**
    * This function takes a reference tokenized text, performs 
    * tokenization on some input raw text and builds a 
