@@ -4,8 +4,8 @@
   <groupId>es.ehu.si</groupId>
   <artifactId>ixa-pipe-tok</artifactId>
   <name>ixa-pipe-tok</name>
-  <version>1.5.2</version>
-  <description>Tokenizer module of the IXA Pipeline, a multilingual Natural Language Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa2.si.ehu.es/ixa-pipes).</description>
+  <version>1.5.3</version>
+  <description>Tokenizer module of the ixa-pipes (ixa2.si.ehu.es/ixa-pipes).</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
     <maven>3.0</maven>
@@ -28,6 +28,20 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>ru.concerteza.buildnumber</groupId>
+        <artifactId>maven-jgit-buildnumber-plugin</artifactId>
+        <version>1.2.8</version>
+        <executions>
+          <execution>
+            <id>git-buildnumber</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>extract-buildnumber</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.3</version>
         <executions>
@@ -44,6 +58,7 @@
                     <groupId>${project.groupId}</groupId>
                     <artifactId>${project.artifactId}</artifactId>
                     <Implementation-Version>${project.version}</Implementation-Version>
+                    <Specification-version>${git.revision}</Specification-version>
                   </manifestEntries>
                 </transformer>
               </transformers>
@@ -76,15 +91,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-      <id>ixa-ehu.github</id>
-      <url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

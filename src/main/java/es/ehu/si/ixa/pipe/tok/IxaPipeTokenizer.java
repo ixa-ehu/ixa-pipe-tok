@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -114,8 +115,8 @@ public class IxaPipeTokenizer<T> extends AbstractTokenizer<T> {
    * @option options Paragraph options
    * 
    */
-  public IxaPipeTokenizer(BufferedReader breader, TokenFactory tokenFactory, String normalize, String options) {
-    jlexer = new IxaPipeLexer(breader, tokenFactory, normalize, options);
+  public IxaPipeTokenizer(BufferedReader breader, TokenFactory tokenFactory, Properties properties) {
+    jlexer = new IxaPipeLexer(breader, tokenFactory, properties);
   }
 
   /**

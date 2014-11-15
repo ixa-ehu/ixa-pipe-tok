@@ -1,4 +1,4 @@
-package ixa.pipe.tok;
+package es.ehu.si.ixa.pipe.tok;
 
 /* --------------------------Usercode Section------------------------ */
 
@@ -6,7 +6,7 @@ package ixa.pipe.tok;
 import java.io.Reader;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
+import java.util.Properties;
 	
 /* -----------------Options and Declarations Section----------------- */
 
@@ -39,9 +39,10 @@ import java.util.regex.Pattern;
   private boolean tokenizeNLs;
   private boolean tokenizeParagraphs;
  
-  public WhiteSpaceLexer(Reader breader, TokenFactory tokenFactory, String options) {
+  public WhiteSpaceLexer(Reader breader, TokenFactory tokenFactory, Properties properties) {
     this(breader);
     this.tokenFactory = tokenFactory;
+    String options = properties.getProperty("paragraphs");
     if (options == null) {
       options = "";
     }

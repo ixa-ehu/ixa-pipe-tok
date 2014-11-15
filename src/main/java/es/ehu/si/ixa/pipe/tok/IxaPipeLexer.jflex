@@ -6,7 +6,7 @@ package es.ehu.si.ixa.pipe.tok;
 import java.io.Reader;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
+import java.util.Properties;
 	
 /* -----------------Options and Declarations Section----------------- */
 
@@ -57,8 +57,11 @@ import java.util.regex.Pattern;
   private boolean ptb3Ldots = true;
   private boolean unicodeLdots = true;
  
-  public IxaPipeLexer(Reader breader, TokenFactory tokenFactory, String normalize, String options) {
+  public IxaPipeLexer(Reader breader, TokenFactory tokenFactory, Properties
+  properties) {
     this(breader);
+    String normalize = properties.getProperty("normalize");
+    String paras = properties.getProperty("paragraphs");
     this.tokenFactory = tokenFactory;
     if (normalize == null) { 
       normalize ="";
@@ -72,7 +75,7 @@ import java.util.regex.Pattern;
           unicodeQuotes = true;
           asciiQuotes = true;
           sptb3Normalize = false;
-          if (options.equalsIgnoreCase("yes")) { 
+          if (paras.equalsIgnoreCase("yes")) { 
             tokenizeParagraphs = true;
           }
     }
@@ -85,7 +88,7 @@ import java.util.regex.Pattern;
         unicodeQuotes = true;
         asciiQuotes = true;
         sptb3Normalize = false;
-        if (options.equalsIgnoreCase("yes")) { 
+        if (paras.equalsIgnoreCase("yes")) { 
           tokenizeParagraphs = true;
         }
       }  
@@ -97,7 +100,7 @@ import java.util.regex.Pattern;
         unicodeQuotes = true;
         asciiQuotes = true;
         sptb3Normalize = true;
-        if (options.equalsIgnoreCase("yes")) { 
+        if (paras.equalsIgnoreCase("yes")) { 
           tokenizeParagraphs = true;
         }
       }
@@ -109,7 +112,7 @@ import java.util.regex.Pattern;
         unicodeQuotes = false;
         asciiQuotes = true;
         sptb3Normalize = false;
-        if (options.equalsIgnoreCase("yes")) { 
+        if (paras.equalsIgnoreCase("yes")) { 
           tokenizeParagraphs = true;
         }
     }

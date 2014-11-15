@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<version>1.5.3</version>
 	<name>ixa-pipe-tok</name>
-	<description>Tokenizer module of the IXA Pipeline, a multilingual Natural Language Processing Pipeline. Developed by the IXA NLP Group of the University of the Basque Country (ixa2.si.ehu.es/ixa-pipes).</description>
+	<description>Tokenizer module of the ixa-pipes (ixa2.si.ehu.es/ixa-pipes).</description>
 	<developers>
 		<developer>
 			<id>ragerri</id>
@@ -21,16 +21,7 @@
 		<maven>3.0</maven>
 	</prerequisites>
 	<url>http://ixa2.si.ehu.es/ixa-pipes</url>
-
 	<repositories>
-		<repository>
-			<id>ixa-ehu.github</id>
-			<url>https://raw.github.com/ixa-ehu/kaflib-mvn-repo/master</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
 	</repositories>
 
 	<dependencies>
@@ -46,19 +37,33 @@
 			<version>0.4.3</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
 		</dependency>
 		<dependency>
-			<groupId>ixa.kaflib</groupId>
+			<groupId>com.github.ixa-ehu</groupId>
 			<artifactId>kaflib-naf</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>ru.concerteza.buildnumber</groupId>
+				<artifactId>maven-jgit-buildnumber-plugin</artifactId>
+				<version>1.2.8</version>
+				<executions>
+					<execution>
+						<id>git-buildnumber</id>
+						<goals>
+							<goal>extract-buildnumber</goal>
+						</goals>
+						<phase>prepare-package</phase>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -76,8 +81,9 @@
 									<manifestEntries>
 										<Main-Class>es.ehu.si.ixa.pipe.tok.CLI</Main-Class>
 										<groupId>${project.groupId}</groupId>
-                                        <artifactId>${project.artifactId}</artifactId>
-                                        <Implementation-Version>${project.version}</Implementation-Version>
+										<artifactId>${project.artifactId}</artifactId>
+										<Implementation-Version>${project.version}</Implementation-Version>
+										<Specification-version>${git.revision}</Specification-version>
 									</manifestEntries>
 								</transformer>
 							</transformers>
