@@ -149,8 +149,7 @@ public class CLI {
     String kafVersion = parsedArguments.getString("kafversion");
     Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
     Boolean noTok = parsedArguments.getBoolean("notok");
-    Boolean cleanForBrown = parsedArguments.getBoolean("clean");
-    Properties properties = setAnnotateProperties(lang, tokenizerType, normalize, paras, cleanForBrown);
+    Properties properties = setAnnotateProperties(lang, tokenizerType, normalize, paras);
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
 
@@ -269,7 +268,7 @@ public class CLI {
         .help("Set kaf document version.\n");
   }
   
-  private Properties setAnnotateProperties(String lang, String tokenizer, String normalize, String paragraphs, boolean cleanForBrown) {
+  private Properties setAnnotateProperties(String lang, String tokenizer, String normalize, String paragraphs) {
     Properties annotateProperties = new Properties();
     annotateProperties.setProperty("language", lang);
     annotateProperties.setProperty("tokenizer", tokenizer);
