@@ -18,6 +18,7 @@ package es.ehu.si.ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -48,8 +49,8 @@ public class WhiteSpaceTokenizer<T> extends AbstractTokenizer<T> {
    * @param options Options to the Tokenizer (the values of the -normalize parameter)
    * 
    */
-  public WhiteSpaceTokenizer(BufferedReader breader, TokenFactory tokenFactory, String options) {
-    jlexer = new WhiteSpaceLexer(breader, tokenFactory, options);
+  public WhiteSpaceTokenizer(BufferedReader breader, TokenFactory tokenFactory, Properties properties) {
+    jlexer = new WhiteSpaceLexer(breader, tokenFactory, properties);
   }
 
   /**

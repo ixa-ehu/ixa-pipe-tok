@@ -26,8 +26,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.CharStreams;
 
 import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
 
@@ -68,14 +69,13 @@ public class Annotate {
    * @param options
    * @param tokenizerType
    */
-  public Annotate(BufferedReader breader, String normalize, String options,
-      String tokenizerType) {
+  public Annotate(BufferedReader breader, Properties properties) {
     this.tokenFactory = new TokenFactory();
+    String tokenizerType = properties.getProperty("tokenizer");
     if (tokenizerType.equalsIgnoreCase("white")) {
-      tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, options);
+      tokenizer = new WhiteSpaceTokenizer<Token>(breader, tokenFactory, properties);
     } else {
-      tokenizer = new IxaPipeTokenizer<Token>(breader, tokenFactory, normalize,
-          options);
+      tokenizer = new IxaPipeTokenizer<Token>(breader, tokenFactory, properties);
     }
     segmenter = new Segmenter();
 
@@ -186,7 +186,7 @@ public class Annotate {
     }
     return sb.toString().trim();
   }
-
+  
   /**
    * This function takes a reference tokenized text, performs 
    * tokenization on some input raw text and builds a 
@@ -206,11 +206,12 @@ public class Annotate {
     List<Token> tokens = tokenizer.tokenize();
     // construct whitespace tokenizer to obtain the Token objects from reference
     // text
-    
+    Properties properties = new Properties();
+    properties.setProperty("paragraphs", "no");
     StringReader stringReader = new StringReader(referenceText);
     BufferedReader refReader = new BufferedReader(stringReader);
     Tokenizer<Token> whiteSpacer = new WhiteSpaceTokenizer<Token>(refReader,
-        tokenFactory, "no");
+        tokenFactory, properties);
     // create Token objects out from the reference text
     List<Token> references = whiteSpacer.tokenize();
     // evaluate
@@ -239,7 +240,7 @@ public class Annotate {
   }
   
   public void tokensToKAF(Reader breader, KAFDocument kaf) throws IOException {
-    List<String> sentences = IOUtils.readLines(breader);
+	  List<String> sentences = CharStreams.readLines(breader);
     for (String sentence : sentences) {
       noSents = noSents + 1;
       String[] tokens = sentence.split(" ");
