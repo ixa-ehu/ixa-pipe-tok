@@ -4,7 +4,7 @@
   <groupId>es.ehu.si</groupId>
   <artifactId>ixa-pipe-tok</artifactId>
   <name>ixa-pipe-tok</name>
-  <version>1.5.3</version>
+  <version>1.5.4</version>
   <description>Tokenizer module of the ixa-pipes (ixa2.si.ehu.es/ixa-pipes).</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
