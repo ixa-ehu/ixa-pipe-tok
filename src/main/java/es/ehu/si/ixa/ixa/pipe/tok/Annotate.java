@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
@@ -30,7 +30,7 @@ import java.util.Properties;
 
 import com.google.common.io.CharStreams;
 
-import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
+import es.ehu.si.ixa.ixa.pipe.tok.eval.TokenizerEvaluator;
 
 /**
  * This class provides the annotation functions to output the tokenized text
@@ -65,9 +65,7 @@ public class Annotate {
    * paragraph options.
    * 
    * @param breader
-   * @param normalize
-   * @param options
-   * @param tokenizerType
+   * @param properties the configuration properties
    */
   public Annotate(BufferedReader breader, Properties properties) {
     this.tokenFactory = new TokenFactory();
@@ -86,7 +84,6 @@ public class Annotate {
    * sent, para, offset and length attributes are provided.
    * 
    * @param kaf
-   * @return KAFDocument kaf containing WF with tokens
    */
   public void tokenizedToKAF(KAFDocument kaf) {
     List<Token> tokens = tokenizer.tokenize();

@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class WhiteSpaceTokenizer<T> extends AbstractTokenizer<T> {
    * @param breader Reader
    * @param tokenFactory The TokenFactory that will be invoked to convert
    *        each string extracted by the @link JFlexLexer  into a @Token object
-   * @param options Options to the Tokenizer (the values of the -normalize parameter)
+   * @param properties the ptions to the Tokenizer (the values of the -normalize parameter)
    * 
    */
   public WhiteSpaceTokenizer(BufferedReader breader, TokenFactory tokenFactory, Properties properties) {

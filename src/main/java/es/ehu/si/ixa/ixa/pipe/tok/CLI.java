@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 
@@ -42,7 +42,7 @@ import org.jdom2.JDOMException;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import es.ehu.si.ixa.pipe.tok.eval.TokenizerEvaluator;
+import es.ehu.si.ixa.ixa.pipe.tok.eval.TokenizerEvaluator;
 
 /**
  * ixa-pipe-tok provides several configuration parameters:
