@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.tok.eval;
+package es.ehu.si.ixa.ixa.pipe.tok.eval;
 
 
 import java.io.File;
@@ -26,7 +26,7 @@ import java.util.List;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import es.ehu.si.ixa.pipe.tok.Token;
+import es.ehu.si.ixa.ixa.pipe.tok.Token;
 
 /**
  * The {@link TokenizerEvaluator} measures the performance of a 
@@ -86,10 +86,8 @@ public class TokenizerEvaluator {
    * 
    * The implementation has to update the score after every invocation.
    * 
-   * @param reference
+   * @param referenceList
    *          the reference sample.
-   * 
-   * @return the predicted sample
    */
 
   public void evaluate(List<Token> referenceList,

@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -111,8 +111,7 @@ public class IxaPipeTokenizer<T> extends AbstractTokenizer<T> {
    * @param breader Reader
    * @param tokenFactory The TokenFactory that will be invoked to convert
    *        each string extracted by the @link JFlexLexer  into a @Token object
-   * @param normalize the values of the -normalize parameter
-   * @option options Paragraph options
+   * @param properties the properties to run the tokenizer
    * 
    */
   public IxaPipeTokenizer(BufferedReader breader, TokenFactory tokenFactory, Properties properties) {

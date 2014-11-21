@@ -1,4 +1,4 @@
-package es.ehu.si.ixa.pipe.tok.eval;
+package es.ehu.si.ixa.ixa.pipe.tok.eval;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +23,8 @@ import java.util.List;
  * Evaluation results are the arithmetic mean of the precision scores calculated
  * for each reference sample and the arithmetic mean of the recall scores
  * calculated for each reference sample. This class is specified for the Tokenizer 
- * evaluation which looks at the {@link Token} value and the index in the list 
- * of {@link Token}s
+ * evaluation which looks at the {@code Token} value and the index in the list 
+ * of {@code Token}s
  */
 public final class FMeasure {
 
