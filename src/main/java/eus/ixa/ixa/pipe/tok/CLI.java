@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.tok;
+package eus.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 
@@ -27,9 +27,8 @@ import java.io.OutputStreamWriter;
 
 import org.jdom2.JDOMException;
 
-import es.ehu.si.ixa.ixa.pipe.resources.Resources;
-import es.ehu.si.ixa.ixa.pipe.seg.RuleBasedSegmenter;
-import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
+import eus.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;

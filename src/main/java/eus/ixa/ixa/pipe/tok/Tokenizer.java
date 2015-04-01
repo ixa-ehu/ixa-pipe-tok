@@ -14,23 +14,18 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.resources;
+package eus.ixa.ixa.pipe.tok;
 
-import java.io.InputStream;
+public interface Tokenizer {
 
-public class Resources {
-
-  private InputStream nonBreaker;
-
-  public InputStream getNonBreakingPrefixes(String cmdOption) {
-    if (cmdOption.equalsIgnoreCase("en")) {
-      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.en");
-    }
-
-    if (cmdOption.equalsIgnoreCase("es")) {
-      nonBreaker = getClass().getResourceAsStream("/nonbreaking_prefix.es");
-    }
-    return nonBreaker;
-  }
+  /**
+   * Takes a sentence (already segmented) and performs tokenization.
+   * 
+   * @param String
+   *          segmented sentence
+   * @param lang
+   * @return String[] where each element is a token
+   */
+  public String[] tokenize(String sentence, String lang);
 
 }

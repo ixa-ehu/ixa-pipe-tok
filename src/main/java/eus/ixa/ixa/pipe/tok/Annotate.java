@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.tok;
+package eus.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
@@ -22,7 +22,7 @@ import ixa.kaflib.WF;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
+import eus.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 public class Annotate {
   

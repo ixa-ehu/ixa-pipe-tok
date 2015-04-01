@@ -14,20 +14,20 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.seg;
+package eus.ixa.ixa.pipe.seg;
 
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
 
-import es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.END_PUNCT_LINK;
+import eus.ixa.ixa.pipe.tok.NonPrefixBreaker;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.END_INSIDE_QUOTES;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.END_PUNCT_LINK;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS_STARTERS;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOPERIOD_END;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.PUNCT_UPPER;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.WRONG_PERIODS;
 
 /**
  * 

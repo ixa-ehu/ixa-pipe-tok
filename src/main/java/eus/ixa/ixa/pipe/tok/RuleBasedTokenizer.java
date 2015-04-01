@@ -14,33 +14,32 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.tok;
+package eus.ixa.ixa.pipe.tok;
 
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_ALPHA;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.ASCII_HEX;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.DASH;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.DOTMULTI_DOT_ANY;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.LINK;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NOALPHA_APOS_NOALPHA;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.QEXC;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.LEFT_QUOTES;
-import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.RIGHT_QUOTES;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ALPHA_APOS_ALPHA;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ASCII_HEX;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DASH;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT_ANY;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.LEFT_QUOTES;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.LINK;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOALPHA_APOS_NOALPHA;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.QEXC;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.RIGHT_QUOTES;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.SPECIALS;
+import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.YEAR_APOS;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker;
 
 public class RuleBasedTokenizer implements Tokenizer {
   

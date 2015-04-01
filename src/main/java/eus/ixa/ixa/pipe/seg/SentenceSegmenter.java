@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Rodrigo Agerri
+ *Copyright 2013 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
    limitations under the License.
  */
 
-package es.ehu.si.ixa.ixa.pipe.tok;
+package eus.ixa.ixa.pipe.seg;
 
-public interface Tokenizer {
+/**
+ * Interface for a Sentence Segmenter
+ * 
+ * @author ragerri
+ * 
+ */
+public interface SentenceSegmenter {
 
-  /**
-   * Takes a sentence (already segmented) and performs tokenization.
-   * 
-   * @param String
-   *          segmented sentence
-   * @param lang
-   * @return String[] where each element is a token
-   */
-  public String[] tokenize(String sentence, String lang);
+  public String[] segmentSentence(String line);
 
 }
