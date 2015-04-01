@@ -121,7 +121,7 @@ public class NonPrefixBreaker {
   // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
   // PREFIXES FILES
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
-  public static Pattern LOWER = Pattern.compile("^\\p{Lower}",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern LOWER = Pattern.compile("^\\p{Lower}", Pattern.UNICODE_CHARACTER_CLASS);
 
   // detect url links
   public static Pattern LINK = Pattern

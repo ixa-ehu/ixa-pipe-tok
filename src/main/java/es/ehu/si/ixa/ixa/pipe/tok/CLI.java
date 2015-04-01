@@ -27,9 +27,8 @@ import java.io.OutputStreamWriter;
 
 import org.jdom2.JDOMException;
 
-import es.ehu.si.ixa.ixa.pipe.resources.Normalizer;
 import es.ehu.si.ixa.ixa.pipe.resources.Resources;
-import es.ehu.si.ixa.ixa.pipe.seg.SegmenterMoses;
+import es.ehu.si.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -122,7 +121,6 @@ public class CLI {
     Boolean inputKafRaw = parsedArguments.getBoolean("kaf");
 
     Resources resourceRetriever = new Resources();
-    Normalizer normalizer = new Normalizer();
     Annotate annotator = new Annotate();
     BufferedReader breader = null;
     BufferedWriter bwriter = null;
@@ -131,7 +129,7 @@ public class CLI {
     // choosing tokenizer and resources by language
 
     InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
+    SentenceSegmenter segmenter = new RuleBasedSegmenter(nonBreaker);
     nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
     Tokenizer tokenizer = new RuleBasedTokenizer(nonBreaker, lang);
 
@@ -151,7 +149,6 @@ public class CLI {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = breader.readLine()) != null) {
-          line = normalizer.ptb3normalize(line);
           sb.append(line).append("<JA>");
         }
         text = sb.toString();

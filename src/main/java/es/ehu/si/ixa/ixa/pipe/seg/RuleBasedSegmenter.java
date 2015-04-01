@@ -36,11 +36,11 @@ import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
  * @author ragerri
  * 
  */
-public class SegmenterMoses implements SentenceSegmenter {
+public class RuleBasedSegmenter implements SentenceSegmenter {
 
   NonPrefixBreaker nonBreaker;
 
-  public SegmenterMoses(InputStream nonBreakingFile) {
+  public RuleBasedSegmenter(InputStream nonBreakingFile) {
     nonBreaker = new NonPrefixBreaker(nonBreakingFile);
 
   }
