@@ -1,35 +1,172 @@
-IXA-pipe-tok
-===============
 
-This module provides Sentence Segmentation and Tokenization for English and Spanish via a
-rule-based approach originally inspired by the Moses (https://github.com/moses-smt/mosesdecoder)
-tokenizer but with several additions and modifications.
+ixa-pipe-tok
+============
 
-ixa-pipe-tok is part of IXA Pipeline ("is a pipeline"), a multilingual NLP pipeline developed by the IXA NLP Group (ixa.si.ehu.es).
+ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter.
+ixa-pipe-tok is part of IXA pipes, a multilingual NLP pipeline developed
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
 
+Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
+pipes tools but also for **official releases, including source code and binary
+packages for all the tools in the IXA pipes toolkit**.
 
-Contents
-========
+This document is intended to be the **usage guide of ixa-pipe-tok**. If you really need to clone
+and install this repository instead of using the releases provided in
+[http://ixa2.si.ehu.es/ixa-pipes], please scroll down to the end of the document for
+the [installation instructions](#installation).
+
+**NOTICE!!**: ixa-pipe-tok is now in [Maven Central](http://search.maven.org/)
+for easy access to its API.
+
+## TABLE OF CONTENTS
+
+1. [Overview of ixa-pipe-tok](#overview)
+  + [Available features](#features)
+2. [Usage of ixa-pipe-tok](#cli-usage)
+  + [Tokenization](#tokenizing)
+  + [Evaluation](#evaluation)
+3. [API via Maven Dependency](#api)
+4. [Git installation](#installation)
+
+## OVERVIEW
+
+This module provides Multilingual Sentence Segmentation and Tokenization for a number of languages,
+such as Dutch, German, English, French, Galician, Italian and Spanish.
+**ixa-pipe-tok outputs** tokenized and segmented text in **three formats**:
+
+  + **NAF (default)**: KAF is used to represent tokenized text but also to
+    as an interchange format between other ixa pipes tools
+    (http://github.com/ixa-ehu). NAF is generated using Kaflib
+    (http://github.com/ixa-ehu/kaflib).
+  + **Oneline**: tokenized text with one sentence per line and markers
+    (\*\<P\>\*) for paragraphs, if that option is chosen.
+  + **Conll**: one token per line, two newlines per sentence and markers for
+    paragraphs (\*\<P\>\*) and offsets.
+
+The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions
+to comply with annotation in corpora such as Penn Treebank for English and
+Ancora Corpus for Spanish.
+  + **multilingual treatment of apostrophes** for Catalan, French and Italian styles
+    (l' aquila, c' est, etc.) possibly applying to other languages with the same
+    rules for splitting apostrophes.
+  + **multilingual support for non-breaking prefixes**, adding language-specific
+    non-breaking exceptions for Dutch, German, French, Galician, Italian and Spanish.
+  + **Ancora normalization**
+  + **paragraph tokenization** to provide paragraph information
+
+### Features
+
+  + **default**: ptb3 minus (all types of) brackets and escapeForwardSlash normalizations.
+  + **ancora**: Ancora corpus based normalization. Like default, except that every
+    quote is normalized into ascii quotes.
+
+## CLI-USAGE
+
+ixa-pipe-tok provides 2 basic functionalities:
+
+1. **tok**: reads a plain text or a NAF document containing a *raw* element and outputs
+   tokens by sentences.
+2. **eval**: functionalities to help evaluating a tokenized text with a given test set.
+
+Each of these functionalities are accessible by adding (tok|eval) as a
+subcommand to ixa-pipe-tok-$version.jar. Please read below and check the -help
+parameter:
+
+````shell
+java -jar target/ixa-pipe-tok-$version.jar (tok|eval) -help
+````
+
+### Tokenizing
+
+If you are in hurry, just execute:
+
+````shell
+cat file.txt | java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
+````
+
+If you want to know more, please follow reading.
+
+ixa-pipe-tok reads NAF documents (with *raw* element) or plain text files
+via standard input and outputs NAF through standard output. The NAF format specification is here:
+
+(http://wordpress.let.vupr.nl/naf/)
+
+There are several options to tokenize with ixa-pipe-tok:
+
+  + **lang**: choose language to create the lang attribute in KAF header
+  + **tokenizer**: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
+  + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
+  + **nokaf**: do not output NAF format.
+  + **outputFormat**: if --nokaf is used, choose between oneline or conll format output.
+    + If -o conll is chosen, it is possible to choose whether to print
+      offset information (--offsets) or not.
+  + **paragraphs**: do not print paragraph markers, e.g., \*\<P\>\*;
+  + **notok**: take already tokenized text as input and create a KAFDocument
+  + **inputkaf**: take a NAF document as input instead of plain text file.
+  + **kafversion**: specify the NAF version as parameter
+
+**Example**:
+
+````shell
+cat file.txt java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
+````
+
+### Evaluation
+
+The eval subcommand provides the following options:
+
+  + **goldSet**: evaluate a tokenizer with respect to a tokenized gold standard. The
+    input gold standard format must be *oneline* (tokenized text with one
+    sentence per line) format.
+  + **tokenizer**: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
+  + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
+
+**Example**:
+
+````shell
+java -jar target/ixa.pipe.tok-$version.jar eval --goldSet gold.tok
+````
+
+## API
+
+The easiest way to use ixa-pipe-tok programatically is via Apache Maven. Add
+this dependency to your pom.xml:
+
+````shell
+<dependency>
+    <groupId>eus.ixa</groupId>
+    <artifactId>ixa-pipe-tok</artifactId>
+    <version>2.0.0</version>
+</dependency>
+````
+
+## JAVADOC
+
+The javadoc of the module is located here:
+
+````shell
+ixa-pipe-tok/target/ixa-pipe-tok-$version-javadoc.jar
+````
+
+## Module contents
 
 The contents of the module are the following:
 
     + formatter.xml           Apache OpenNLP code formatter for Eclipse SDK
     + pom.xml                 maven pom file which deals with everything related to compilation and execution of the module
-    + src/                    java source code of the module
+    + src/                    java source code of the module and required resources
     + Furthermore, the installation process, as described in the README.md, will generate another directory:
     target/                 it contains binary executable and other directories
 
 
-INSTALLATION
-============
+## INSTALLATION
 
 Installing the ixa-pipe-tok requires the following steps:
 
-If you already have installed in your machine JDK7 and MAVEN 3, please go to step 3
+If you already have installed in your machine the Java 1.7+ and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-1. Install JDK 1.7
--------------------
+### 1. Install JDK 1.7
 
 If you do not install JDK 1.7 in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
@@ -51,10 +188,9 @@ If you re-login into your shell and run the command
 java -version
 ````
 
-You should now see that your jdk is 1.7
+You should now see that your JDK is 1.7
 
-2. Install MAVEN 3
-------------------
+### 2. Install MAVEN 3
 
 Download MAVEN 3 from
 
@@ -65,7 +201,8 @@ wget http://apache.rediris.es/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bi
 Now you need to configure the PATH. For Bash Shell:
 
 ````shell
-export MAVEN_HOME=/home/ragerri/local/apache-maven-3.0.5
+pwd
+export MAVEN_HOME=$pwd/apache-maven-3.0.5
 export PATH=${MAVEN_HOME}/bin:${PATH}
 ````
 
@@ -82,73 +219,38 @@ If you re-login into your shell and run the command
 mvn -version
 ````
 
-You should see reference to the MAVEN version you have just installed plus the JDK 6 that is using.
+You should see reference to the MAVEN version you have just installed plus the JDK 7 that is using.
 
-3. Install ixa-pipe-tok
------------------------
+### 3. Get module source code
+
+If you must get the module source code from here do this:
 
 ````shell
-git clone git@github.com:ixa-ehu/ixa-pipe-tok.git
+git clone https://github.com/ixa-ehu/ixa-pipe-tok
 ````
 
-move into main directory:
+### 4. Compile
 
 ````shell
 cd ixa-pipe-tok
-````
-compile module:
-
-````shell
 mvn clean package
 ````
 
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-pipe-tok-1.0.jar
+ixa-pipe-tok-$version.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
-as you have a JVM 1.6 installed.
+as you have a JVM 1.7 installed.
 
-To install the module as in the maven's user local repository, located in ~/.m2/repository, do this:
+To install the module in the local maven repository, usually located in ~/.m2/, execute:
 
 ````shell
 mvn clean install
 ````
 
-4. Using ixa-pipe-tok
----------------------
-
-The program accepts standard input and outputs tokenized text in KAF:
-
-https://github.com/opener-project/kaf/wiki/KAF-structure-overview
-
-To run the program execute:
-
-````shell
-cat file.txt | java -jar $PATH/target/ixa-pipe-tok-1.0.jar -l $lang
-````
-
-For a summary of options available, run:
-
-````shell
-java -jar $PATH/target/ixa-pipe-tok-1.0.jar -help
-````
-
-GENERATING JAVADOC
-==================
-
-You can also generate the javadoc of the module by executing:
-
-````shell
-mvn javadoc:jar
-````
-
-Which will create a jar file core/target/ixa-pipe-tok-1.0-javadoc.jar
-
-
-Contact information
-===================
+## Contact information
 
 ````shell
 Rodrigo Agerri
