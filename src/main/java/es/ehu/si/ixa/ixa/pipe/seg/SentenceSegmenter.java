@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.seg;
+package es.ehu.si.ixa.ixa.pipe.seg;
 
 /**
  * Interface for a Sentence Segmenter

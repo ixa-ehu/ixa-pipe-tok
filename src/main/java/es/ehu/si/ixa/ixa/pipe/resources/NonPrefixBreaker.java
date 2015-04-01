@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.resources;
+package es.ehu.si.ixa.ixa.pipe.resources;
 
 import java.io.BufferedReader;
 import java.io.IOException;

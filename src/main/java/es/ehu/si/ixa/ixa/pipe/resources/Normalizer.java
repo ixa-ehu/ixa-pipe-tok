@@ -1,4 +1,4 @@
-package ixa.pipe.resources;
+package es.ehu.si.ixa.ixa.pipe.resources;
 
 import java.util.regex.Pattern;
 
@@ -33,17 +33,10 @@ public class Normalizer {
   private static final Pattern UNICODE_RIGHT_SINGLE_QUOTE = Pattern.compile("\u0092");
   private static final Pattern UNICODE_LEFT_DOUBLE_QUOTE = Pattern.compile("\u0093");
   private static final Pattern UNICODE_RIGHT_DOUBLE_QUOTE = Pattern.compile("\u0094");
-
   
-  public String latexQuotes(String in, boolean probablyLeft) {
+  
+  public String latexQuotes(String in) {
     String s1 = in;
-    if (probablyLeft) {
-      s1 = SINGLEQUOTE.matcher(s1).replaceAll("`");
-      s1 = DOUBLEQUOTE.matcher(s1).replaceAll("``");
-    } else {
-      s1 = SINGLEQUOTE.matcher(s1).replaceAll("'");
-      s1 = DOUBLEQUOTE.matcher(s1).replaceAll("''");
-    }
     s1 = LEFT_SINGLE_QUOTE.matcher(s1).replaceAll("`");
     s1 = RIGHT_SINGLE_QUOTE.matcher(s1).replaceAll("'");
     s1 = LEFT_DOUBLE_QUOTE.matcher(s1).replaceAll("``");
@@ -77,7 +70,7 @@ public class Normalizer {
   
   public String ptb3normalize(String in) {
     String normTok = in;
-    //normTok = latexQuotes(normTok);
+    normTok = latexQuotes(normTok);
     return normTok;
   } 
 

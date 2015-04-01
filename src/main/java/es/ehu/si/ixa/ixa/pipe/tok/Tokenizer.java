@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 public interface Tokenizer {
 

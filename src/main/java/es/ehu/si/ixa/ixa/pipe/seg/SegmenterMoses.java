@@ -14,18 +14,19 @@
    limitations under the License.
  */
 
-package ixa.pipe.seg;
+package es.ehu.si.ixa.ixa.pipe.seg;
 
-import ixa.pipe.resources.NonPrefixBreaker;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
-import static ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
-import static ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
-import static ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
-import static ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
-import static ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
+
+import es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.END_INSIDE_QUOTES;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_DOTS_STARTERS;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
 
 /**
  * 

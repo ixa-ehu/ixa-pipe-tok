@@ -14,13 +14,9 @@
    limitations under the License.
  */
 
-package ixa.pipe.tok;
+package es.ehu.si.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
-import ixa.pipe.resources.Normalizer;
-import ixa.pipe.resources.Resources;
-import ixa.pipe.seg.SegmenterMoses;
-import ixa.pipe.seg.SentenceSegmenter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,6 +26,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import org.jdom2.JDOMException;
+
+import es.ehu.si.ixa.ixa.pipe.resources.Normalizer;
+import es.ehu.si.ixa.ixa.pipe.resources.Resources;
+import es.ehu.si.ixa.ixa.pipe.seg.SegmenterMoses;
+import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -132,7 +133,7 @@ public class CLI {
     InputStream nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
     SentenceSegmenter segmenter = new SegmenterMoses(nonBreaker);
     nonBreaker = resourceRetriever.getNonBreakingPrefixes(lang);
-    Tokenizer tokenizer = new TokenizerMoses(nonBreaker, lang);
+    Tokenizer tokenizer = new RuleBasedTokenizer(nonBreaker, lang);
 
     // reading standard input, segment and tokenize
     try {
