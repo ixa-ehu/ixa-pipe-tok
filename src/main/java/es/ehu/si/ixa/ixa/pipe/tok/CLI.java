@@ -49,6 +49,18 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 
 public class CLI {
+  
+  /**
+   * Get dynamically the version of ixa-pipe-pos by looking at the MANIFEST
+   * file.
+   */
+  private static final String version = CLI.class.getPackage()
+      .getImplementationVersion();
+  /**
+   * Get the git commit of the ixa-pipe-pos compiled by looking at the MANIFEST
+   * file.
+   */
+  private static final String commit = CLI.class.getPackage().getSpecificationVersion();
 
   /**
    * BufferedReader (from standard input) and BufferedWriter are opened. The
@@ -69,9 +81,9 @@ public class CLI {
 
     // create Argument Parser
     ArgumentParser parser = ArgumentParsers
-        .newArgumentParser("ixa-pipe-tok-1.0.jar")
+        .newArgumentParser("ixa-pipe-tok-" + version + ".jar")
         .description(
-            "ixa-pipe-tok-1.0 is a multilingual Tokenizer module developed by IXA NLP Group.\n");
+            "ixa-pipe-tok-" + version + " is a multilingual Tokenizer module developed by IXA NLP Group.\n");
 
     // specify language
     parser
@@ -107,7 +119,7 @@ public class CLI {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.out
-          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-1.0.jar -help for details");
+          .println("Run java -jar ixa-pipe-tok/target/ixa-pipe-tok-" + version + ".jar -help for details");
       System.exit(1);
     }
 
@@ -153,6 +165,8 @@ public class CLI {
         }
         text = sb.toString();
       }
+      KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version + "-" + commit);
+      newLp.setBeginTimestamp();
       // tokenize and create KAF
       if (parsedArguments.getBoolean("notok")) {
         annotator.tokenizedTextToKAF(text, lang, tokenizer, kaf);
@@ -160,8 +174,7 @@ public class CLI {
       } else {
         annotator.annotateTokensToKAF(text, lang, segmenter, tokenizer, kaf);
       }
-      // write kaf document
-      kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, "1.0");
+      newLp.setEndTimestamp();
       if (inputKafRaw) {
         // empty raw layer ?
         // kaf.setRawText("");

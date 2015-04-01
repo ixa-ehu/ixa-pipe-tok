@@ -140,6 +140,9 @@ public class NonPrefixBreaker {
   // special case for "1990's"
   public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])",Pattern.UNICODE_CHARACTER_CLASS);
 
+  //normalize quotes
+  public static Pattern RIGHT_QUOTES = Pattern.compile("([\\p{Alpha}])[\"]",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern LEFT_QUOTES = Pattern.compile("[\"]([\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
   private HashMap<String, String> dictMap;
 
   /**

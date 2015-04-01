@@ -82,7 +82,7 @@ public class Annotate {
     
     //build text to be tokenized
     text = buildText(text);
-    System.err.println(text);
+    //System.err.println(text);
 
     // this creates the actual paragraphs to be passed to the sentence detector
     String[] paragraphs = text.split("<P>");
@@ -109,8 +109,7 @@ public class Annotate {
           // get offsets
           current_index = para.indexOf(tokens[i], previous_index);
           int offset = offsetCounter + current_index;
-          WF wf = kaf.newWF(tokens[i], offset);
-          wf.setSent(noSents);
+          WF wf = kaf.newWF(tokens[i], offset, noSents);
           wf.setPara(noParas);
           previous_index = current_index + tokens[i].length();
         }

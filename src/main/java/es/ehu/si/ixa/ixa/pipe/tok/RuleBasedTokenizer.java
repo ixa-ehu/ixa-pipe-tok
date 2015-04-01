@@ -33,6 +33,8 @@ import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NODIGIT_COMMA_NO
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.QEXC;
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.SPECIALS;
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.YEAR_APOS;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.LEFT_QUOTES;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.RIGHT_QUOTES;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
@@ -99,6 +101,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     // remove extra spaces and ASCII stuff
     line = " " + line + " ";
     line = MULTI_SPACE.matcher(line).replaceAll(" ");
+    line = normalizeQuotes(line, lang);
     line = ASCII_HEX.matcher(line).replaceAll("");
     // separate question and exclamation marks
     line = QEXC.matcher(line).replaceAll(" $1 ");
@@ -201,6 +204,26 @@ public class RuleBasedTokenizer implements Tokenizer {
       line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
       line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1 '$2");
       line = YEAR_APOS.matcher(line).replaceAll("$1 ' $2");
+    } else {
+      line = line.replaceAll("'", "' ");
+    }
+    return line;
+  }
+  
+  /**
+   * 
+   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on the
+   * input language
+   * 
+   * @param line
+   * @param lang
+   * @return tokenized sinqle quotes expressions
+   */
+  private String normalizeQuotes(String line, String lang) {
+
+    if (lang.equalsIgnoreCase("en")) {
+      line = LEFT_QUOTES.matcher(line).replaceAll("`` $1");
+      line = RIGHT_QUOTES.matcher(line).replaceAll("$1 ''");
     } else {
       line = line.replaceAll("'", "' ");
     }
