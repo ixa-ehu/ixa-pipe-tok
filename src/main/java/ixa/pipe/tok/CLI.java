@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import org.jdom2.JDOMException;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -56,9 +58,10 @@ public class CLI {
    * 
    * @param args
    * @throws IOException
+   * @throws JDOMException 
    */
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, JDOMException {
 
     //TODO check offsets when we normalize 
     
