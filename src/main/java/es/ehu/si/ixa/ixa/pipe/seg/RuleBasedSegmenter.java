@@ -27,6 +27,7 @@ import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.MULTI_SPACE;
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.NOPERIOD_END;
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.PUNCT_UPPER;
 import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.WRONG_PERIODS;
+import static es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker.END_PUNCT_LINK;
 
 /**
  * 
@@ -87,6 +88,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     // add breaks for sentences that end with some sort of punctuation are
     // followed by a sentence starter punctuation and upper case
     text = PUNCT_UPPER.matcher(text).replaceAll("$1\n$2");
+    text = END_PUNCT_LINK.matcher(text).replaceAll("$1\n$2");
 
     // //////////////////////////////////
     // // language dependent rules //////

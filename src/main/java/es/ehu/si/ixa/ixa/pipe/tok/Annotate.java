@@ -20,10 +20,15 @@ import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 public class Annotate {
+  
+  //TODO extend to other expressions different from lower?
+  public static Pattern SPURIOUS_PARAGRAPH = Pattern.compile("(\\s+)<P>(\\p{Lower})",Pattern.UNICODE_CHARACTER_CLASS);
+
 
   /**
    * This function takes the original input text and cleans extra newlines and
@@ -39,6 +44,7 @@ public class Annotate {
     text = text.replaceAll("<JA>", " ");
     text = text.replaceAll("\\s+", " ");
     text = text.trim();
+    text = SPURIOUS_PARAGRAPH.matcher(text).replaceAll("$1 $2");
     return text;
   }
 
@@ -68,6 +74,7 @@ public class Annotate {
       throws IOException {
 
     int noSents = 0;
+    int noParas = 0;
     //offset counters
     int offsetCounter = 0;
     int current_index = 0;
@@ -75,14 +82,17 @@ public class Annotate {
     
     //build text to be tokenized
     text = buildText(text);
+    System.err.println(text);
 
     // this creates the actual paragraphs to be passed to the sentence detector
-    String[] lines = text.split("<P>");
+    String[] paragraphs = text.split("<P>");
 
-    for (String line : lines) {
+    for (String para : paragraphs) {
+      
+      ++noParas;
 
-      line = line.trim();
-      String[] sentences = sentDetector.segmentSentence(line);
+      para = para.trim();
+      String[] sentences = sentDetector.segmentSentence(para);
       
       // get linguistic annotations
       for (String sent : sentences) {
@@ -97,14 +107,15 @@ public class Annotate {
         
         for (int i = 0; i < tokens.length; i++) {
           // get offsets
-          current_index = line.indexOf(tokens[i], previous_index);
+          current_index = para.indexOf(tokens[i], previous_index);
           int offset = offsetCounter + current_index;
           WF wf = kaf.newWF(tokens[i], offset);
           wf.setSent(noSents);
+          wf.setPara(noParas);
           previous_index = current_index + tokens[i].length();
         }
       }
-      offsetCounter += line.length();
+      offsetCounter += para.length();
     }
   }
   

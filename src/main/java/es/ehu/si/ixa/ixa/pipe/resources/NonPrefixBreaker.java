@@ -49,7 +49,7 @@ public class NonPrefixBreaker {
   // //////////////////////////
   // // Segmenter Patterns ////
   // //////////////////////////
-
+  
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
       .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
@@ -84,6 +84,7 @@ public class NonPrefixBreaker {
   public static Pattern START_DIGITS = Pattern.compile("^\\d+",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern QUOTE_SPACE_UPPER_NUMBER = Pattern
       .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern END_PUNCT_LINK = Pattern.compile("([?!\\.])\\s+(http.+|www+)");
 
   // //////////////////////////
   // // Tokenizer Patterns ////
