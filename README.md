@@ -43,7 +43,7 @@ such as Dutch, German, English, French, Galician, Italian and Spanish.
   + **Conll**: one token per line, two newlines per sentence and markers for
     paragraphs (\*\<P\>\*) and offsets.
 
-The IxaPipeTokenizer (not the WhiteSpaceTokenizer) also provides normalization functions
+ixa-pipe-tok also provides normalization functions
 to comply with annotation in corpora such as Penn Treebank for English and
 Ancora Corpus for Spanish.
   + **multilingual treatment of apostrophes** for Catalan, French and Italian styles

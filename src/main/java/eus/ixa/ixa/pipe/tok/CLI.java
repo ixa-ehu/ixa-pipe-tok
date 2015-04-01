@@ -85,7 +85,7 @@ public class CLI {
     // specify language
     parser
         .addArgument("-l", "--lang")
-        .choices("en", "es")
+        .choices("de", "en", "es", "gl", "it")
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok");
