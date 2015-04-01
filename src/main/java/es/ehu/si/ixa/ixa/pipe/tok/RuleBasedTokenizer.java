@@ -44,34 +44,10 @@ import es.ehu.si.ixa.ixa.pipe.resources.NonPrefixBreaker;
 
 public class RuleBasedTokenizer implements Tokenizer {
   
-  private static final String APOS = "['\u0092\u2019]|&apos]";
-  private static final Pattern APOSETCETERA = Pattern.compile("APOS|[\u0091\u2018\u201B]");
-  private static final Pattern REDAUX = Pattern.compile("APOS([msdMSD]|re|ve|ll)");
-  
-  ////////////////
-  //// QUOTES ////
-  ////////////////
-  
-  // to convert to LATEX 
-  private static final Pattern SINGLEQUOTE = Pattern.compile("&apos;|'");
-  private static final Pattern DOUBLEQUOTE = Pattern.compile("\"|&quot;");
-
-  // 91,92,93,94 aren't valid unicode points, but sometimes they show
-  // up from cp1252 and need to be converted 
-  private static final Pattern LEFT_SINGLE_QUOTE = Pattern.compile("[\u0091\u2018\u201B\u2039]");
-  private static final Pattern RIGHT_SINGLE_QUOTE = Pattern.compile("[\u0092\u2019\u203A]");
-  private static final Pattern LEFT_DOUBLE_QUOTE = Pattern.compile("[\u0093\u201C\u00AB]");
-  private static final Pattern RIGHT_DOUBLE_QUOTE = Pattern.compile("[\u0094\u201D\u00BB]");
-  
-  // to convert to ASCII 
-  private static final Pattern ASCII_SINGLE_QUOTE = Pattern.compile("&apos;|[\u0091\u2018\u0092\u2019\u201A\u201B\u2039\u203A']");
-  private static final Pattern ASCII_DOUBLE_QUOTE = Pattern.compile("&quot;|[\u0093\u201C\u0094\u201D\u201E\u00AB\u00BB\"]");
-  
-  // to convert to UNICODE 
-  private static final Pattern UNICODE_LEFT_SINGLE_QUOTE = Pattern.compile("\u0091");
-  private static final Pattern UNICODE_RIGHT_SINGLE_QUOTE = Pattern.compile("\u0092");
-  private static final Pattern UNICODE_LEFT_DOUBLE_QUOTE = Pattern.compile("\u0093");
-  private static final Pattern UNICODE_RIGHT_DOUBLE_QUOTE = Pattern.compile("\u0094");
+  private static final Pattern WEIRD_DOTS = Pattern.compile("…");
+  private static final Pattern WEIRD_LEFT_QUOTE = Pattern.compile("‘");
+  private static final Pattern WEIRD_RIGTH_QUOTE = Pattern.compile("’");
+  private static final Pattern LONG_DASH = Pattern.compile("—");
   
   
 
@@ -88,7 +64,7 @@ public class RuleBasedTokenizer implements Tokenizer {
 
   /**
    * Main tokenizer function. It applies the tokenizing rules and treats with
-   * language-dependent periods plus url links. Idea based on Moses tokenizer
+   * language-dependent periods plus url links. Idea based on Moses tokenizer.
    * 
    * 
    * @param line
@@ -101,8 +77,9 @@ public class RuleBasedTokenizer implements Tokenizer {
     // remove extra spaces and ASCII stuff
     line = " " + line + " ";
     line = MULTI_SPACE.matcher(line).replaceAll(" ");
-    line = normalizeQuotes(line, lang);
     line = ASCII_HEX.matcher(line).replaceAll("");
+    line = convertNonCanonicalStrings(line);
+    line = normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = QEXC.matcher(line).replaceAll(" $1 ");
     // separate dash if before an upper case character 
@@ -120,10 +97,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     // separate pre and post digit
     line = DIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");
     line = NODIGIT_COMMA_DIGIT.matcher(line).replaceAll("$1 , $2");
-
-    // //////////////////////////////////
-    // // language dependent rules //////
-    // //////////////////////////////////
+    
 
     // contractions it's, l'agila
     line = treatContractions(line, lang);
@@ -204,8 +178,11 @@ public class RuleBasedTokenizer implements Tokenizer {
       line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
       line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1 '$2");
       line = YEAR_APOS.matcher(line).replaceAll("$1 ' $2");
-    } else {
-      line = line.replaceAll("'", "' ");
+    } else if (lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl") || lang.equalsIgnoreCase("it")) {
+      line = NOALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
+      line = NOALPHA_DIGIT_APOS_ALPHA.matcher(line).replaceAll("$1 ' $2");
+      line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
+      line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1' $2");
     }
     return line;
   }
@@ -224,8 +201,6 @@ public class RuleBasedTokenizer implements Tokenizer {
     if (lang.equalsIgnoreCase("en")) {
       line = LEFT_QUOTES.matcher(line).replaceAll("`` $1");
       line = RIGHT_QUOTES.matcher(line).replaceAll("$1 ''");
-    } else {
-      line = line.replaceAll("'", "' ");
     }
     return line;
   }
@@ -245,6 +220,14 @@ public class RuleBasedTokenizer implements Tokenizer {
     }
     link.appendTail(sb);
     line = sb.toString();
+    return line;
+  }
+  
+  public String convertNonCanonicalStrings(String line) {
+    line = WEIRD_DOTS.matcher(line).replaceAll("...");
+    line = WEIRD_LEFT_QUOTE.matcher(line).replaceAll("`");
+    line = WEIRD_RIGTH_QUOTE.matcher(line).replaceAll("'");
+    line = LONG_DASH.matcher(line).replaceAll("--");
     return line;
   }
 

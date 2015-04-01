@@ -27,26 +27,7 @@ import es.ehu.si.ixa.ixa.pipe.seg.SentenceSegmenter;
 public class Annotate {
   
   //TODO extend to other expressions different from lower?
-  public static Pattern SPURIOUS_PARAGRAPH = Pattern.compile("(\\s+)<P>(\\p{Lower})",Pattern.UNICODE_CHARACTER_CLASS);
-
-
-  /**
-   * This function takes the original input text and cleans extra newlines and
-   * spaces creating the input text for the sentence segmenter and the tokenizer
-   * 
-   * @param String
-   *          text
-   * @return String text
-   */
-
-  public String buildText(String text) {
-    text = text.replaceAll("(<JA><JA>)+", "<P>");
-    text = text.replaceAll("<JA>", " ");
-    text = text.replaceAll("\\s+", " ");
-    text = text.trim();
-    text = SPURIOUS_PARAGRAPH.matcher(text).replaceAll("$1 $2");
-    return text;
-  }
+  public static Pattern SPURIOUS_PARAGRAPH = Pattern.compile("(\\s+)<P>(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    * This method performs Sentence Detection and Tokenization to produce
@@ -116,6 +97,24 @@ public class Annotate {
       }
       offsetCounter += para.length();
     }
+  }
+
+  /**
+   * This function takes the original input text and cleans extra newlines and
+   * spaces creating a pre-processed input text for the sentence segmenter and the tokenizer.
+   * 
+   * @param String
+   *          text
+   * @return String text
+   */
+
+  public String buildText(String text) {
+    text = text.replaceAll("(<JA><JA>)+", "<P>");
+    text = text.replaceAll("<JA>", " ");
+    text = text.replaceAll("\\s+", " ");
+    text = text.trim();
+    text = SPURIOUS_PARAGRAPH.matcher(text).replaceAll("$1 $2");
+    return text;
   }
   
   /**

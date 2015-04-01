@@ -101,7 +101,7 @@ public class NonPrefixBreaker {
   public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
 
   // tokenize whenever after or before a space
-  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})",Pattern.UNICODE_CHARACTER_CLASS);  
+  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern DASH = Pattern.compile("( \\-+|\\-+ )");
     
   // multidots
@@ -128,9 +128,9 @@ public class NonPrefixBreaker {
   public static Pattern LINK = Pattern
       .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
-  // english contractions patterns
+  // contractions patterns
   public static Pattern NOALPHA_APOS_NOALPHA = Pattern
-      .compile("([^\\p{Alpha}])[']([^\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern NOALPHA_DIGIT_APOS_ALPHA = Pattern
       .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})",Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern ALPHA_APOS_NOALPHA = Pattern
@@ -141,8 +141,8 @@ public class NonPrefixBreaker {
   public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])",Pattern.UNICODE_CHARACTER_CLASS);
 
   //normalize quotes
-  public static Pattern RIGHT_QUOTES = Pattern.compile("([\\p{Alpha}])[\"]",Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern LEFT_QUOTES = Pattern.compile("[\"]([\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern RIGHT_QUOTES = Pattern.compile("([\\p{Alnum}\\p{Punct}])[\"]", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern LEFT_QUOTES = Pattern.compile("[\"]([\\p{Alnum}])", Pattern.UNICODE_CHARACTER_CLASS);
   private HashMap<String, String> dictMap;
 
   /**

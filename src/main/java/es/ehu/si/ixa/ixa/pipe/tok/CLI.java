@@ -40,8 +40,6 @@ import net.sourceforge.argparse4j.inf.Namespace;
 /**
  * ixa-pipe tokenization
  * 
- * This module implements a rule-based loosely inspired by the moses tokenizer
- * (https://github.com/moses-smt/mosesdecoder)
  * 
  * @author ragerri
  * @version 1.0
