@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Rodrigo Agerri
+ * Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -52,15 +52,15 @@ public class NonPrefixBreaker {
   
   // non-period end of sentence markers (?!) followed by sentence starters.
   public static Pattern NOPERIOD_END = Pattern
-      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
 
   // multi-dots followed by sentence starters
   public static Pattern MULTI_DOTS_STARTERS = Pattern
-      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   
   // segment wrongly introduced periods; Centraal.There
   public static Pattern WRONG_PERIODS = Pattern.
-      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])",Pattern.UNICODE_CHARACTER_CLASS);
+      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   
   // some sort of punctuation inside a quote or parenthetical followed
   // by a possible sentence starter punctuation and upper case
@@ -81,9 +81,9 @@ public class NonPrefixBreaker {
   public static Pattern UPPER_CASE_ACRONYM = Pattern
       .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$");
 
-  public static Pattern START_DIGITS = Pattern.compile("^\\d+",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern START_DIGITS = Pattern.compile("^\\d+", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern QUOTE_SPACE_UPPER_NUMBER = Pattern
-      .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern END_PUNCT_LINK = Pattern.compile("([?!\\.])\\s+(http.+|www+)");
 
   // //////////////////////////
@@ -101,7 +101,7 @@ public class NonPrefixBreaker {
   public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
 
   // tokenize whenever after or before a space
-  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern DASH = Pattern.compile("( \\-+|\\-+ )");
     
   // multidots
@@ -112,12 +112,12 @@ public class NonPrefixBreaker {
 
   // commas and digits
   public static Pattern NODIGIT_COMMA_NODIGIT = Pattern
-      .compile("([^\\d])[,]([^\\d])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([^\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
   // separate "," pre and post number
   public static Pattern DIGIT_COMMA_NODIGIT = Pattern
-      .compile("([\\d])[,]([^\\d])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern NODIGIT_COMMA_DIGIT = Pattern
-      .compile("([^\\d])[,](\\d)",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([^\\d])[,](\\d)", Pattern.UNICODE_CHARACTER_CLASS);
 
   // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
   // PREFIXES FILES
@@ -130,19 +130,16 @@ public class NonPrefixBreaker {
 
   // contractions patterns
   public static Pattern NOALPHA_APOS_NOALPHA = Pattern
-      .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern NOALPHA_DIGIT_APOS_ALPHA = Pattern
-      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern ALPHA_APOS_NOALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern ALPHA_APOS_ALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([\\p{Alpha}])",Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([\\p{Alpha}])[']([\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
   // special case for "1990's"
-  public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])",Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
 
-  //normalize quotes
-  public static Pattern RIGHT_QUOTES = Pattern.compile("([\\p{Alnum}\\p{Punct}])[\"]", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern LEFT_QUOTES = Pattern.compile("[\"]([\\p{Alnum}])", Pattern.UNICODE_CHARACTER_CLASS);
   private HashMap<String, String> dictMap;
 
   /**

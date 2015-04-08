@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Rodrigo Agerri
+ * Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DASH;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT_ANY;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.LEFT_QUOTES;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.LINK;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
@@ -32,23 +31,14 @@ import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.QEXC;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.RIGHT_QUOTES;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.SPECIALS;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.YEAR_APOS;
 
 import java.io.InputStream;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class RuleBasedTokenizer implements Tokenizer {
-  
-  private static final Pattern WEIRD_DOTS = Pattern.compile("…");
-  private static final Pattern WEIRD_LEFT_QUOTE = Pattern.compile("‘");
-  private static final Pattern WEIRD_RIGTH_QUOTE = Pattern.compile("’");
-  private static final Pattern LONG_DASH = Pattern.compile("—");
-  
-  
 
   NonPrefixBreaker nonBreaker;
 
@@ -61,24 +51,14 @@ public class RuleBasedTokenizer implements Tokenizer {
     return tokens;
   }
 
-  /**
-   * Main tokenizer function. It applies the tokenizing rules and treats with
-   * language-dependent periods plus url links. Idea based on Moses tokenizer.
-   * 
-   * 
-   * @param line
-   * @param lang
-   * @return String[] containing where each member is a token of the input
-   *         sentence
-   */
   private String[] tokDetector(String line, String lang) {
 
     // remove extra spaces and ASCII stuff
     line = " " + line + " ";
     line = MULTI_SPACE.matcher(line).replaceAll(" ");
     line = ASCII_HEX.matcher(line).replaceAll("");
-    line = convertNonCanonicalStrings(line);
-    line = normalizeQuotes(line, lang);
+    line = Normalizer.convertNonCanonicalStrings(line);
+    line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = QEXC.matcher(line).replaceAll(" $1 ");
     // separate dash if before an upper case character 
@@ -123,9 +103,8 @@ public class RuleBasedTokenizer implements Tokenizer {
   }
 
   /**
-   * 
    * This function normalizes multi-period expressions (...) to make
-   * tokenization easier; it also keeps multidots together
+   * tokenization easier.
    * 
    * @param line
    * @return string
@@ -145,11 +124,11 @@ public class RuleBasedTokenizer implements Tokenizer {
   }
 
   /**
-   * restores the normalized multidots to its original state and it tokenizes
-   * them
+   * Restores the normalized multidots to its original state and it tokenizes
+   * them.
    * 
    * @param line
-   * @return tokenized multidots
+   * @return the tokenized multidots
    */
   private String restoreMultidots(String line) {
 
@@ -160,15 +139,6 @@ public class RuleBasedTokenizer implements Tokenizer {
     return line;
   }
 
-  /**
-   * 
-   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on the
-   * input language
-   * 
-   * @param line
-   * @param lang
-   * @return tokenized sinqle quotes expressions
-   */
   private String treatContractions(String line, String lang) {
 
     if (lang.equalsIgnoreCase("en")) {
@@ -185,32 +155,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     }
     return line;
   }
-  
-  /**
-   * 
-   * Using nonprefix_breaker.$lang files it tokenizes single quotes based on the
-   * input language
-   * 
-   * @param line
-   * @param lang
-   * @return tokenized sinqle quotes expressions
-   */
-  private String normalizeQuotes(String line, String lang) {
 
-    if (lang.equalsIgnoreCase("en")) {
-      line = LEFT_QUOTES.matcher(line).replaceAll("`` $1");
-      line = RIGHT_QUOTES.matcher(line).replaceAll("$1 ''");
-    }
-    return line;
-  }
-
-  /**
-   * It detects (wrongly tokenized) URLs and de-tokenizes them
-   * 
-   * @param line
-   * @param lang
-   * @return detokenized URL
-   */
   private String detokenizeURLs(String line) {
     Matcher link = LINK.matcher(line);
     StringBuffer sb = new StringBuffer();
@@ -219,14 +164,6 @@ public class RuleBasedTokenizer implements Tokenizer {
     }
     link.appendTail(sb);
     line = sb.toString();
-    return line;
-  }
-  
-  public String convertNonCanonicalStrings(String line) {
-    line = WEIRD_DOTS.matcher(line).replaceAll("...");
-    line = WEIRD_LEFT_QUOTE.matcher(line).replaceAll("`");
-    line = WEIRD_RIGTH_QUOTE.matcher(line).replaceAll("'");
-    line = LONG_DASH.matcher(line).replaceAll("--");
     return line;
   }
 

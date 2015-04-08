@@ -1,5 +1,5 @@
 /*
- *Copyright 2013 Rodrigo Agerri
+ *Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -29,15 +29,9 @@ import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOPERIOD_END;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.PUNCT_UPPER;
 import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.WRONG_PERIODS;
 
-/**
- * 
- * Sentence segmenter loosely inspired by the moses decoder sentence segmenter
- * https://github.com/moses-smt/mosesdecoder
- * 
- * @author ragerri
- * 
- */
 public class RuleBasedSegmenter implements SentenceSegmenter {
+  public static final String LINE_BREAK="<JAR>";
+  public static final String PARAGRAPH = "<P>";
 
   NonPrefixBreaker nonBreaker;
 
@@ -46,32 +40,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
 
   }
 
-  /**
-   * 
-   * Rule-based sentence segmenter implements SentenceSegmenter method and calls
-   * to the sentenceSplitter function to do the actual segmentation Each line is
-   * a paragraph of the original input text
-   * 
-   * @param line
-   * @return an array of segmented sentences, each element in the array
-   *         corresponds to a sentence
-   */
   public String[] segmentSentence(String line) {
     String[] sentences = sentenceSplitter(line);
     return sentences;
   }
 
-  /**
-   * 
-   * Rule-based sentence segmenter loosely inspired by moses segmenter
-   * https://github.com/moses-smt/mosesdecoder
-   * 
-   * Each line is a paragraph of the original input text
-   * 
-   * @param line
-   * @return an array of segmented sentences, each element in the array
-   *         corresponds to a sentence
-   */
   private String[] sentenceSplitter(String line) {
     // clean extra spaces
     String text = line.trim();
@@ -89,10 +62,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     // followed by a sentence starter punctuation and upper case
     text = PUNCT_UPPER.matcher(text).replaceAll("$1\n$2");
     text = END_PUNCT_LINK.matcher(text).replaceAll("$1\n$2");
-
-    // //////////////////////////////////
-    // // language dependent rules //////
-    // //////////////////////////////////
 
     // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);

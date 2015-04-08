@@ -1,5 +1,5 @@
 /*
- *Copyright 2013 Rodrigo Agerri
+ *Copyright 2015 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,12 +16,6 @@
 
 package eus.ixa.ixa.pipe.seg;
 
-/**
- * Interface for a Sentence Segmenter
- * 
- * @author ragerri
- * 
- */
 public interface SentenceSegmenter {
 
   public String[] segmentSentence(String line);

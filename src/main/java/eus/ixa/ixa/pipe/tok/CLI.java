@@ -158,7 +158,7 @@ public class CLI {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = breader.readLine()) != null) {
-          sb.append(line).append("<JA>");
+          sb.append(line).append(RuleBasedSegmenter.LINE_BREAK);
         }
         text = sb.toString();
       }

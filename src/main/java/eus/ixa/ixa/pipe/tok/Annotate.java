@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Rodrigo Agerri
+ * Copyright 2015 Rodrigo Agerri
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,33 +22,13 @@ import ixa.kaflib.WF;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 import eus.ixa.ixa.pipe.seg.SentenceSegmenter;
 
 public class Annotate {
   
   //TODO extend to other expressions different from lower?
   public static Pattern SPURIOUS_PARAGRAPH = Pattern.compile("(\\s+)<P>(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
-
-  /**
-   * This method performs Sentence Detection and Tokenization to produce
-   * tokenized text by sentences represented in KAF format.
-   * 
-   * For every line of text the method receives, it creates an array of
-   * segmented sentences, and an array of Tokens.
-   * 
-   * It fills the kaf object with the word forms element <wf> corresponding to
-   * each of the tokens.
-   * 
-   * @param String
-   *          text
-   * @param SentenceSegmenter
-   *          sentDetector
-   * @param Tokenizer
-   *          toker
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF, returning an XML document in a string.
-   */
 
   public void annotateTokensToKAF(String text, String lang,
       SentenceSegmenter sentDetector, Tokenizer toker, KAFDocument kaf)
@@ -66,15 +46,12 @@ public class Annotate {
     //System.err.println(text);
 
     // this creates the actual paragraphs to be passed to the sentence detector
-    String[] paragraphs = text.split("<P>");
+    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
 
-    for (String para : paragraphs) {
-      
+    for (String para : paragraphs) {    
       ++noParas;
-
       para = para.trim();
       String[] sentences = sentDetector.segmentSentence(para);
-      
       // get linguistic annotations
       for (String sent : sentences) {
         // clean extra spaces
@@ -99,45 +76,15 @@ public class Annotate {
     }
   }
 
-  /**
-   * This function takes the original input text and cleans extra newlines and
-   * spaces creating a pre-processed input text for the sentence segmenter and the tokenizer.
-   * 
-   * @param String
-   *          text
-   * @return String text
-   */
-
   public String buildText(String text) {
-    text = text.replaceAll("(<JA><JA>)+", "<P>");
-    text = text.replaceAll("<JA>", " ");
+    text = text.replaceAll("(<JAR><JAR>)+", RuleBasedSegmenter.PARAGRAPH);
+    text = text.replaceAll(RuleBasedSegmenter.LINE_BREAK, " ");
     text = text.replaceAll("\\s+", " ");
     text = text.trim();
     text = SPURIOUS_PARAGRAPH.matcher(text).replaceAll("$1 $2");
     return text;
   }
   
-  /**
-   * This method performs Sentence Detection and Tokenization to produce
-   * tokenized text by sentences represented in KAF format.
-   * 
-   * For every line of text the method receives, it creates an array of
-   * segmented sentences, and an array of Tokens.
-   * 
-   * It fills the kaf object with the word forms element <wf> corresponding to
-   * each of the tokens.
-   * 
-   * @param String
-   *          text
-   * @param SentenceSegmenter
-   *          sentDetector
-   * @param Tokenizer
-   *          toker
-   * @param KAF
-   *          object. This object is used to take the output data and convert it
-   *          to KAF, returning an XML document in a string.
-   */
-
   int tokSents = 0;
   int tokOffsetCounter = 0;
   int tokCurrent_index = 0;
@@ -147,7 +94,7 @@ public class Annotate {
       throws IOException {
 
     // this creates the actual sentences to be passed to the sentence detector
-    String[] sentences = text.split("<JA>");
+    String[] sentences = text.split(RuleBasedSegmenter.LINE_BREAK);
 
     for (String sent : sentences) {
         // clean extra spaces
