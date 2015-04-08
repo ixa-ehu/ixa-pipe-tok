@@ -20,11 +20,9 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
-
-
 public class RuleBasedTokenizer implements Tokenizer {
 
+public static String ASCII_HEX = "<HEX>";
  /**
  * Non printable control characters.
  */
@@ -104,6 +102,11 @@ public static Pattern AlphaAposAlpha = Pattern
  * Digit apostrophe and s (for 1990's).
  */
 public static Pattern yearApos = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * If space paragraph mark and lowercase then it is a spurious paragraph.
+ */
+//TODO extend to other expressions different from lower?
+public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
 
   private NonBreaker nonBreaker;
   private String lang;
@@ -114,22 +117,20 @@ public static Pattern yearApos = Pattern.compile("([\\d])[']([s])", Pattern.UNIC
   }
 
   public String[] tokenize(String line) {
-    String[] tokens = tokDetector(line);
+    String[] tokens = getTokens(line);
     return tokens;
   }
 
-  private String[] tokDetector(String line) {
+  private String[] getTokens(String sentence) {
 
-    // remove extra spaces and ASCII stuff
-    line = " " + line + " ";
-    line = RuleBasedSegmenter.doubleSpace.matcher(line).replaceAll(" ");
+    // remove ASCII stuff
+    String line = " " + sentence + " ";
     line = asciiHex.matcher(line).replaceAll("");
+    //normalize following language and corpus conventions
     line = Normalizer.convertNonCanonicalStrings(line);
     line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
-    // separate dash if before an upper case character 
-    //line = DASH_LU.matcher(line).replaceAll("$1 $2");
     // separate dash if before or after space
     line = spaceDashSpace.matcher(line).replaceAll(" $1 ");
     // separate out other special characters [^\p{Alnum}s.'`,-?!]

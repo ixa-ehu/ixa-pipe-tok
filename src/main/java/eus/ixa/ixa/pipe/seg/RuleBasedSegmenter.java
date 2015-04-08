@@ -47,11 +47,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * Multi space pattern.
    */
   public static Pattern doubleSpace = Pattern.compile("\\s\\s");
-  /**
-   * If space paragraph mark and lowercase then it is a spurious paragraph.
-   */
-  //TODO extend to other expressions different from lower?
-  public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
   
   /**
    * Non-period end of sentence markers (?!) followed by sentence starters.
@@ -87,10 +82,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public static Pattern endPunctLink = Pattern.compile("([?!\\.])([<JAR><KAR><P>\\s]+)(http.+|www+)");
 
-  
-
   /**
-   * The nonbreaker.
+   * The nonbreaker decides when to split strings followed by periods.
    */
   private NonBreaker nonBreaker;
 
@@ -100,25 +93,25 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     }
   }
   
-  public String[] segmentSentence(String line) {
-    String[] sentences = sentenceSplitter(line);
+  public String[] segmentSentence(String text) {
+    text = buildText(text);
+    String[] sentences = sentenceSplitter(text);
     return sentences;
   }
 
   private String[] sentenceSplitter(String text) {
     
-    //text = spuriousParagraph.matcher(text).replaceAll("$1 $2");
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = noPeriodEnd.matcher(text).replaceAll("$1$2\n$3");
     // multi-dots followed by sentence starters
-    text = multiDotsStarters.matcher(text).replaceAll("$1$2\n$2");
+    text = multiDotsStarters.matcher(text).replaceAll("$1$2\n$3");
     text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
-    text = endInsideQuotes.matcher(text).replaceAll("$1\n$2");
+    text = endInsideQuotes.matcher(text).replaceAll("$1$2\n$3");
     // add breaks for sentences that end with some sort of punctuation are
     // followed by a sentence starter punctuation and upper case
-    text = punctUpper.matcher(text).replaceAll("$1\n$2");
-    text = endPunctLink.matcher(text).replaceAll("$1\n$2");
+    text = punctUpper.matcher(text).replaceAll("$1$2\n$3");
+    text = endPunctLink.matcher(text).replaceAll("$1$2\n$3");
 
     // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);
