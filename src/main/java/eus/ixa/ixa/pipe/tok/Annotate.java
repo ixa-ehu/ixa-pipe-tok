@@ -20,104 +20,210 @@ import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
+import java.util.Properties;
 
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
-import eus.ixa.ixa.pipe.seg.SentenceSegmenter;
 
+/**
+ * This class provides the annotation functions to output the tokenized text
+ * into:
+ * <ol>
+ * <li>A list of <WF> elements inside a NAF document (DEFAULT)
+ * <li>As running tokenized and segmented text
+ * <li>CoNLL format, namely, one token per line and two newlines for each
+ * sentence.
+ * <li>Evaluate the tokenizer against a reference text.
+ * </ol>
+ * 
+ * All these options are configurable by using the --nokaf boolean parameter and
+ * the -outputFormat parameter of the CLI.
+ * 
+ * @author ragerri
+ * @version 2015-04-08
+ * 
+ */
 public class Annotate {
-  
-  //TODO extend to other expressions different from lower?
-  public static Pattern SPURIOUS_PARAGRAPH = Pattern.compile("(\\s+)<P>(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
 
-  public void annotateTokensToKAF(String text, String lang,
-      SentenceSegmenter sentDetector, Tokenizer toker, KAFDocument kaf)
-      throws IOException {
+  /**
+   * The tokenizer.
+   */
+  private Tokenizer toker;
+  /**
+   * The sentence splitter.
+   */
+  private RuleBasedSegmenter segmenter;
+  /**
+   * Sentence counter.
+   */
+  int noSents = 0;
+  /**
+   * Paragraph counter.
+   */
+  int noParas = 0;
+  /**
+   * Offset counter.
+   */
+  int offsetCounter = 0;
+  /**
+   * Current index.
+   */
+  int curIndex = 0;
+  /**
+   * Previous index.
+   */
+  int prevIndex = 0;
 
-    int noSents = 0;
-    int noParas = 0;
-    //offset counters
-    int offsetCounter = 0;
-    int current_index = 0;
-    int previous_index = 0;
-    
-    //build text to be tokenized
-    text = buildText(text);
-    //System.err.println(text);
+  public Annotate(Properties properties) {
+    segmenter = new RuleBasedSegmenter(properties);
+    toker = new RuleBasedTokenizer(properties);
+  }
 
-    // this creates the actual paragraphs to be passed to the sentence detector
+  public void tokenizeToKAF(String text, KAFDocument kaf) throws IOException {
+
+    text = segmenter.buildText(text);
+    System.err.println(text);
     String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
-
-    for (String para : paragraphs) {    
-      ++noParas;
+    for (String para : paragraphs) {
       para = para.trim();
-      String[] sentences = sentDetector.segmentSentence(para);
-      // get linguistic annotations
+      String[] sentences = segmenter.segmentSentence(para);
+
+      ++noParas;
       for (String sent : sentences) {
-        // clean extra spaces
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
+        String[] tokens = toker.tokenize(sent);
 
-        // tokenize each sentence
-        String[] tokens = toker.tokenize(sent, lang);
-        // get sentence counter
         noSents = noSents + 1;
-        
         for (int i = 0; i < tokens.length; i++) {
-          // get offsets
-          current_index = para.indexOf(tokens[i], previous_index);
-          int offset = offsetCounter + current_index;
+          // TODO this is not working
+          curIndex = para.indexOf(tokens[i], prevIndex);
+          int offset = offsetCounter + curIndex;
           WF wf = kaf.newWF(tokens[i], offset, noSents);
           wf.setPara(noParas);
-          previous_index = current_index + tokens[i].length();
+          prevIndex = curIndex + tokens[i].length();
         }
       }
-      offsetCounter += para.length();
+      offsetCounter += (para.length() + 2);
     }
   }
 
-  public String buildText(String text) {
-    text = text.replaceAll("(<JAR><JAR>)+", RuleBasedSegmenter.PARAGRAPH);
-    text = text.replaceAll(RuleBasedSegmenter.LINE_BREAK, " ");
-    text = text.replaceAll("\\s+", " ");
-    text = text.trim();
-    text = SPURIOUS_PARAGRAPH.matcher(text).replaceAll("$1 $2");
-    return text;
-  }
-  
-  int tokSents = 0;
-  int tokOffsetCounter = 0;
-  int tokCurrent_index = 0;
-  int tokPrevious_index = 0;
-  
-  public void tokenizedTextToKAF(String text, String lang, Tokenizer toker, KAFDocument kaf)
-      throws IOException {
+  /**
+   * Tokenizes and segments input text. Outputs tokenized text in conll format:
+   * one token per sentence and two newlines to divide sentences.
+   * 
+   * @return String tokenized text
+   */
+  public String tokenizeToCoNLL(String text) {
 
-    // this creates the actual sentences to be passed to the sentence detector
-    String[] sentences = text.split(RuleBasedSegmenter.LINE_BREAK);
+    StringBuilder sb = new StringBuilder();
+    text = segmenter.buildText(text);
+    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
 
-    for (String sent : sentences) {
-        // clean extra spaces
+    for (String para : paragraphs) {
+      para = para.trim();
+      String[] sentences = segmenter.segmentSentence(para);
+
+      ++noParas;
+      for (String sent : sentences) {
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        // System.out.println(sent);
+        String[] tokens = toker.tokenize(sent);
 
-        // "tokenize" an already tokenized sentence
-        //String[] tokens = toker.tokenize(sent, lang);
-        String[] tokens = sent.split(" ");
-        // get sentence counter
-        tokSents = tokSents + 1;
-       
+        noSents = noSents + 1;
         for (int i = 0; i < tokens.length; i++) {
-          // get offsets
-          tokCurrent_index = sent.indexOf(tokens[i], tokPrevious_index);
-          int offset = tokOffsetCounter + tokCurrent_index;
-          WF wf = kaf.newWF(tokens[i], offset);
-          wf.setSent(tokSents);
-          tokPrevious_index = tokCurrent_index + tokens[i].length();
+          sb.append(tokens[i]).append("\n");
         }
-        tokOffsetCounter += sent.length();
+        sb.append("\n");
       }
-      
+      offsetCounter += para.length();
+    }
+    return sb.toString();
   }
+
+  /**
+   * Tokenizes and segments input text. Outputs tokenized text in conll format:
+   * one token per sentence and two newlines to divide sentences plus offsets
+   * and lenght information about tokens.
+   * 
+   * @return String tokenized text
+   */
+  public String tokenizeToCoNLLOffsets(String text) {
+
+    StringBuilder sb = new StringBuilder();
+    text = segmenter.buildText(text);
+    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
+
+    for (String para : paragraphs) {
+      para = para.trim();
+      String[] sentences = segmenter.segmentSentence(para);
+
+      ++noParas;
+      for (String sent : sentences) {
+        sent = sent.trim();
+        sent = sent.replaceAll("\\s+", " ");
+        String[] tokens = toker.tokenize(sent);
+
+        noSents = noSents + 1;
+        for (int i = 0; i < tokens.length; i++) {
+          sb.append(tokens[i]).append("\n");
+        }
+        sb.append("\n");
+      }
+      offsetCounter += para.length();
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Tokenize and Segment input text. Outputs tokens in running text format one
+   * sentence per line.
+   * 
+   * @return String tokenized text
+   */
+  public String tokenizeToText(String text) {
+
+    StringBuilder sb = new StringBuilder();
+    text = segmenter.buildText(text);
+    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
+    for (String para : paragraphs) {
+      para = para.trim();
+      String[] sentences = segmenter.segmentSentence(para);
+
+      ++noParas;
+      for (String sent : sentences) {
+        sent = sent.trim();
+        sent = sent.replaceAll("\\s+", " ");
+        String[] tokens = toker.tokenize(sent);
+
+        noSents = noSents + 1;
+        for (int i = 0; i < tokens.length; i++) {
+          sb.append(tokens[i]).append(" ");
+        }
+        sb.append("\n");
+      }
+      offsetCounter += para.length();
+    }
+    return sb.toString().trim();
+  }
+
+  public void tokensToKAF(String text, KAFDocument kaf) throws IOException {
+
+    String[] sentences = text.split(RuleBasedSegmenter.LINE_BREAK);
+    for (String sent : sentences) {
+      sent = sent.trim();
+      sent = sent.replaceAll("\\s+", " ");
+      String[] tokens = sent.split(" ");
+
+      noSents = noSents + 1;
+      for (int i = 0; i < tokens.length; i++) {
+        curIndex = sent.indexOf(tokens[i], prevIndex);
+        int offset = offsetCounter + curIndex;
+        WF wf = kaf.newWF(tokens[i], offset);
+        wf.setSent(noSents);
+        prevIndex = curIndex + tokens[i].length();
+      }
+      offsetCounter += sent.length();
+    }
+  }
+  
 }

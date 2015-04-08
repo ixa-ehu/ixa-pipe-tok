@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<version>1.7.4</version>
 	<name>ixa-pipe-tok</name>
-	<description>The tokenizer of ixa pipes (ixa2.si.ehu.es/ixa-pipes).</description>
+	<description>The ixa pipes tokenizer (ixa2.si.ehu.es/ixa-pipes)</description>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>

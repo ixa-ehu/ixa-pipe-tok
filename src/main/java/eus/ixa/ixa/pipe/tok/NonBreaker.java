@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,115 +35,46 @@ import java.util.regex.Pattern;
  * @author ragerri
  * 
  */
-public class NonPrefixBreaker {
+public class NonBreaker {
 
-  // Parse nonbreaking_prefix.$lang file for non breaking exceptions
+  // Parse nonbreaker file for non breaking exceptions
   
-  public static Pattern DOT_SPACE_NUMERIC_ONLY = Pattern
+  public static Pattern dotSpaceNumericOnly = Pattern
       .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
 
   // useful patterns existing in Perl not in Java
   // using unicode java code for these characters »’”› and its counterparts
-  public static Pattern INITIAL_PUNCT = Pattern
+  public static Pattern initialPunct = Pattern
       .compile("[\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]");
   public static Pattern FINAL_PUNCT = Pattern
       .compile("[\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]");
 
-  // //////////////////////////
-  // // Segmenter Patterns ////
-  // //////////////////////////
-  
-  // non-period end of sentence markers (?!) followed by sentence starters.
-  public static Pattern NOPERIOD_END = Pattern
-      .compile("([?!])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  // These patterns check for remaining
+  // periods in the nonbreaking functions
 
-  // multi-dots followed by sentence starters
-  public static Pattern MULTI_DOTS_STARTERS = Pattern
-      .compile("(\\.[\\.]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  
-  // segment wrongly introduced periods; Centraal.There
-  public static Pattern WRONG_PERIODS = Pattern.
-      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  
-  // some sort of punctuation inside a quote or parenthetical followed
-  // by a possible sentence starter punctuation and upper case
-  public static Pattern END_INSIDE_QUOTES = Pattern
-      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]+)\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\ ]*[\\p{Lu}])");
-
-  // end with some sort of punctuation and followed by a sentence
-  // starter punctuation and upper case
-  public static Pattern PUNCT_UPPER = Pattern
-      .compile("([?!\\.])\\s+([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]+[\\ ]*[\\p{Lu}])");
-
-  // SPECIAL PUNCTUATION CASES COVERED. These patterns check for remaining
-  // periods in the nonbreakingprefixes functions
-
-  public static Pattern ALPHANUM_PUNCT = Pattern
+  public static Pattern alphaNumPunct = Pattern
       .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]*)(\\.+)$");
 
-  public static Pattern UPPER_CASE_ACRONYM = Pattern
+  public static Pattern upperCaseAcronym = Pattern
       .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$");
 
   public static Pattern START_DIGITS = Pattern.compile("^\\d+", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern QUOTE_SPACE_UPPER_NUMBER = Pattern
+  public static Pattern quoteSpaceUpperNumber = Pattern
       .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern END_PUNCT_LINK = Pattern.compile("([?!\\.])\\s+(http.+|www+)");
-
-  // //////////////////////////
-  // // Tokenizer Patterns ////
-  // //////////////////////////
-
-  public static Pattern MULTI_SPACE = Pattern.compile("\\s+");
-  // every control character not "printable"
-  public static Pattern ASCII_HEX = Pattern.compile("[\\x00-\\x19]");
-
-
-  public static Pattern SPECIALS = Pattern
-      .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])", Pattern.UNICODE_CHARACTER_CLASS);
-  // question and exclamation marks (do not separate if multiple)
-  public static Pattern QEXC = Pattern.compile("([\\¿\\?\\¡\\!]+)");
-
-  // tokenize whenever after or before a space
-  public static Pattern DASH_LU = Pattern.compile("(\\-+)(\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern DASH = Pattern.compile("( \\-+|\\-+ )");
-    
-  // multidots
-  public static Pattern MULTI_DOTS = Pattern.compile("\\.([\\.]+)");
-  public static Pattern DOTMULTI_DOT = Pattern.compile("DOTMULTI\\.");
-  public static Pattern DOTMULTI_DOT_ANY = Pattern
-      .compile("DOTMULTI\\.([^\\.])");
-
-  // commas and digits
-  public static Pattern NODIGIT_COMMA_NODIGIT = Pattern
-      .compile("([^\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
-  // separate "," pre and post number
-  public static Pattern DIGIT_COMMA_NODIGIT = Pattern
-      .compile("([\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern NODIGIT_COMMA_DIGIT = Pattern
-      .compile("([^\\d])[,](\\d)", Pattern.UNICODE_CHARACTER_CLASS);
 
   // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
   // PREFIXES FILES
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
   public static Pattern LOWER = Pattern.compile("^\\p{Lower}", Pattern.UNICODE_CHARACTER_CLASS);
-
-  // detect url links
-  public static Pattern LINK = Pattern
-      .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
-
-  // contractions patterns
-  public static Pattern NOALPHA_APOS_NOALPHA = Pattern
-      .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern NOALPHA_DIGIT_APOS_ALPHA = Pattern
-      .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern ALPHA_APOS_NOALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern ALPHA_APOS_ALPHA = Pattern
-      .compile("([\\p{Alpha}])[']([\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
-  // special case for "1990's"
-  public static Pattern YEAR_APOS = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
-
-  private HashMap<String, String> dictMap;
+  
+  /**
+   * The nonBreakerFile to use for each language. The keys of the hash are the
+   * language codes, the values the nonBreakerMap.
+   */
+  private static ConcurrentHashMap<String, Map<String, String>> nonBreakers =
+      new ConcurrentHashMap<String, Map<String, String>>();
+  
+  private Map<String, String> nonBreakerMap;
 
   /**
    * 
@@ -150,27 +84,65 @@ public class NonPrefixBreaker {
    * 
    * @param dictionary
    */
-  public NonPrefixBreaker(InputStream dictionary) {
-    dictMap = new HashMap<String, String>();
+  public NonBreaker(Properties properties) {
+    nonBreakerMap = loadNonBreaker(properties);
+  }
+  
+  private Map<String, String> loadNonBreaker(Properties properties) {
+    String lang = properties.getProperty("language");
+    nonBreakers.putIfAbsent(lang, createNonBreaker(lang));
+    return nonBreakers.get(lang);
+  }
+  
+  private Map<String, String> createNonBreaker(String lang) {
+    InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
+    if (nonBreakerInputStream == null) {
+      System.err.println("ERROR: Not nonbreaker file for language " + lang + " in src/main/resources!!");
+      System.exit(1);
+    }
+    nonBreakerMap = new HashMap<String, String>();
     BufferedReader breader = new BufferedReader(new InputStreamReader(
-        dictionary));
+        nonBreakerInputStream));
     String line;
     try {
       while ((line = breader.readLine()) != null) {
         line = line.trim();
         if (!line.startsWith("#")) {
-          Matcher numonly = DOT_SPACE_NUMERIC_ONLY.matcher(line);
+          Matcher numonly = dotSpaceNumericOnly.matcher(line);
           if (numonly.matches()) {
             String pre = numonly.replaceAll("$1");
-            dictMap.put(pre, "2");
+            nonBreakerMap.put(pre, "2");
           } else {
-            dictMap.put(line, "1");
+            nonBreakerMap.put(line, "1");
           }
         }
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
+    return nonBreakerMap;
+  }
+  
+  private final InputStream getNonBreakerInputStream(String lang) {
+    InputStream nonBreakerInputStream = null;
+    if (lang.equalsIgnoreCase("de")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/de-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("en")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/en-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("es")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/es-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("eu")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/eu-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("fr")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/fr-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("gl")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/gl-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("it")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/it-nonbreaker.txt");
+    } else if (lang.equalsIgnoreCase("nl")) {
+      nonBreakerInputStream = getClass().getResourceAsStream("/nl-nonbreaker.txt");
+    }
+    return nonBreakerInputStream;
   }
 
   /**
@@ -190,15 +162,15 @@ public class NonPrefixBreaker {
     for (i = 0; i < (words.length - 1); i++) {
 
       Matcher finalPunct = FINAL_PUNCT.matcher(words[i]);
-      Matcher alphanum = ALPHANUM_PUNCT.matcher(words[i]);
-      Matcher upperAcro = UPPER_CASE_ACRONYM.matcher(words[i]);
-      Matcher upper = QUOTE_SPACE_UPPER_NUMBER.matcher(words[i + 1]);
+      Matcher alphanum = alphaNumPunct.matcher(words[i]);
+      Matcher upperAcro = upperCaseAcronym.matcher(words[i]);
+      Matcher upper = quoteSpaceUpperNumber.matcher(words[i + 1]);
       Matcher startDigits = START_DIGITS.matcher(words[i + 1]);
 
       if (alphanum.find()) {
         String prefix = alphanum.replaceAll("$1");
-        if (words[i].contains(prefix) && dictMap.containsKey(prefix)
-            && (dictMap.get(prefix) == "1") && !finalPunct.find()) {
+        if (words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
+            && (nonBreakerMap.get(prefix) == "1") && !finalPunct.find()) {
           // not breaking
         }
 
@@ -211,8 +183,8 @@ public class NonPrefixBreaker {
         else if (upper.find()) {
 
           // literal implementation from unless in perl:
-          if (!(words[i].contains(prefix) && dictMap.containsKey(prefix)
-              && (dictMap.get(prefix) == "2") && !finalPunct.find() && startDigits
+          if (!(words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
+              && (nonBreakerMap.get(prefix) == "2") && !finalPunct.find() && startDigits
                 .find())) {
             words[i] = words[i] + "\n";
           }
@@ -256,10 +228,10 @@ public String TokenizerNonBreaker(String line) {
         String prefix = wordDot.replaceAll("$1");
 
         if ((prefix.contains(".") && prefix.matches("\\p{Alpha}+"))
-            || (dictMap.containsKey(prefix) && dictMap.get(prefix) == "1")
+            || (nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "1")
             || (i < (words.length - 1) && LOWER.matcher(words[i + 1]).find())) {
           // do not tokenize
-        } else if ((dictMap.containsKey(prefix) && dictMap.get(prefix) == "2")
+        } else if ((nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "2")
             && (i < (words.length - 1) && START_DIGITS.matcher(words[i + 1])
                 .find())) {
           // do not tokenize

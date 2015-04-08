@@ -5,7 +5,7 @@
   <artifactId>ixa-pipe-tok</artifactId>
   <name>ixa-pipe-tok</name>
   <version>1.7.4</version>
-  <description>The tokenizer of ixa pipes (ixa2.si.ehu.es/ixa-pipes).</description>
+  <description>The ixa pipes tokenizer (ixa2.si.ehu.es/ixa-pipes)</description>
   <url>http://ixa2.si.ehu.es/ixa-pipes</url>
   <prerequisites>
     <maven>3.0</maven>

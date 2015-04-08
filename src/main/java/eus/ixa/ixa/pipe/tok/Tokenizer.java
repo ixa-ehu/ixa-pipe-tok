@@ -18,14 +18,6 @@ package eus.ixa.ixa.pipe.tok;
 
 public interface Tokenizer {
 
-  /**
-   * Takes a sentence (already segmented) and performs tokenization.
-   * 
-   * @param String
-   *          segmented sentence
-   * @param lang
-   * @return String[] where each element is a token
-   */
-  public String[] tokenize(String sentence, String lang);
+  public String[] tokenize(String sentence);
 
 }

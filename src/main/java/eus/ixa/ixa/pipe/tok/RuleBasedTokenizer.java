@@ -16,71 +16,138 @@
 
 package eus.ixa.ixa.pipe.tok;
 
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ALPHA_APOS_ALPHA;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ALPHA_APOS_NOALPHA;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.ASCII_HEX;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DASH;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DIGIT_COMMA_NODIGIT;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.DOTMULTI_DOT_ANY;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.LINK;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOALPHA_APOS_NOALPHA;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOALPHA_DIGIT_APOS_ALPHA;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_DIGIT;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NODIGIT_COMMA_NODIGIT;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.QEXC;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.SPECIALS;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.YEAR_APOS;
-
-import java.io.InputStream;
+import java.util.Properties;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 
 public class RuleBasedTokenizer implements Tokenizer {
 
-  NonPrefixBreaker nonBreaker;
+ /**
+ * Non printable control characters.
+ */
+public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
+ /**
+ * Special characters.
+ */
+public static Pattern specials = Pattern
+     .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])", Pattern.UNICODE_CHARACTER_CLASS);
+ /**
+ * question and exclamation marks (do not separate if multiple).
+ */
+public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
+ /**
+ *  Dash followed by uppercase.
+ */
+public static Pattern dashLu = Pattern.compile("(\\-+)(\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
+ /**
+ * Dash preceded or followed by space.
+ */
+public static Pattern spaceDashSpace = Pattern.compile("( \\-+|\\-+ )");
+ /**
+ * Multidots.
+ */
+public static Pattern multiDots = Pattern.compile("\\.([\\.]+)");
+ /**
+ * Multi dot pattern and extra dot.
+ */
+public static Pattern dotmultiDot = Pattern.compile("DOTMULTI\\.");
+ /**
+ * Dot multi pattern followed by anything.
+ */
+public static Pattern dotmultiDotAny = Pattern
+     .compile("DOTMULTI\\.([^\\.])");
+ /**
+ * No digit comma and no digit.
+ */
+public static Pattern noDigitCommaNoDigit = Pattern
+     .compile("([^\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
+ /**
+ * Digit comma and non digit.
+ */
+public static Pattern digitCommaNoDigit = Pattern
+     .compile("([\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
+ /**
+ * Non digit comma and digit.
+ */
+public static Pattern noDigitCommaDigit = Pattern
+     .compile("([^\\d])[,](\\d)", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Detect wrongly tokenized links.
+ */
+public static Pattern link = Pattern
+    .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
-  public RuleBasedTokenizer(InputStream nonBreakingFile, String lang) {
-    nonBreaker = new NonPrefixBreaker(nonBreakingFile);
+/**
+ * No alphanumeric apostrophe and no alphanumeric.
+ */
+public static Pattern noAlphaAposNoAlpha = Pattern
+    .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Non alphanumeric, digit, apostrophe and alphanumeric.
+ */
+public static Pattern noAlphaDigitAposAlpha = Pattern
+    .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Alphanumeric apostrophe and non alphanumeric.
+ */
+public static Pattern alphaAposNonAlpha = Pattern
+    .compile("([\\p{Alpha}])[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Alphanumeric apostrophe and alphanumeric.
+ */
+public static Pattern AlphaAposAlpha = Pattern
+    .compile("([\\p{Alpha}])[']([\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Digit apostrophe and s (for 1990's).
+ */
+public static Pattern yearApos = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
+
+  private NonBreaker nonBreaker;
+  private String lang;
+
+  public RuleBasedTokenizer(Properties properties) {
+    lang = properties.getProperty("language");
+    nonBreaker = new NonBreaker(properties);
   }
 
-  public String[] tokenize(String line, String lang) {
-    String[] tokens = tokDetector(line, lang);
+  public String[] tokenize(String line) {
+    String[] tokens = tokDetector(line);
     return tokens;
   }
 
-  private String[] tokDetector(String line, String lang) {
+  private String[] tokDetector(String line) {
 
     // remove extra spaces and ASCII stuff
     line = " " + line + " ";
-    line = MULTI_SPACE.matcher(line).replaceAll(" ");
-    line = ASCII_HEX.matcher(line).replaceAll("");
+    line = RuleBasedSegmenter.doubleSpace.matcher(line).replaceAll(" ");
+    line = asciiHex.matcher(line).replaceAll("");
     line = Normalizer.convertNonCanonicalStrings(line);
     line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
-    line = QEXC.matcher(line).replaceAll(" $1 ");
+    line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before an upper case character 
     //line = DASH_LU.matcher(line).replaceAll("$1 $2");
     // separate dash if before or after space
-    line = DASH.matcher(line).replaceAll(" $1 ");
+    line = spaceDashSpace.matcher(line).replaceAll(" $1 ");
     // separate out other special characters [^\p{Alnum}s.'`,-?!]
-    line = SPECIALS.matcher(line).replaceAll(" $1 ");
+    line = specials.matcher(line).replaceAll(" $1 ");
 
     // do not separate multidots
     line = generateMultidots(line);
 
     // separate "," except if within numbers (1,200)
-    line = NODIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");
+    line = noDigitCommaNoDigit.matcher(line).replaceAll("$1 , $2");
     // separate pre and post digit
-    line = DIGIT_COMMA_NODIGIT.matcher(line).replaceAll("$1 , $2");
-    line = NODIGIT_COMMA_DIGIT.matcher(line).replaceAll("$1 , $2");
+    line = digitCommaNoDigit.matcher(line).replaceAll("$1 , $2");
+    line = noDigitCommaDigit.matcher(line).replaceAll("$1 , $2");
     
 
     // contractions it's, l'agila
-    line = treatContractions(line, lang);
-    // non prefix breaker
+    line = treatContractions(line);
+    // non breaker
     line = nonBreaker.TokenizerNonBreaker(line);
 
     // clean up extra spaces
@@ -111,11 +178,11 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   private String generateMultidots(String line) {
 
-    line = MULTI_DOTS.matcher(line).replaceAll(" DOTMULTI$1 ");
-    Matcher dotMultiDot = DOTMULTI_DOT.matcher(line);
+    line = multiDots.matcher(line).replaceAll(" DOTMULTI$1 ");
+    Matcher dotMultiDot = dotmultiDot.matcher(line);
 
     while (dotMultiDot.find()) {
-      line = DOTMULTI_DOT_ANY.matcher(line).replaceAll("DOTDOTMULTI $1");
+      line = dotmultiDotAny.matcher(line).replaceAll("DOTDOTMULTI $1");
       line = dotMultiDot.replaceAll("DOTDOTMULTI");
       // reset the matcher otherwise the while will stop after one run
       dotMultiDot.reset(line);
@@ -139,30 +206,30 @@ public class RuleBasedTokenizer implements Tokenizer {
     return line;
   }
 
-  private String treatContractions(String line, String lang) {
+  private String treatContractions(String line) {
 
     if (lang.equalsIgnoreCase("en")) {
-      line = NOALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = NOALPHA_DIGIT_APOS_ALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1 '$2");
-      line = YEAR_APOS.matcher(line).replaceAll("$1 ' $2");
+      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = AlphaAposAlpha.matcher(line).replaceAll("$1 '$2");
+      line = yearApos.matcher(line).replaceAll("$1 ' $2");
     } else if (lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl") || lang.equalsIgnoreCase("it")) {
-      line = NOALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = NOALPHA_DIGIT_APOS_ALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_NOALPHA.matcher(line).replaceAll("$1 ' $2");
-      line = ALPHA_APOS_ALPHA.matcher(line).replaceAll("$1' $2");
+      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = AlphaAposAlpha.matcher(line).replaceAll("$1' $2");
     }
     return line;
   }
 
   private String detokenizeURLs(String line) {
-    Matcher link = LINK.matcher(line);
+    Matcher linkMatcher = link.matcher(line);
     StringBuffer sb = new StringBuffer();
-    while (link.find()) {
-      link.appendReplacement(sb, link.group().replaceAll("\\s", ""));
+    while (linkMatcher.find()) {
+      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
     }
-    link.appendTail(sb);
+    linkMatcher.appendTail(sb);
     line = sb.toString();
     return line;
   }

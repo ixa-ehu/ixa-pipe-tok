@@ -16,57 +16,124 @@
 
 package eus.ixa.ixa.pipe.seg;
 
+import java.util.Properties;
+import java.util.regex.Pattern;
 
-import java.io.InputStream;
-import java.util.regex.Matcher;
-
-import eus.ixa.ixa.pipe.tok.NonPrefixBreaker;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.END_INSIDE_QUOTES;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.END_PUNCT_LINK;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_DOTS_STARTERS;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.MULTI_SPACE;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.NOPERIOD_END;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.PUNCT_UPPER;
-import static eus.ixa.ixa.pipe.tok.NonPrefixBreaker.WRONG_PERIODS;
+import eus.ixa.ixa.pipe.tok.NonBreaker;
 
 public class RuleBasedSegmenter implements SentenceSegmenter {
-  public static final String LINE_BREAK="<JAR>";
+ 
+  /**
+   * The constant representing every line break in the original input text.
+   */
+  public static final String LINE_BREAK = "<JAR>";
+  /**
+   * Constant representing a paragraph (a doubleLine) in the original input text.
+   */
   public static final String PARAGRAPH = "<P>";
+  /**
+   * Constant representing a double space in the original input text.
+   */
+  public static final String DOUBLE_SPACE = "<KAR>";
+  /**
+   * Line break pattern.
+   */
+  public static Pattern lineBreak = Pattern.compile("<JAR>");
+  /**
+   * Two lines.
+   */
+  public static Pattern doubleLine = Pattern.compile("<JAR><JAR>");
+  /**
+   * Multi space pattern.
+   */
+  public static Pattern doubleSpace = Pattern.compile("\\s\\s");
+  /**
+   * If space paragraph mark and lowercase then it is a spurious paragraph.
+   */
+  //TODO extend to other expressions different from lower?
+  public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+  
+  /**
+   * Non-period end of sentence markers (?!) followed by sentence starters.
+   */
+  public static Pattern noPeriodEnd = Pattern
+      .compile("([?!])([<JAR><KAR><P>\\s]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Multi-dots followed by sentence starters.
+   */
+  public static Pattern multiDotsStarters = Pattern
+      .compile("(\\.[\\.]+)([<JAR><KAR><P>\\s]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Wrongly introduced periods; Centraal.There.
+   */
+  public static Pattern wrongPeriods = Pattern.
+      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  
+  /**
+   * Some sort of punctuation inside a quote or parenthetical followed by a possible
+   * sentence starter punctuation and upper case.
+   */
+  public static Pattern endInsideQuotes = Pattern
+      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]+)([<JAR><KAR><P>\\s]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]*[\\ ]*[\\p{Lu}])");
 
-  NonPrefixBreaker nonBreaker;
+  /**
+   *  End with some sort of punctuation and followed by a sentence starter punctuation
+   *  and upper case.
+   */
+  public static Pattern punctUpper = Pattern
+      .compile("([?!\\.])([<JAR><KAR><P>\\s]+)([\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]+[\\ ]*[\\p{Lu}])");
+  /**
+   * End of sentence punctuation, spaces and link.
+   */
+  public static Pattern endPunctLink = Pattern.compile("([?!\\.])([<JAR><KAR><P>\\s]+)(http.+|www+)");
 
-  public RuleBasedSegmenter(InputStream nonBreakingFile) {
-    nonBreaker = new NonPrefixBreaker(nonBreakingFile);
+  
 
+  /**
+   * The nonbreaker.
+   */
+  private NonBreaker nonBreaker;
+
+  public RuleBasedSegmenter(Properties properties) {
+    if (nonBreaker == null) {
+      nonBreaker = new NonBreaker(properties);
+    }
   }
-
+  
   public String[] segmentSentence(String line) {
     String[] sentences = sentenceSplitter(line);
     return sentences;
   }
 
-  private String[] sentenceSplitter(String line) {
-    // clean extra spaces
-    String text = line.trim();
-    Matcher m = MULTI_SPACE.matcher(text);
-    text = m.replaceAll(" ");
-
+  private String[] sentenceSplitter(String text) {
+    
+    //text = spuriousParagraph.matcher(text).replaceAll("$1 $2");
     // non-period end of sentence markers (?!) followed by sentence starters.
-    text = NOPERIOD_END.matcher(text).replaceAll("$1\n$2");
+    text = noPeriodEnd.matcher(text).replaceAll("$1$2\n$3");
     // multi-dots followed by sentence starters
-    text = MULTI_DOTS_STARTERS.matcher(text).replaceAll("$1\n$2");
-    text = WRONG_PERIODS.matcher(text).replaceAll("$1\n$2");
+    text = multiDotsStarters.matcher(text).replaceAll("$1$2\n$2");
+    text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
-    text = END_INSIDE_QUOTES.matcher(text).replaceAll("$1\n$2");
+    text = endInsideQuotes.matcher(text).replaceAll("$1\n$2");
     // add breaks for sentences that end with some sort of punctuation are
     // followed by a sentence starter punctuation and upper case
-    text = PUNCT_UPPER.matcher(text).replaceAll("$1\n$2");
-    text = END_PUNCT_LINK.matcher(text).replaceAll("$1\n$2");
+    text = punctUpper.matcher(text).replaceAll("$1\n$2");
+    text = endPunctLink.matcher(text).replaceAll("$1\n$2");
 
     // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);
     String[] sentences = text.split("\n");
     return sentences;
+  }
+  
+  public String buildText(String text) {
+    //<JAR><JAR> to <P>
+    text = doubleLine.matcher(text).replaceAll(RuleBasedSegmenter.PARAGRAPH);
+    //<JAR> to " "
+    text = lineBreak.matcher(text).replaceAll(" ");
+    //"\\s\\s" to <KAR>
+    text = doubleSpace.matcher(text).replaceAll(RuleBasedSegmenter.DOUBLE_SPACE);
+    return text;
   }
 
 }
