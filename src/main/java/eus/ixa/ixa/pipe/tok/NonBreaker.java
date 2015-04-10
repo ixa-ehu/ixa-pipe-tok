@@ -42,23 +42,24 @@ public class NonBreaker {
   public static Pattern dotSpaceNumericOnly = Pattern
       .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
 
-  // useful patterns existing in Perl not in Java
-  // using unicode java code for these characters »’”› and its counterparts
+  /**
+   * Check initial punctuation in unicode.
+   */
   public static Pattern initialPunct = Pattern
-      .compile("[\'\"\\(\\[\\¿\\¡\u00AB\u2018\u201B\u201C\u201F\u2039]");
-  public static Pattern FINAL_PUNCT = Pattern
-      .compile("[\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]");
-
-  // These patterns check for remaining
-  // periods in the nonbreaking functions
+      .compile("[\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]");
+  /**
+   * Final punctutation in unicode.
+   */
+  public static Pattern finalPunct = Pattern
+      .compile("[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019&apos;&quot;]");
 
   public static Pattern alphaNumPunct = Pattern
-      .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u2019\u201D\u203A]*)(\\.+)$");
+      .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]*)(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
 
   public static Pattern upperCaseAcronym = Pattern
-      .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$");
+      .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
 
-  public static Pattern START_DIGITS = Pattern.compile("^\\d+", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startDigits = Pattern.compile("^\\d+", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern quoteSpaceUpperNumber = Pattern
       .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])", Pattern.UNICODE_CHARACTER_CLASS);
 
@@ -161,16 +162,16 @@ public class NonBreaker {
 
     for (i = 0; i < (words.length - 1); i++) {
 
-      Matcher finalPunct = FINAL_PUNCT.matcher(words[i]);
-      Matcher alphanum = alphaNumPunct.matcher(words[i]);
+      Matcher finalPunctMatcher = finalPunct.matcher(words[i]);
+      Matcher alphanumPunctMatcher = alphaNumPunct.matcher(words[i]);
       Matcher upperAcro = upperCaseAcronym.matcher(words[i]);
       Matcher upper = quoteSpaceUpperNumber.matcher(words[i + 1]);
-      Matcher startDigits = START_DIGITS.matcher(words[i + 1]);
+      Matcher startDigitsMatcher = startDigits.matcher(words[i + 1]);
 
-      if (alphanum.find()) {
-        String prefix = alphanum.replaceAll("$1");
+      if (alphanumPunctMatcher.find()) {
+        String prefix = alphanumPunctMatcher.replaceAll("$1");
         if (words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
-            && (nonBreakerMap.get(prefix) == "1") && !finalPunct.find()) {
+            && (nonBreakerMap.get(prefix) == "1") && !finalPunctMatcher.find()) {
           // not breaking
         }
 
@@ -184,7 +185,7 @@ public class NonBreaker {
 
           // literal implementation from unless in perl:
           if (!(words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
-              && (nonBreakerMap.get(prefix) == "2") && !finalPunct.find() && startDigits
+              && (nonBreakerMap.get(prefix) == "2") && !finalPunctMatcher.find() && startDigitsMatcher
                 .find())) {
             words[i] = words[i] + "\n";
           }
@@ -232,7 +233,7 @@ public String TokenizerNonBreaker(String line) {
             || (i < (words.length - 1) && LOWER.matcher(words[i + 1]).find())) {
           // do not tokenize
         } else if ((nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "2")
-            && (i < (words.length - 1) && START_DIGITS.matcher(words[i + 1])
+            && (i < (words.length - 1) && startDigits.matcher(words[i + 1])
                 .find())) {
           // do not tokenize
         } else {

@@ -20,6 +20,7 @@ import ixa.kaflib.KAFDocument;
 import ixa.kaflib.WF;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
@@ -59,7 +60,7 @@ public class Annotate {
   /**
    * Paragraph counter.
    */
-  int noParas = 0;
+  int noParas = 1;
   /**
    * Offset counter.
    */
@@ -80,31 +81,21 @@ public class Annotate {
 
   public void tokenizeToKAF(String text, KAFDocument kaf) throws IOException {
 
-    text = segmenter.buildText(text);
-    System.err.println(text);
-    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
-    for (String para : paragraphs) {
-      para = para.trim();
-      String[] sentences = segmenter.segmentSentence(para);
-
-      ++noParas;
+      String[] sentences = segmenter.segmentSentence(text);
       for (String sent : sentences) {
-        sent = sent.trim();
-        sent = sent.replaceAll("\\s+", " ");
-        String[] tokens = toker.tokenize(sent);
+        System.err.println("-> Segment " + sent);
+        List<String> tokens = toker.tokenize(sent);
 
         noSents = noSents + 1;
-        for (int i = 0; i < tokens.length; i++) {
-          // TODO this is not working
-          curIndex = para.indexOf(tokens[i], prevIndex);
-          int offset = offsetCounter + curIndex;
-          WF wf = kaf.newWF(tokens[i], offset, noSents);
-          wf.setPara(noParas);
-          prevIndex = curIndex + tokens[i].length();
+        for (String token : tokens) {
+          if (token.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+            ++noParas;
+          } else {
+            WF wf = kaf.newWF(token, offsetCounter, noSents);
+            wf.setPara(noParas);
+          }
         }
       }
-      offsetCounter += (para.length() + 2);
-    }
   }
 
   /**
@@ -127,11 +118,11 @@ public class Annotate {
       for (String sent : sentences) {
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        String[] tokens = toker.tokenize(sent);
+        List<String> tokens = toker.tokenize(sent);
 
         noSents = noSents + 1;
-        for (int i = 0; i < tokens.length; i++) {
-          sb.append(tokens[i]).append("\n");
+        for (String token : tokens) {
+          sb.append(token).append("\n");
         }
         sb.append("\n");
       }
@@ -161,11 +152,11 @@ public class Annotate {
       for (String sent : sentences) {
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        String[] tokens = toker.tokenize(sent);
+        List<String> tokens = toker.tokenize(sent);
 
         noSents = noSents + 1;
-        for (int i = 0; i < tokens.length; i++) {
-          sb.append(tokens[i]).append("\n");
+        for (String token : tokens) {
+          sb.append(token).append("\n");
         }
         sb.append("\n");
       }
@@ -193,11 +184,11 @@ public class Annotate {
       for (String sent : sentences) {
         sent = sent.trim();
         sent = sent.replaceAll("\\s+", " ");
-        String[] tokens = toker.tokenize(sent);
+        List<String> tokens = toker.tokenize(sent);
 
         noSents = noSents + 1;
-        for (int i = 0; i < tokens.length; i++) {
-          sb.append(tokens[i]).append(" ");
+        for (String token : tokens) {
+          sb.append(token).append(" ");
         }
         sb.append("\n");
       }

@@ -16,8 +16,10 @@
 
 package eus.ixa.ixa.pipe.tok;
 
+import java.util.List;
+
 public interface Tokenizer {
 
-  public String[] tokenize(String sentence);
+  public List<String> tokenize(String sentence);
 
 }

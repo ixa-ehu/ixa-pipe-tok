@@ -16,34 +16,32 @@
 
 package eus.ixa.ixa.pipe.tok;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.Lists;
+
 public class RuleBasedTokenizer implements Tokenizer {
 
-public static String ASCII_HEX = "<HEX>";
  /**
  * Non printable control characters.
  */
 public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
  /**
- * Special characters.
+ * Tokenize everything but these characters.
  */
 public static Pattern specials = Pattern
-     .compile("([^\\p{Alnum}\\s\\.\'\\`\\,\\-\\¿\\?\\¡\\!])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\p{Alnum}\\s\\.\\-\\¿\\?\\¡\\!'`,/])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * question and exclamation marks (do not separate if multiple).
  */
 public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
  /**
- *  Dash followed by uppercase.
- */
-public static Pattern dashLu = Pattern.compile("(\\-+)(\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
- /**
  * Dash preceded or followed by space.
  */
-public static Pattern spaceDashSpace = Pattern.compile("( \\-+|\\-+ )");
+public static Pattern spaceDashSpace = Pattern.compile("([<P> ]+[\\-/]+|[\\-/]+[<P> ]+)");
  /**
  * Multidots.
  */
@@ -76,7 +74,7 @@ public static Pattern noDigitCommaDigit = Pattern
  * Detect wrongly tokenized links.
  */
 public static Pattern link = Pattern
-    .compile("((http|ftp)\\s:\\s/\\s/\\s[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
+    .compile("((http|ftp)\\s:\\s//[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
 /**
  * No alphanumeric apostrophe and no alphanumeric.
@@ -102,11 +100,8 @@ public static Pattern AlphaAposAlpha = Pattern
  * Digit apostrophe and s (for 1990's).
  */
 public static Pattern yearApos = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * If space paragraph mark and lowercase then it is a spurious paragraph.
- */
-//TODO extend to other expressions different from lower?
-public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+
+public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
 
   private NonBreaker nonBreaker;
   private String lang;
@@ -116,16 +111,15 @@ public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", P
     nonBreaker = new NonBreaker(properties);
   }
 
-  public String[] tokenize(String line) {
-    String[] tokens = getTokens(line);
+  public List<String> tokenize(String sentence) {
+    List<String> tokens = getTokens(sentence);
     return tokens;
   }
 
-  private String[] getTokens(String sentence) {
+  private List<String> getTokens(String line) {
 
     // remove ASCII stuff
-    String line = " " + sentence + " ";
-    line = asciiHex.matcher(line).replaceAll("");
+    line = asciiHex.matcher(line).replaceAll(" ");
     //normalize following language and corpus conventions
     line = Normalizer.convertNonCanonicalStrings(line);
     line = Normalizer.normalizeQuotes(line, lang);
@@ -133,7 +127,7 @@ public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", P
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
     line = spaceDashSpace.matcher(line).replaceAll(" $1 ");
-    // separate out other special characters [^\p{Alnum}s.'`,-?!]
+    // separate out other special characters [^\p{Alnum}s.'`,-?!/]
     line = specials.matcher(line).replaceAll(" $1 ");
 
     // do not separate multidots
@@ -144,7 +138,6 @@ public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", P
     // separate pre and post digit
     line = digitCommaNoDigit.matcher(line).replaceAll("$1 , $2");
     line = noDigitCommaDigit.matcher(line).replaceAll("$1 , $2");
-    
 
     // contractions it's, l'agila
     line = treatContractions(line);
@@ -157,16 +150,18 @@ public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", P
 
     // restore multidots
     line = restoreMultidots(line);
-
     // urls 
     line = detokenizeURLs(line);
-
+    //restore paragraph marks
+    line = detokenizeParagraphs(line);
+    
     // create final array of tokens
     //System.out.println(line);
-    String[] tokens = line.split(" ");
+    String[] tokensArray = line.split(" ");
 
     // ensure final line break
     // if (!line.endsWith("\n")) { line = line + "\n"; }
+    List<String> tokens = Lists.newArrayList(tokensArray);
     return tokens;
   }
 
@@ -231,6 +226,17 @@ public static Pattern spuriousParagraph = Pattern.compile("(<P>)(\\p{Lower})", P
       linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
     }
     linkMatcher.appendTail(sb);
+    line = sb.toString();
+    return line;
+  }
+  
+  private String detokenizeParagraphs(String line) {
+    Matcher paragraphMatcher = tokParagraph.matcher(line);
+    StringBuffer sb = new StringBuffer();
+    while (paragraphMatcher.find()) {
+      paragraphMatcher.appendReplacement(sb, paragraphMatcher.group().replaceAll("\\s", ""));
+    }
+    paragraphMatcher.appendTail(sb);
     line = sb.toString();
     return line;
   }
