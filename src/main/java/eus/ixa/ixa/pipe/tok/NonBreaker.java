@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
+
 /**
  * This class implements exceptions for periods as sentence breakers and tokens.
  * It decides when a period induces a new sentence or a new token and when it
@@ -187,7 +189,7 @@ public class NonBreaker {
           if (!(words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
               && (nonBreakerMap.get(prefix) == "2") && !finalPunctMatcher.find() && startDigitsMatcher
                 .find())) {
-            words[i] = words[i] + "\n";
+            //words[i] = words[i] + "\n";
           }
           // equivalent if-then applying De Morgan theorem:
           /*
@@ -195,9 +197,6 @@ public class NonBreaker {
            * (dictMap.get(prefix) != "2") || finalPunct.find() ||
            * !startDigits.find()) { words[i] = words[i] + "\n"; }
            */
-
-          // we always add a return for these unless we have a numeric
-          // non-breaker and a number start
         }
       }
       sb.append(words[i]).append(" ");

@@ -109,7 +109,7 @@ public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
 /**
  * Re-tokenize wrongly split paragraphs.
  */
-public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
+public static Pattern tokParagraph = Pattern.compile("\\*\\sP\\s\\*");
 /**
  * Offset counter.
  */
@@ -135,21 +135,25 @@ int prevIndex = 0;
 
   public List<List<Token>> tokenize(String[] sentences) {
     List<List<Token>> result = new ArrayList<List<Token>>();
-    List<Token> tokens = new ArrayList<Token>();
     
     for (String sentence : sentences) {
+      List<Token> tokens = new ArrayList<Token>();
       System.err.println("-> Segmented:" + sentence);
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
         curIndex = sentence.indexOf(curTokens[i], prevIndex);
         int offset = curIndex + offsetCounter;
         Token curToken = makeToken(curTokens[i], offset);
-        tokens.add(curToken);
-        prevIndex = curIndex + curToken.tokenLength();
+        if (curToken.tokenLength() != 0) {
+          tokens.add(curToken);
+        }
+        prevIndex = curIndex + curTokens[i].length();
       }
-      offsetCounter = offsetCounter + sentence.length();
+      //TODO calculate this properly
+      String origSentence = sentence.replaceAll("\\*P\\*", "");
+      offsetCounter = offsetCounter + origSentence.length();
+      result.add(tokens);
     }
-    result.add(tokens);
     return result;
   }
 
@@ -157,7 +161,7 @@ int prevIndex = 0;
 
     // remove ASCII stuff
     line = asciiHex.matcher(line).replaceAll(" ");
-    //normalize following language and corpus conventions
+    //TODO normalize following language and corpus conventions
     //line = Normalizer.convertNonCanonicalStrings(line);
     //line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
@@ -181,23 +185,17 @@ int prevIndex = 0;
     // non breaker
     line = nonBreaker.TokenizerNonBreaker(line);
 
-    // clean up extra spaces
-    line = line.replaceAll("\\s+", " ");
-    line = line.trim();
-
     // restore multidots
     line = restoreMultidots(line);
     // urls 
     line = detokenizeURLs(line);
     //restore paragraph marks
     line = detokenizeParagraphs(line);
-    
-    // create final array of tokens
+    //line = line.trim();
+    //line = line.replaceAll("\\s+", " ");
     //System.out.println("->Tokens:" + line);
     String[] tokens = line.split(" ");
     
-    // ensure final line break
-    // if (!line.endsWith("\n")) { line = line + "\n"; }
     return tokens;
   }
 

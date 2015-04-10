@@ -83,9 +83,9 @@ public class Annotate {
 
       String[] sentences = segmenter.segmentSentence(text);
       List<List<Token>> tokens = toker.tokenize(sentences);
-      for (List<Token> tokSentence: tokens) {
+      for (List<Token> tokenizedSentence: tokens) {
         noSents = noSents + 1;
-        for (Token token : tokSentence) {
+        for (Token token : tokenizedSentence) {
           if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
             ++noParas;
           } else {
