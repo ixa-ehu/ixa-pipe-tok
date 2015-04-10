@@ -16,12 +16,13 @@
 
 package eus.ixa.ixa.pipe.tok;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.Lists;
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 public class RuleBasedTokenizer implements Tokenizer {
 
@@ -33,7 +34,7 @@ public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
  * Tokenize everything but these characters.
  */
 public static Pattern specials = Pattern
-     .compile("([^\\p{Alnum}\\s\\.\\-\\¿\\?\\¡\\!'`,/])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * question and exclamation marks (do not separate if multiple).
  */
@@ -59,17 +60,17 @@ public static Pattern dotmultiDotAny = Pattern
  * No digit comma and no digit.
  */
 public static Pattern noDigitCommaNoDigit = Pattern
-     .compile("([^\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\d])[,]([^\\d])");
  /**
  * Digit comma and non digit.
  */
 public static Pattern digitCommaNoDigit = Pattern
-     .compile("([\\d])[,]([^\\d])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([\\d])[,]([^\\d])");
  /**
  * Non digit comma and digit.
  */
 public static Pattern noDigitCommaDigit = Pattern
-     .compile("([^\\d])[,](\\d)", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\d])[,](\\d)");
 /**
  * Detect wrongly tokenized links.
  */
@@ -77,52 +78,88 @@ public static Pattern link = Pattern
     .compile("((http|ftp)\\s:\\s//[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
 /**
- * No alphanumeric apostrophe and no alphanumeric.
+ * No alphabetic apostrophe and no alphabetic.
  */
 public static Pattern noAlphaAposNoAlpha = Pattern
     .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])", Pattern.UNICODE_CHARACTER_CLASS);
 /**
- * Non alphanumeric, digit, apostrophe and alphanumeric.
+ * Non alpha, digit, apostrophe and alpha.
  */
 public static Pattern noAlphaDigitAposAlpha = Pattern
     .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
 /**
- * Alphanumeric apostrophe and non alphanumeric.
+ * Alphabetic apostrophe and non alpha.
  */
 public static Pattern alphaAposNonAlpha = Pattern
-    .compile("([\\p{Alpha}])[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("(\\p{Alpha})[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
 /**
- * Alphanumeric apostrophe and alphanumeric.
+ * Alphabetic apostrophe and alphabetic. Mostly for romance languages separation.
  */
 public static Pattern AlphaAposAlpha = Pattern
-    .compile("([\\p{Alpha}])[']([\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("(\\p{Alpha})['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
+
+/**
+ * Split English apostrophes. 
+ */
+public static Pattern englishApos = Pattern.compile("(\\p{Alpha})[']([msdMSD]|re|ve|ll)", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Digit apostrophe and s (for 1990's).
  */
-public static Pattern yearApos = Pattern.compile("([\\d])[']([s])", Pattern.UNICODE_CHARACTER_CLASS);
-
+public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
+/**
+ * Re-tokenize wrongly split paragraphs.
+ */
 public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
+/**
+ * Offset counter.
+ */
+int offsetCounter = 0;
+/**
+ * Current index.
+ */
+int curIndex = 0;
+/**
+ * Previous index.
+ */
+int prevIndex = 0;
 
+  private TokenFactory tokenFactory;
   private NonBreaker nonBreaker;
   private String lang;
 
   public RuleBasedTokenizer(Properties properties) {
     lang = properties.getProperty("language");
     nonBreaker = new NonBreaker(properties);
+    tokenFactory = new TokenFactory();
   }
 
-  public List<String> tokenize(String sentence) {
-    List<String> tokens = getTokens(sentence);
-    return tokens;
+  public List<List<Token>> tokenize(String[] sentences) {
+    List<List<Token>> result = new ArrayList<List<Token>>();
+    List<Token> tokens = new ArrayList<Token>();
+    
+    for (String sentence : sentences) {
+      System.err.println("-> Segmented:" + sentence);
+      String[] curTokens = getTokens(sentence);
+      for (int i = 0; i < curTokens.length; i++) {
+        curIndex = sentence.indexOf(curTokens[i], prevIndex);
+        int offset = curIndex + offsetCounter;
+        Token curToken = makeToken(curTokens[i], offset);
+        tokens.add(curToken);
+        prevIndex = curIndex + curToken.tokenLength();
+      }
+      offsetCounter = offsetCounter + sentence.length();
+    }
+    result.add(tokens);
+    return result;
   }
 
-  private List<String> getTokens(String line) {
+  private String[] getTokens(String line) {
 
     // remove ASCII stuff
     line = asciiHex.matcher(line).replaceAll(" ");
     //normalize following language and corpus conventions
-    line = Normalizer.convertNonCanonicalStrings(line);
-    line = Normalizer.normalizeQuotes(line, lang);
+    //line = Normalizer.convertNonCanonicalStrings(line);
+    //line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
@@ -156,12 +193,11 @@ public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
     line = detokenizeParagraphs(line);
     
     // create final array of tokens
-    //System.out.println(line);
-    String[] tokensArray = line.split(" ");
-
+    //System.out.println("->Tokens:" + line);
+    String[] tokens = line.split(" ");
+    
     // ensure final line break
     // if (!line.endsWith("\n")) { line = line + "\n"; }
-    List<String> tokens = Lists.newArrayList(tokensArray);
     return tokens;
   }
 
@@ -203,19 +239,14 @@ public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
   }
 
   private String treatContractions(String line) {
-
-    if (lang.equalsIgnoreCase("en")) {
+    
       line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 ' $2");
       line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 ' $2");
       line = alphaAposNonAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = AlphaAposAlpha.matcher(line).replaceAll("$1 '$2");
-      line = yearApos.matcher(line).replaceAll("$1 ' $2");
-    } else if (lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl") || lang.equalsIgnoreCase("it")) {
-      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 ' $2");
+      line = englishApos.matcher(line).replaceAll("$1 '$2");
+      line = yearApos.matcher(line).replaceAll("$1 '$2");
+      // romance tokenization of apostrophes c' l'
       line = AlphaAposAlpha.matcher(line).replaceAll("$1' $2");
-    }
     return line;
   }
 
@@ -240,5 +271,17 @@ public static Pattern tokParagraph = Pattern.compile("<\\s(P)\\s>");
     line = sb.toString();
     return line;
   }
+
+  private Token makeToken(String tokenString, int offset) {
+    Token token;
+    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK) || tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+      token = tokenFactory.createToken(tokenString, offset, 1);
+    }
+    else {
+      token = tokenFactory.createToken(tokenString, offset, tokenString.length());
+    }
+    return token;
+  }
+
 
 }

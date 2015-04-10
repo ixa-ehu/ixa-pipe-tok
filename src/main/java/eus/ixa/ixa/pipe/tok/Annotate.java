@@ -82,16 +82,14 @@ public class Annotate {
   public void tokenizeToKAF(String text, KAFDocument kaf) throws IOException {
 
       String[] sentences = segmenter.segmentSentence(text);
-      for (String sent : sentences) {
-        System.err.println("-> Segment " + sent);
-        List<String> tokens = toker.tokenize(sent);
-
+      List<List<Token>> tokens = toker.tokenize(sentences);
+      for (List<Token> tokSentence: tokens) {
         noSents = noSents + 1;
-        for (String token : tokens) {
-          if (token.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+        for (Token token : tokSentence) {
+          if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
             ++noParas;
           } else {
-            WF wf = kaf.newWF(token, offsetCounter, noSents);
+            WF wf = kaf.newWF(token.getTokenValue(), token.startOffset(), noSents);
             wf.setPara(noParas);
           }
         }
@@ -107,26 +105,13 @@ public class Annotate {
   public String tokenizeToCoNLL(String text) {
 
     StringBuilder sb = new StringBuilder();
-    text = segmenter.buildText(text);
-    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
-
-    for (String para : paragraphs) {
-      para = para.trim();
-      String[] sentences = segmenter.segmentSentence(para);
-
-      ++noParas;
-      for (String sent : sentences) {
-        sent = sent.trim();
-        sent = sent.replaceAll("\\s+", " ");
-        List<String> tokens = toker.tokenize(sent);
-
-        noSents = noSents + 1;
-        for (String token : tokens) {
-          sb.append(token).append("\n");
-        }
-        sb.append("\n");
+    String[] sentences = segmenter.segmentSentence(text);
+    List<List<Token>> tokens = toker.tokenize(sentences);
+    for (List<Token> tokSentence: tokens) {
+      for (Token token : tokSentence) {
+        sb.append(token.getTokenValue().trim()).append("\n");
       }
-      offsetCounter += para.length();
+      sb.append("\n");
     }
     return sb.toString();
   }
@@ -141,26 +126,14 @@ public class Annotate {
   public String tokenizeToCoNLLOffsets(String text) {
 
     StringBuilder sb = new StringBuilder();
-    text = segmenter.buildText(text);
-    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
-
-    for (String para : paragraphs) {
-      para = para.trim();
-      String[] sentences = segmenter.segmentSentence(para);
-
-      ++noParas;
-      for (String sent : sentences) {
-        sent = sent.trim();
-        sent = sent.replaceAll("\\s+", " ");
-        List<String> tokens = toker.tokenize(sent);
-
-        noSents = noSents + 1;
-        for (String token : tokens) {
-          sb.append(token).append("\n");
-        }
-        sb.append("\n");
+    String[] sentences = segmenter.segmentSentence(text);
+    List<List<Token>> tokens = toker.tokenize(sentences);
+    for (List<Token> tokSentence: tokens) {
+      for (Token token : tokSentence) {
+        sb.append(token.getTokenValue().trim()).append(" ").append(token.startOffset())
+        .append(" ").append(token.tokenLength()).append("\n");
       }
-      offsetCounter += para.length();
+      sb.append("\n");
     }
     return sb.toString();
   }
@@ -174,25 +147,18 @@ public class Annotate {
   public String tokenizeToText(String text) {
 
     StringBuilder sb = new StringBuilder();
-    text = segmenter.buildText(text);
-    String[] paragraphs = text.split(RuleBasedSegmenter.PARAGRAPH);
-    for (String para : paragraphs) {
-      para = para.trim();
-      String[] sentences = segmenter.segmentSentence(para);
-
-      ++noParas;
-      for (String sent : sentences) {
-        sent = sent.trim();
-        sent = sent.replaceAll("\\s+", " ");
-        List<String> tokens = toker.tokenize(sent);
-
-        noSents = noSents + 1;
-        for (String token : tokens) {
-          sb.append(token).append(" ");
+    String[] sentences = segmenter.segmentSentence(text);
+    List<List<Token>> tokens = toker.tokenize(sentences);
+    for (List<Token> tokSentence: tokens) {
+      for (Token token : tokSentence) {
+          if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
+            sb.append(token.getTokenValue()).append("\n");
+          }
+          else {
+            sb.append(token.getTokenValue().trim()).append(" ");
+          }
         }
         sb.append("\n");
-      }
-      offsetCounter += para.length();
     }
     return sb.toString().trim();
   }

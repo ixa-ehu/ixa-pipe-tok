@@ -42,12 +42,12 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Paragraph pattern.
    */
-  public static Pattern paragraph = Pattern.compile("(<P>+)");
+  public static Pattern paragraph = Pattern.compile("([\\p{Alnum}\\p{Punct}\\ ]+)(<P>+)", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * If space paragraph mark and lowercase then it is a spurious paragraph.
    */
   //TODO extend to other expressions different from lower?
-  public static Pattern spuriousParagraph = Pattern.compile("<P>(\\s*\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern spuriousParagraph = Pattern.compile("<P>(\\p{Space}*[\\p{Lower}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non-period end of sentence markers (?!) followed by sentence starters.
    */
@@ -69,7 +69,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * sentence starter punctuation and upper case.
    */
   public static Pattern endInsideQuotes = Pattern
-      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]+)([<P> ]+)([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]+)([<P>\\ ]+)([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    *  End with some sort of punctuation and followed by a sentence starter punctuation
@@ -80,7 +80,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * End of sentence punctuation, spaces and link.
    */
-  public static Pattern endPunctLink = Pattern.compile("([?!\\.])([<P>\\s]+)(http.+|www+)", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern endPunctLink = Pattern.compile("([?!\\.])([<P>\\s]+)(http.+|www.+|ftp.+)");
 
   /**
    * The nonbreaker decides when to split strings followed by periods.
@@ -101,6 +101,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
 
   private String[] sentenceSplitter(String text) {
     
+    System.err.println("-> Build:" + text);
+    //remove spurious paragraphs
+    text = spuriousParagraph.matcher(text).replaceAll("  $1");
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = noPeriodEnd.matcher(text).replaceAll("$1$2\n$3");
     // multi-dots followed by sentence starters
@@ -116,10 +119,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);
     
-    //remove spurious paragraphs
-    text = spuriousParagraph.matcher(text).replaceAll("  $1");
     //add break if <P>
-    text = paragraph.matcher(text).replaceAll("$1\n");
+    //text = paragraph.matcher(text).replaceAll("$1\n$2");
     String[] sentences = text.split("\n");
     return sentences;
   }
