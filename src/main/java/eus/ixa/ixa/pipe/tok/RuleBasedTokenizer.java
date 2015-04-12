@@ -147,10 +147,10 @@ int prevIndex = 0;
         if (curToken.tokenLength() != 0) {
           tokens.add(curToken);
         }
-        prevIndex = curIndex + curTokens[i].length();
+        prevIndex = curIndex + curToken.tokenLength();
       }
       //TODO calculate this properly
-      String origSentence = sentence.replaceAll("\\*P\\*", "");
+      String origSentence = sentence.replaceAll("<P>", "  ");
       offsetCounter = offsetCounter + origSentence.length();
       result.add(tokens);
     }
@@ -270,8 +270,10 @@ int prevIndex = 0;
 
   private Token makeToken(String tokenString, int offset) {
     Token token;
-    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK) || tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK)) {
       token = tokenFactory.createToken(tokenString, offset, 1);
+    } else if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+      token = tokenFactory.createToken(tokenString, offset, 2);
     }
     else {
       token = tokenFactory.createToken(tokenString, offset, tokenString.length());

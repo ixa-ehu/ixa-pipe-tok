@@ -137,15 +137,17 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = multiDotsSpaceStarters.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
     text = endInsideQuotesSpace.matcher(text).replaceAll("$1\n$2");
+    text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
     text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
     text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
     //TODO Segmented appear empty when group is not properly specified (e.g., maybe $3 which just a blank or maybe *P*).CAREFUL!!
     text = endPunctLinkSpace.matcher(text).replaceAll("$1\n$2");
     
+    text = conventionalPara.matcher(text).replaceAll("$1\n$2$4");
     // non prefix breaker detects exceptions to sentence breaks
     text = nonBreaker.SegmenterNonBreaker(text);
     //TODO do this properly in the nonbreaker
-    text = conventionalPara.matcher(text).replaceAll("$1\n$2$4");
+   
     String[] sentences = text.split("\n");
     return sentences;
   }

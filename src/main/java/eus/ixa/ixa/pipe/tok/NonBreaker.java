@@ -189,7 +189,7 @@ public class NonBreaker {
           if (!(words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
               && (nonBreakerMap.get(prefix) == "2") && !finalPunctMatcher.find() && startDigitsMatcher
                 .find())) {
-            //words[i] = words[i] + "\n";
+            words[i] = words[i] + "\n";
           }
           // equivalent if-then applying De Morgan theorem:
           /*
