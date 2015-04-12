@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -153,34 +155,30 @@ public class CLI {
     Boolean noTok = parsedArguments.getBoolean("notok");
     Properties properties = setAnnotateProperties(lang, tokenizerType, normalize, paras);
 
-    BufferedReader breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+    Reader breader = null;
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
     KAFDocument kaf;
-    String text;
 
     // read KAF/NAF document to tokenize raw element
     if (inputKafRaw) {
       // read KAF from standard input
       //TODO pre-process this
       kaf = KAFDocument.createFromStream(breader);
-      text = kaf.getRawText();
+      String text = kaf.getRawText();
+      StringReader stringReader = new StringReader(text);
+      breader = new BufferedReader(stringReader);
     }
     // read plain text from standard input and create a new
     // KAFDocument
     else {
       kaf = new KAFDocument(lang, kafVersion);
-      StringBuilder sb = new StringBuilder();
-      String line;
-      while ((line = breader.readLine()) != null) {
-        sb.append(line).append(RuleBasedSegmenter.LINE_BREAK);
-      }
-      text = sb.toString();
+      breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
     }
     // tokenize in naf
     if (parsedArguments.getBoolean("nokaf")) {
       KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version + "-" + commit);
       newLp.setBeginTimestamp();
-        Annotate annotator = new Annotate(properties);
+        Annotate annotator = new Annotate(breader, properties);
         if (noTok) {
           annotator.tokensToKAF(text, kaf);
         }

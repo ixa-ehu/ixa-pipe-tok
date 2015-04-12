@@ -6,57 +6,51 @@ import java.io.Reader;
 /**
  * BufferedReader with readLine function that also outputs
  * \r and \n newline characters.
- *
- * @version 2014-12-01
- *
  */
-public class LineTerminatorReader {
+public class NewLineBufferedReader {
   private Reader delegate;
   private StringBuilder sb;
-  private int nextCh = SOL;
+  private int nextCharacter = startOfLine;
   private int readChars;
 
-  private static final int SOL = -10; // Start Of Line
+  private static final int startOfLine = -10; // Start Of Line
 
-  /**
-   * Construct a LineTerminatorReader from a Reader.
-   * @param delegate the Reader
-   */
-  public LineTerminatorReader(Reader delegate) {
+  public NewLineBufferedReader(Reader delegate) {
     this.delegate = delegate;
     sb = new StringBuilder();
   }
 
   /**
-   * Reads all chars of a line, returning also line ending characters.
-   * @return the line text
+   * Readline with newlines.
+   * @return the string
+   * @throws IOException the io exception
    */
   public String readLine() throws IOException {
-    String res = null;
+    String result = null;
     sb.setLength(0);
-    int ch = (char) -10;
+    int curChar = (char) -10;
 
-    if (nextCh == -1) {
-      res = null;
+    if (nextCharacter == -1) {
+      result = null;
     } else {
 
       boolean newLine = false;
-      boolean eof = false;
-      while (!newLine && !eof) {
-        if (nextCh != SOL) {
-          sb.append((char) nextCh);
+      boolean endOfFile = false;
+      while (!newLine && !endOfFile) {
+        if (nextCharacter != startOfLine) {
+          sb.append((char) nextCharacter);
         }
-        nextCh = SOL;
-        ch = delegate.read();
-        switch (ch) {
+        nextCharacter = startOfLine;
+        curChar = delegate.read();
+        switch (curChar) {
         case '\r':
           // check for double newline char
-          nextCh = delegate.read();
-          if (nextCh == '\n') {
+          nextCharacter = delegate.read();
+          if (nextCharacter == '\n') {
             // double line found
             sb.append("\r\n");
             newLine = true;
-            nextCh = SOL;
+            nextCharacter = startOfLine;
           } else {
             sb.append("\r");
             newLine = true;
@@ -67,18 +61,18 @@ public class LineTerminatorReader {
           newLine = true;
           break;
         case -1:
-          eof = true;
-          nextCh = -1;
+          endOfFile = true;
+          nextCharacter = -1;
           break;
         default:
-          if (ch != -1)
-            sb.append((char) ch);
+          if (curChar != -1)
+            sb.append((char) curChar);
         }
       }
-      res = sb.toString();
-      readChars += res.length();
+      result = sb.toString();
+      readChars += result.length();
     }
-    return res;
+    return result;
   }
 
   public void close() throws IOException {

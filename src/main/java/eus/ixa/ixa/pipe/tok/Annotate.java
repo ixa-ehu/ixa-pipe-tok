@@ -99,7 +99,7 @@ public class Annotate {
   /**
    * Tokenizes and segments input text. Outputs tokenized text in conll format:
    * one token per sentence and two newlines to divide sentences.
-   * 
+   * @param text the input text
    * @return String tokenized text
    */
   public String tokenizeToCoNLL(String text) {

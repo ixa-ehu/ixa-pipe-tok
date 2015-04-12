@@ -16,6 +16,8 @@
 
 package eus.ixa.ixa.pipe.seg;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -113,15 +115,17 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * The nonbreaker decides when to split strings followed by periods.
    */
   private NonBreaker nonBreaker;
+  private BufferedReader breader;
 
-  public RuleBasedSegmenter(Properties properties) {
+  public RuleBasedSegmenter(BufferedReader reader, Properties properties) {
     if (nonBreaker == null) {
       nonBreaker = new NonBreaker(properties);
     }
+    this.breader = reader;
   }
   
-  public String[] segmentSentence(String text) {
-    text = buildText(text);
+  public String[] segmentSentence() {
+    String text = buildText();
     System.err.println("->Build:" + text);
     String[] sentences = sentenceSplitter(text);
     return sentences;
@@ -152,7 +156,17 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     return sentences;
   }
   
-  public String buildText(String text) {
+  public String buildText() {
+    String line;
+    StringBuilder sb = new StringBuilder();
+    try {
+      while ((line = breader.readLine()) != null) {
+        sb.append(line).append(RuleBasedSegmenter.LINE_BREAK);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    String text = sb.toString();
     //TODO try with lineterminatorreader for better calculation of offsets
     //*JAR**JAR* to *P*
     text = doubleLine.matcher(text).replaceAll(RuleBasedSegmenter.PARAGRAPH);
