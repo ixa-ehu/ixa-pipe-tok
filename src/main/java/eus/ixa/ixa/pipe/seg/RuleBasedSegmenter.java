@@ -156,6 +156,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     return sentences;
   }
   
+  /**
+   * Build the text from the Reader. Adds "JAR" for line terminations and
+   * "P" whenever two newlines are found together.
+   * @return the string representing the text
+   */
   public String buildText() {
     String line;
     StringBuilder sb = new StringBuilder();
@@ -167,10 +172,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
       e.printStackTrace();
     }
     String text = sb.toString();
-    //TODO try with lineterminatorreader for better calculation of offsets
-    //*JAR**JAR* to *P*
+    //<JAR><JAR> to <P>
     text = doubleLine.matcher(text).replaceAll(RuleBasedSegmenter.PARAGRAPH);
-    //*JAR* to " "
+    //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");
     return text;
   }

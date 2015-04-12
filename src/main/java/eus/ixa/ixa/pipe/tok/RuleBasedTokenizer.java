@@ -150,7 +150,7 @@ int prevIndex = 0;
         prevIndex = curIndex + curToken.tokenLength();
       }
       //TODO calculate this properly
-      String origSentence = sentence.replaceAll("<P>", "  ");
+      String origSentence = sentence.replaceAll("<P>", " ");
       offsetCounter = offsetCounter + origSentence.length();
       result.add(tokens);
     }
@@ -274,8 +274,7 @@ int prevIndex = 0;
       token = tokenFactory.createToken(tokenString, offset, 1);
     } else if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
       token = tokenFactory.createToken(tokenString, offset, 2);
-    }
-    else {
+    } else {
       token = tokenFactory.createToken(tokenString, offset, tokenString.length());
     }
     return token;

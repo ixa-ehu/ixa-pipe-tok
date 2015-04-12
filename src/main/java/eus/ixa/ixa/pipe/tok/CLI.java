@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
@@ -42,8 +41,6 @@ import org.jdom2.JDOMException;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-
-import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 
 /**
@@ -124,7 +121,7 @@ public class CLI {
    *          the arguments passed through the CLI
    * @throws IOException
    *           exception if problems with the incoming data
-   * @throws JDOMException 
+   * @throws JDOMException a xml exception
    */
   public final void parseCLI(final String[] args) throws IOException, JDOMException {
     try {
@@ -155,14 +152,13 @@ public class CLI {
     Boolean noTok = parsedArguments.getBoolean("notok");
     Properties properties = setAnnotateProperties(lang, tokenizerType, normalize, paras);
 
-    Reader breader = null;
+    BufferedReader breader = null;
     BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(System.out, "UTF-8"));
     KAFDocument kaf;
 
     // read KAF/NAF document to tokenize raw element
     if (inputKafRaw) {
       // read KAF from standard input
-      //TODO pre-process this
       kaf = KAFDocument.createFromStream(breader);
       String text = kaf.getRawText();
       StringReader stringReader = new StringReader(text);
@@ -180,10 +176,10 @@ public class CLI {
       newLp.setBeginTimestamp();
         Annotate annotator = new Annotate(breader, properties);
         if (noTok) {
-          annotator.tokensToKAF(text, kaf);
+          annotator.tokensToKAF(breader, kaf);
         }
         else {
-          annotator.tokenizeToKAF(text, kaf);
+          annotator.tokenizeToKAF(kaf);
         }
         
       newLp.setEndTimestamp();
@@ -191,17 +187,17 @@ public class CLI {
     }// kaf options end here
 
     else {
-      Annotate annotator = new Annotate(properties);
+      Annotate annotator = new Annotate(breader, properties);
       if (outputFormat.equalsIgnoreCase("conll")) {
         if (parsedArguments.getBoolean("offsets")) {
-          bwriter.write(annotator.tokenizeToCoNLL(text));
+          bwriter.write(annotator.tokenizeToCoNLL());
         }// noOffset options end here
         else {
-          bwriter.write(annotator.tokenizeToCoNLLOffsets(text));
+          bwriter.write(annotator.tokenizeToCoNLLOffsets());
         }
       }// conll options end here
       else {
-        bwriter.write(annotator.tokenizeToText(text));
+        bwriter.write(annotator.tokenizeToText());
       }
     }// annotation options end here
 
@@ -286,7 +282,7 @@ public class CLI {
     // tokenize standard input text
     breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
     Properties properties = setEvalProperties(tokenizerType, normalize, paragraphs);
-    Annotate annotator = new Annotate(properties);
+    Annotate annotator = new Annotate(breader, properties);
     // evaluate wrt to reference set
     File reference = new File(testset);
     String references = Files.toString(reference, Charsets.UTF_8);

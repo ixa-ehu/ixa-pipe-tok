@@ -85,7 +85,7 @@ public class NonBreaker {
    * assigns "1" as value when the word does not create a break (Dr.) and "2"
    * when the word does not create a break if followed by a number (No. 1)
    * 
-   * @param dictionary
+   * @param properties the options
    */
   public NonBreaker(Properties properties) {
     nonBreakerMap = loadNonBreaker(properties);
@@ -152,7 +152,7 @@ public class NonBreaker {
    * This function implements exceptions for periods as sentence breakers. It
    * decides when a period induces a new sentence or not.
    * 
-   * @param paragraph
+   * @param line the text to ber processed
    * @return segmented text (with newlines included)
    */
   public String SegmenterNonBreaker(String line) {
@@ -208,9 +208,9 @@ public class NonBreaker {
   }
 
   /**
-   * It decides when periods do not need to be tokenized
+   * It decides when periods do not need to be tokenized.
    * 
- * @param line
+ * @param line the sentence to be tokenized
  * @return line
  */
 public String TokenizerNonBreaker(String line) {
