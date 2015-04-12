@@ -42,7 +42,7 @@ public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
  /**
  * Dash preceded or followed by space.
  */
-public static Pattern spaceDashSpace = Pattern.compile("([<P> ]+[\\-/]+|[\\-/]+[<P> ]+)");
+public static Pattern spaceDashSpace = Pattern.compile("( [\\-/]+|[\\-/]+ )");
  /**
  * Multidots.
  */
@@ -109,7 +109,7 @@ public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
 /**
  * Re-tokenize wrongly split paragraphs.
  */
-public static Pattern tokParagraph = Pattern.compile("\\*\\sP\\s\\*");
+public static Pattern tokParagraph = Pattern.compile("< P >");
 /**
  * Offset counter.
  */
@@ -191,8 +191,6 @@ int prevIndex = 0;
     line = detokenizeURLs(line);
     //restore paragraph marks
     line = detokenizeParagraphs(line);
-    //line = line.trim();
-    //line = line.replaceAll("\\s+", " ");
     //System.out.println("->Tokens:" + line);
     String[] tokens = line.split(" ");
     
