@@ -142,6 +142,7 @@ int prevIndex = 0;
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
         curIndex = sentence.indexOf(curTokens[i], prevIndex);
+        curIndex = returnCurIndex(curTokens[i]);
         int offset = curIndex + offsetCounter;
         Token curToken = makeToken(curTokens[i], offset);
         if (curToken.tokenLength() != 0) {
@@ -149,9 +150,8 @@ int prevIndex = 0;
         }
         prevIndex = curIndex + curToken.tokenLength();
       }
-      //TODO calculate this properly
-      String origSentence = sentence.replaceAll("<P>", " ");
-      offsetCounter = offsetCounter + origSentence.length();
+      int origSentenceLength = returnOriginalSentence(sentence).length();
+      offsetCounter = offsetCounter + origSentenceLength;
       result.add(tokens);
     }
     return result;
@@ -191,7 +191,8 @@ int prevIndex = 0;
     line = detokenizeURLs(line);
     //restore paragraph marks
     line = detokenizeParagraphs(line);
-    //System.out.println("->Tokens:" + line);
+    line = line.trim();
+    System.out.println("->Tokens:" + line);
     String[] tokens = line.split(" ");
     
     return tokens;
@@ -267,7 +268,16 @@ int prevIndex = 0;
     line = sb.toString();
     return line;
   }
-
+  
+  private int returnCurIndex(String tokenString) {
+    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK)) {
+      curIndex = curIndex - 2;
+    } else if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
+      curIndex = curIndex - 1;
+    } 
+    return curIndex;
+  }
+  
   private Token makeToken(String tokenString, int offset) {
     Token token;
     if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK)) {
@@ -279,6 +289,11 @@ int prevIndex = 0;
     }
     return token;
   }
-
+  
+  private String returnOriginalSentence(String sentence) {
+    String origSentence = sentence.replaceAll("<P>", "  ");
+    origSentence = sentence.replaceAll("<JAR>", " ");
+    return origSentence;
+  }
 
 }
