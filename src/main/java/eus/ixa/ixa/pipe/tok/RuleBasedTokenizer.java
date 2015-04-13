@@ -125,7 +125,7 @@ public static Pattern paragraph = Pattern.compile("(<P>)+");
  */
 public static Pattern tokParagraph = Pattern.compile("< P >");
 public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
-private static boolean DEBUG = true;
+private static boolean DEBUG = false;
 /**
  * Offset counter.
  */
@@ -133,7 +133,8 @@ int offsetCounter = 0;
 
   private TokenFactory tokenFactory;
   private NonBreaker nonBreaker;
-  private String lang;
+  private static String lang;
+  private static String normalize;
 
   /**
    * RuleBasedTokenizer constructor.
@@ -141,6 +142,7 @@ int offsetCounter = 0;
    */
   public RuleBasedTokenizer(Properties properties) {
     lang = properties.getProperty("language");
+    normalize = properties.getProperty("normalize");
     nonBreaker = new NonBreaker(properties);
     tokenFactory = new TokenFactory();
   }
@@ -152,6 +154,8 @@ int offsetCounter = 0;
     List<List<Token>> result = new ArrayList<List<Token>>();
     
     for (String sentence : sentences) {
+      int prevIndex = 0;
+      int curIndex = 0; 
       sentence = sentence.trim();
       sentence = doubleSpaces.matcher(sentence).replaceAll(" ");
       if (DEBUG) {
@@ -160,36 +164,28 @@ int offsetCounter = 0;
       List<Token> tokens = new ArrayList<Token>();
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
-        createTokens(sentence, curTokens, i, tokens);
+        curIndex = sentence.indexOf(curTokens[i], prevIndex);
+        int offset = curIndex + offsetCounter;
+        Token curToken = tokenFactory.createToken(curTokens[i], offset, curTokens[i].length());
+        if (DEBUG) {
+        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
+        }
+        if (curToken.tokenLength() != 0) {
+          tokens.add(curToken);
+        }
+        prevIndex = curIndex + curToken.tokenLength();
       }
       offsetCounter = offsetCounter + (sentence.length() + 1);
+      normalizeTokens(tokens);
       result.add(tokens);
     }
     return result;
   }
   
-  private void createTokens(String sentence, String[] curTokens, int index, List<Token> tokens) {
-    int prevIndex = 0;
-    int curIndex = 0; 
-    curIndex = sentence.indexOf(curTokens[index], prevIndex);
-    int offset = curIndex + offsetCounter;
-    Token curToken = tokenFactory.createToken(curTokens[index], offset, curTokens[index].length());
-    if (DEBUG) {
-    System.err.println("-> Token:" + curTokens[index] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
-    }
-    if (curToken.tokenLength() != 0) {
-      tokens.add(curToken);
-    }
-    prevIndex = curIndex + curToken.tokenLength();
-  }
-
   private String[] getTokens(String line) {
 
     // remove ASCII stuff
     line = asciiHex.matcher(line).replaceAll(" ");
-    //TODO normalize following language and corpus conventions
-    line = Normalizer.convertNonCanonicalStrings(line);
-    //line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
@@ -226,7 +222,7 @@ int offsetCounter = 0;
     
     return tokens;
   }
-
+  
   /**
    * This function normalizes multi-period expressions (...) to make
    * tokenization easier.
@@ -286,5 +282,18 @@ int offsetCounter = 0;
     line = sb.toString();
     return line;
   }
-
+  
+  public static void normalizeTokens(List<Token> tokens) {
+    String tokenizedSentence = StringUtils.getStringFromTokens(tokens);
+    if (!normalize.equalsIgnoreCase("default")) {
+      
+    } else {
+      tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence);
+      //Normalizer.normalizeQuotes(tokens, lang);
+    }
+    String[] normalizedTokens = tokenizedSentence.split(" ");
+    for (int i = 0; i < tokens.size(); i++) {
+      tokens.get(i).setTokenValue(normalizedTokens[i]);
+    }
+  }
 }
