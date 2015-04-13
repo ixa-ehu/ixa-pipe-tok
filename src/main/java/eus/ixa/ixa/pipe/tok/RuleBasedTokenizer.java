@@ -23,7 +23,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class provides a multilingual rule based tokenizer.
+ * This class provides a multilingual rule based tokenizer. It also normalizes
+ * the input text removing redundant white spaces and normalizing punctuation
+ * based on several corpora conventions such as Penn Treebank and Ancora.
+ * 
+ * Offsets are calculating after removing multi-spaces but maintaining paragraphs
+ * and newlines.
+ * 
  * @author ragerri
  * @version 2015-04-13
  *
@@ -148,29 +154,33 @@ int offsetCounter = 0;
     for (String sentence : sentences) {
       sentence = sentence.trim();
       sentence = doubleSpaces.matcher(sentence).replaceAll(" ");
-      int prevIndex = 0;
-      int curIndex = 0; 
       if (DEBUG) {
         System.err.println("-> Segmented:" + sentence);
       }
       List<Token> tokens = new ArrayList<Token>();
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
-        curIndex = sentence.indexOf(curTokens[i], prevIndex);
-        int offset = curIndex + offsetCounter;
-        Token curToken = tokenFactory.createToken(curTokens[i], offset, curTokens[i].length());
-        if (DEBUG) {
-        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
-        }
-        if (curToken.tokenLength() != 0) {
-          tokens.add(curToken);
-        }
-        prevIndex = curIndex + curToken.tokenLength();
+        createTokens(sentence, curTokens, i, tokens);
       }
       offsetCounter = offsetCounter + (sentence.length() + 1);
       result.add(tokens);
     }
     return result;
+  }
+  
+  private void createTokens(String sentence, String[] curTokens, int index, List<Token> tokens) {
+    int prevIndex = 0;
+    int curIndex = 0; 
+    curIndex = sentence.indexOf(curTokens[index], prevIndex);
+    int offset = curIndex + offsetCounter;
+    Token curToken = tokenFactory.createToken(curTokens[index], offset, curTokens[index].length());
+    if (DEBUG) {
+    System.err.println("-> Token:" + curTokens[index] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
+    }
+    if (curToken.tokenLength() != 0) {
+      tokens.add(curToken);
+    }
+    prevIndex = curIndex + curToken.tokenLength();
   }
 
   private String[] getTokens(String line) {
@@ -178,7 +188,7 @@ int offsetCounter = 0;
     // remove ASCII stuff
     line = asciiHex.matcher(line).replaceAll(" ");
     //TODO normalize following language and corpus conventions
-    //line = Normalizer.convertNonCanonicalStrings(line);
+    line = Normalizer.convertNonCanonicalStrings(line);
     //line = Normalizer.normalizeQuotes(line, lang);
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
