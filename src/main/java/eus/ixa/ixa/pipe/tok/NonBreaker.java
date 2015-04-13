@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
-
 /**
  * This class implements exceptions for periods as sentence breakers and tokens.
  * It decides when a period induces a new sentence or a new token and when it
@@ -40,7 +38,7 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 public class NonBreaker {
 
   // Parse nonbreaker file for non breaking exceptions
-  
+
   public static Pattern dotSpaceNumericOnly = Pattern
       .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
 
@@ -56,27 +54,31 @@ public class NonBreaker {
       .compile("[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019&apos;&quot;]");
 
   public static Pattern alphaNumPunct = Pattern
-      .compile("([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]*)(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile(
+          "([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]*)(\\.+)$",
+          Pattern.UNICODE_CHARACTER_CLASS);
 
-  public static Pattern upperCaseAcronym = Pattern
-      .compile("(\\.)[\\p{Lu}\\-]+(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern upperCaseAcronym = Pattern.compile(
+      "(\\.)[\\p{Lu}\\-]+(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
 
-  public static Pattern startDigits = Pattern.compile("^\\d+", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern quoteSpaceUpperNumber = Pattern
-      .compile("^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startDigits = Pattern.compile("^\\d+",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern quoteSpaceUpperNumber = Pattern.compile(
+      "^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])",
+      Pattern.UNICODE_CHARACTER_CLASS);
 
   // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
   // PREFIXES FILES
   public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
-  public static Pattern LOWER = Pattern.compile("^\\p{Lower}", Pattern.UNICODE_CHARACTER_CLASS);
-  
+  public static Pattern LOWER = Pattern.compile("^\\p{Lower}",
+      Pattern.UNICODE_CHARACTER_CLASS);
+
   /**
    * The nonBreakerFile to use for each language. The keys of the hash are the
    * language codes, the values the nonBreakerMap.
    */
-  private static ConcurrentHashMap<String, Map<String, String>> nonBreakers =
-      new ConcurrentHashMap<String, Map<String, String>>();
-  
+  private static ConcurrentHashMap<String, Map<String, String>> nonBreakers = new ConcurrentHashMap<String, Map<String, String>>();
+
   private Map<String, String> nonBreakerMap;
 
   /**
@@ -85,22 +87,24 @@ public class NonBreaker {
    * assigns "1" as value when the word does not create a break (Dr.) and "2"
    * when the word does not create a break if followed by a number (No. 1)
    * 
-   * @param properties the options
+   * @param properties
+   *          the options
    */
   public NonBreaker(Properties properties) {
     nonBreakerMap = loadNonBreaker(properties);
   }
-  
+
   private Map<String, String> loadNonBreaker(Properties properties) {
     String lang = properties.getProperty("language");
     nonBreakers.putIfAbsent(lang, createNonBreaker(lang));
     return nonBreakers.get(lang);
   }
-  
+
   private Map<String, String> createNonBreaker(String lang) {
     InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
     if (nonBreakerInputStream == null) {
-      System.err.println("ERROR: Not nonbreaker file for language " + lang + " in src/main/resources!!");
+      System.err.println("ERROR: Not nonbreaker file for language " + lang
+          + " in src/main/resources!!");
       System.exit(1);
     }
     nonBreakerMap = new HashMap<String, String>();
@@ -125,25 +129,33 @@ public class NonBreaker {
     }
     return nonBreakerMap;
   }
-  
+
   private final InputStream getNonBreakerInputStream(String lang) {
     InputStream nonBreakerInputStream = null;
     if (lang.equalsIgnoreCase("de")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/de-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/de-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("en")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/en-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/en-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("es")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/es-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/es-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("eu")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/eu-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/eu-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("fr")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/fr-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/fr-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("gl")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/gl-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/gl-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("it")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/it-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/it-nonbreaker.txt");
     } else if (lang.equalsIgnoreCase("nl")) {
-      nonBreakerInputStream = getClass().getResourceAsStream("/nl-nonbreaker.txt");
+      nonBreakerInputStream = getClass().getResourceAsStream(
+          "/nl-nonbreaker.txt");
     }
     return nonBreakerInputStream;
   }
@@ -152,7 +164,8 @@ public class NonBreaker {
    * This function implements exceptions for periods as sentence breakers. It
    * decides when a period induces a new sentence or not.
    * 
-   * @param line the text to ber processed
+   * @param line
+   *          the text to ber processed
    * @return segmented text (with newlines included)
    */
   public String SegmenterNonBreaker(String line) {
@@ -161,9 +174,8 @@ public class NonBreaker {
     String segmentedText = "";
     int i;
     String[] words = line.split(" ");
-
+    
     for (i = 0; i < (words.length - 1); i++) {
-
       Matcher finalPunctMatcher = finalPunct.matcher(words[i]);
       Matcher alphanumPunctMatcher = alphaNumPunct.matcher(words[i]);
       Matcher upperAcro = upperCaseAcronym.matcher(words[i]);
@@ -175,28 +187,14 @@ public class NonBreaker {
         if (words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
             && (nonBreakerMap.get(prefix) == "1") && !finalPunctMatcher.find()) {
           // not breaking
-        }
-
-        else if (upperAcro.find()) {
+        } else if (upperAcro.find()) {
           // non-breaking, upper case acronym
-        }
-
-        // the next word has a bunch of initial quotes, maybe a space,
-        // then either upper case or a number
-        else if (upper.find()) {
-
-          // literal implementation from unless in perl:
-          if (!(words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
-              && (nonBreakerMap.get(prefix) == "2") && !finalPunctMatcher.find() && startDigitsMatcher
-                .find())) {
+        } else if (upper.find()) {
+          if (!words[i].contains(prefix) || !nonBreakerMap.containsKey(prefix)
+              || (nonBreakerMap.get(prefix) != "2") || finalPunctMatcher.find()
+              || !startDigitsMatcher.find()) {
             words[i] = words[i] + "\n";
           }
-          // equivalent if-then applying De Morgan theorem:
-          /*
-           * if (!words[i].contains(prefix) || !dictMap.containsKey(prefix) ||
-           * (dictMap.get(prefix) != "2") || finalPunct.find() ||
-           * !startDigits.find()) { words[i] = words[i] + "\n"; }
-           */
         }
       }
       sb.append(words[i]).append(" ");
@@ -210,10 +208,11 @@ public class NonBreaker {
   /**
    * It decides when periods do not need to be tokenized.
    * 
- * @param line the sentence to be tokenized
- * @return line
- */
-public String TokenizerNonBreaker(String line) {
+   * @param line
+   *          the sentence to be tokenized
+   * @return line
+   */
+  public String TokenizerNonBreaker(String line) {
     StringBuilder sb = new StringBuilder();
     String segmentedText = "";
     int i;
@@ -231,7 +230,8 @@ public String TokenizerNonBreaker(String line) {
             || (nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "1")
             || (i < (words.length - 1) && LOWER.matcher(words[i + 1]).find())) {
           // do not tokenize
-        } else if ((nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "2")
+        } else if ((nonBreakerMap.containsKey(prefix) && nonBreakerMap
+            .get(prefix) == "2")
             && (i < (words.length - 1) && startDigits.matcher(words[i + 1])
                 .find())) {
           // do not tokenize

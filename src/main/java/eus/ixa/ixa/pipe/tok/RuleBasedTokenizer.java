@@ -22,8 +22,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
-
+/**
+ * This class provides a multilingual rule based tokenizer.
+ * @author ragerri
+ * @version 2015-04-13
+ *
+ */
 public class RuleBasedTokenizer implements Tokenizer {
 
  /**
@@ -75,7 +79,7 @@ public static Pattern noDigitCommaDigit = Pattern
  * Detect wrongly tokenized links.
  */
 public static Pattern link = Pattern
-    .compile("((http|ftp)\\s:\\s//[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
+    .compile("((http|ftp)\\s:\\s//\\s*[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
 /**
  * No alphabetic apostrophe and no alphabetic.
@@ -115,51 +119,55 @@ public static Pattern paragraph = Pattern.compile("(<P>)+");
  */
 public static Pattern tokParagraph = Pattern.compile("< P >");
 public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
+private static boolean DEBUG = true;
 /**
  * Offset counter.
  */
 int offsetCounter = 0;
-/**
- * Current index.
- */
-int curIndex = 0;
-/**
- * Previous index.
- */
-int prevIndex = 0;
 
   private TokenFactory tokenFactory;
   private NonBreaker nonBreaker;
   private String lang;
 
+  /**
+   * RuleBasedTokenizer constructor.
+   * @param properties
+   */
   public RuleBasedTokenizer(Properties properties) {
     lang = properties.getProperty("language");
     nonBreaker = new NonBreaker(properties);
     tokenFactory = new TokenFactory();
   }
 
+  /* (non-Javadoc)
+   * @see eus.ixa.ixa.pipe.tok.Tokenizer#tokenize(java.lang.String[])
+   */
   public List<List<Token>> tokenize(String[] sentences) {
     List<List<Token>> result = new ArrayList<List<Token>>();
     
     for (String sentence : sentences) {
-      System.err.println("-> Sentence Length:" + sentence.length());
-      String origSentence = returnOriginalSentence(sentence);
-      System.err.println("-> Orig Sentence Length:" + origSentence.length());
+      sentence = sentence.trim();
+      sentence = doubleSpaces.matcher(sentence).replaceAll(" ");
+      int prevIndex = 0;
+      int curIndex = 0; 
+      if (DEBUG) {
+        System.err.println("-> Segmented:" + sentence);
+      }
       List<Token> tokens = new ArrayList<Token>();
-      System.err.println("-> Segmented:" + sentence);
-      System.err.println("-> Original:" + origSentence);
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
         curIndex = sentence.indexOf(curTokens[i], prevIndex);
-        curIndex = returnCurIndex(curTokens[i]);
         int offset = curIndex + offsetCounter;
-        Token curToken = makeToken(curTokens[i], offset);
+        Token curToken = tokenFactory.createToken(curTokens[i], offset, curTokens[i].length());
+        if (DEBUG) {
+        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
+        }
         if (curToken.tokenLength() != 0) {
           tokens.add(curToken);
         }
         prevIndex = curIndex + curToken.tokenLength();
       }
-      offsetCounter = offsetCounter + origSentence.length();
+      offsetCounter = offsetCounter + (sentence.length() + 1);
       result.add(tokens);
     }
     return result;
@@ -197,13 +205,13 @@ int prevIndex = 0;
     line = restoreMultidots(line);
     // urls 
     line = detokenizeURLs(line);
-    //restore paragraph marks
-    line = detokenizeParagraphs(line);
     
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     
-    System.out.println("->Tokens:" + line);
+    if (DEBUG) {
+      System.out.println("->Tokens:" + line);
+    }
     String[] tokens = line.split(" ");
     
     return tokens;
@@ -267,41 +275,6 @@ int prevIndex = 0;
     linkMatcher.appendTail(sb);
     line = sb.toString();
     return line;
-  }
-  
-  private String detokenizeParagraphs(String line) {
-    Matcher paragraphMatcher = tokParagraph.matcher(line);
-    StringBuffer sb = new StringBuffer();
-    while (paragraphMatcher.find()) {
-      paragraphMatcher.appendReplacement(sb, paragraphMatcher.group().replaceAll("\\s", ""));
-    }
-    paragraphMatcher.appendTail(sb);
-    line = sb.toString();
-    return line;
-  }
-  
-  private String returnOriginalSentence(String sentence) {
-    String origSentence = paragraph.matcher(sentence).replaceAll("");
-    return origSentence;
-  }
-  
-  private int returnCurIndex(String tokenString) {
-    if (tokenString.equals(RuleBasedSegmenter.PARAGRAPH)) {
-      System.err.println("-> Token:" + tokenString + " " + curIndex);
-      curIndex = (curIndex - 3);
-      System.err.println("-> New index:" + curIndex);
-    } 
-    return curIndex;
-  }
-  
-  private Token makeToken(String tokenString, int offset) {
-    Token token;
-    if (tokenString.equals(RuleBasedSegmenter.PARAGRAPH)) {
-      token = tokenFactory.createToken(tokenString, offset, 1);
-    } else {
-      token = tokenFactory.createToken(tokenString, offset, tokenString.length());
-    }
-    return token;
   }
 
 }
