@@ -36,7 +36,7 @@ public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
 public static Pattern specials = Pattern
      .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
- * question and exclamation marks (do not separate if multiple).
+ * Question and exclamation marks (do not separate if multiple).
  */
 public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
  /**
@@ -107,9 +107,14 @@ public static Pattern englishApos = Pattern.compile("(\\p{Alpha})[']([msdMSD]|re
  */
 public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
 /**
+ * Paragraph pattern.
+ */
+public static Pattern paragraph = Pattern.compile("(<P>)+");
+/**
  * Re-tokenize wrongly split paragraphs.
  */
 public static Pattern tokParagraph = Pattern.compile("< P >");
+public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
 /**
  * Offset counter.
  */
@@ -137,8 +142,12 @@ int prevIndex = 0;
     List<List<Token>> result = new ArrayList<List<Token>>();
     
     for (String sentence : sentences) {
+      System.err.println("-> Sentence Length:" + sentence.length());
+      String origSentence = returnOriginalSentence(sentence);
+      System.err.println("-> Orig Sentence Length:" + origSentence.length());
       List<Token> tokens = new ArrayList<Token>();
       System.err.println("-> Segmented:" + sentence);
+      System.err.println("-> Original:" + origSentence);
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
         curIndex = sentence.indexOf(curTokens[i], prevIndex);
@@ -150,8 +159,7 @@ int prevIndex = 0;
         }
         prevIndex = curIndex + curToken.tokenLength();
       }
-      int origSentenceLength = returnOriginalSentence(sentence).length();
-      offsetCounter = offsetCounter + origSentenceLength;
+      offsetCounter = offsetCounter + origSentence.length();
       result.add(tokens);
     }
     return result;
@@ -191,7 +199,10 @@ int prevIndex = 0;
     line = detokenizeURLs(line);
     //restore paragraph marks
     line = detokenizeParagraphs(line);
+    
     line = line.trim();
+    line = doubleSpaces.matcher(line).replaceAll(" ");
+    
     System.out.println("->Tokens:" + line);
     String[] tokens = line.split(" ");
     
@@ -269,31 +280,28 @@ int prevIndex = 0;
     return line;
   }
   
+  private String returnOriginalSentence(String sentence) {
+    String origSentence = paragraph.matcher(sentence).replaceAll("");
+    return origSentence;
+  }
+  
   private int returnCurIndex(String tokenString) {
-    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK)) {
-      curIndex = curIndex - 2;
-    } else if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
-      curIndex = curIndex - 1;
+    if (tokenString.equals(RuleBasedSegmenter.PARAGRAPH)) {
+      System.err.println("-> Token:" + tokenString + " " + curIndex);
+      curIndex = (curIndex - 3);
+      System.err.println("-> New index:" + curIndex);
     } 
     return curIndex;
   }
   
   private Token makeToken(String tokenString, int offset) {
     Token token;
-    if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.LINE_BREAK)) {
+    if (tokenString.equals(RuleBasedSegmenter.PARAGRAPH)) {
       token = tokenFactory.createToken(tokenString, offset, 1);
-    } else if (tokenString.equalsIgnoreCase(RuleBasedSegmenter.PARAGRAPH)) {
-      token = tokenFactory.createToken(tokenString, offset, 2);
     } else {
       token = tokenFactory.createToken(tokenString, offset, tokenString.length());
     }
     return token;
-  }
-  
-  private String returnOriginalSentence(String sentence) {
-    String origSentence = sentence.replaceAll("<P>", "  ");
-    origSentence = sentence.replaceAll("<JAR>", " ");
-    return origSentence;
   }
 
 }

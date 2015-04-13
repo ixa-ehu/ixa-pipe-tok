@@ -42,10 +42,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public static Pattern doubleLine = Pattern.compile("(<JAR><JAR>)");
   /**
-   * Paragraph pattern.
-   */
-  public static Pattern paragraph = Pattern.compile("([\\p{Alnum}\\p{Punct}\\ ]+)(<P>)+", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
    * If space paragraph mark and lowercase then it is a spurious paragraph.
    */
   //TODO extend to other expressions different from lower?
@@ -166,14 +162,14 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     StringBuilder sb = new StringBuilder();
     try {
       while ((line = breader.readLine()) != null) {
-        sb.append(line).append(RuleBasedSegmenter.LINE_BREAK);
+        sb.append(line).append(LINE_BREAK);
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
     String text = sb.toString();
     //<JAR><JAR> to <P>
-    text = doubleLine.matcher(text).replaceAll(RuleBasedSegmenter.PARAGRAPH);
+    text = doubleLine.matcher(text).replaceAll(PARAGRAPH);
     //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");
     return text;

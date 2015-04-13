@@ -163,10 +163,7 @@ public class CLI {
       String text = kaf.getRawText();
       StringReader stringReader = new StringReader(text);
       breader = new BufferedReader(stringReader);
-    }
-    // read plain text from standard input and create a new
-    // KAFDocument
-    else {
+    } else {
       kaf = new KAFDocument(lang, kafVersion);
       breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
     }
@@ -184,7 +181,7 @@ public class CLI {
         
       newLp.setEndTimestamp();
       bwriter.write(kaf.toString());
-    }// kaf options end here
+    }// naf options end here
 
     else {
       Annotate annotator = new Annotate(breader, properties);
