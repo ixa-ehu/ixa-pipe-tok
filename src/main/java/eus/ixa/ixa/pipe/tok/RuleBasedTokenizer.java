@@ -134,7 +134,6 @@ int offsetCounter = 0;
   private TokenFactory tokenFactory;
   private NonBreaker nonBreaker;
   private static String lang;
-  private static String normalize;
 
   /**
    * RuleBasedTokenizer constructor.
@@ -142,7 +141,6 @@ int offsetCounter = 0;
    */
   public RuleBasedTokenizer(Properties properties) {
     lang = properties.getProperty("language");
-    normalize = properties.getProperty("normalize");
     nonBreaker = new NonBreaker(properties);
     tokenFactory = new TokenFactory();
   }
@@ -182,6 +180,11 @@ int offsetCounter = 0;
     return result;
   }
   
+  /**
+   * Actual tokenization function.
+   * @param line the sentence to be tokenized
+   * @return an array containing the tokens for the sentence
+   */
   private String[] getTokens(String line) {
 
     // remove ASCII stuff
@@ -283,14 +286,16 @@ int offsetCounter = 0;
     return line;
   }
   
+  /**
+   * Set as value of the token its normalized counterpart. Normalization
+   * is done following languages and corpora (Penn TreeBank, Ancora, Tiger, Tutpenn, etc.)
+   * conventions.
+   * @param tokens the tokens
+   */
   public static void normalizeTokens(List<Token> tokens) {
     String tokenizedSentence = StringUtils.getStringFromTokens(tokens);
-    if (!normalize.equalsIgnoreCase("default")) {
-      
-    } else {
-      tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence);
-      //Normalizer.normalizeQuotes(tokens, lang);
-    }
+    tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence, lang);
+    tokenizedSentence= Normalizer.normalizeQuotes(tokenizedSentence, lang);
     String[] normalizedTokens = tokenizedSentence.split(" ");
     for (int i = 0; i < tokens.size(); i++) {
       tokens.get(i).setTokenValue(normalizedTokens[i]);
