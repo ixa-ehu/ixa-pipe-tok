@@ -145,8 +145,10 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
     text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
     //Segmented sentence appears empty when group is not properly specified (e.g., maybe $3 is just a blank).CAREFUL!!
+    //TODO this does not work
     text = endPunctLinkSpace.matcher(text).replaceAll("$1\n$2");
     
+    //TODO break the rest of the paragraphs
     //TODO do this properly in the nonbreaker
     text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
     // non prefix breaker detects exceptions to sentence breaks

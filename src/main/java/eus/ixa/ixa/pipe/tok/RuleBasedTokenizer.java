@@ -212,7 +212,8 @@ int offsetCounter = 0;
 
     // restore multidots
     line = restoreMultidots(line);
-    // urls 
+    // urls
+    //TODO does not work!
     line = detokenizeURLs(line);
     
     line = line.trim();
@@ -295,6 +296,7 @@ int offsetCounter = 0;
   public static void normalizeTokens(List<Token> tokens) {
     String tokenizedSentence = StringUtils.getStringFromTokens(tokens);
     tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence, lang);
+    //TODO work to do on English
     tokenizedSentence= Normalizer.normalizeQuotes(tokenizedSentence, lang);
     String[] normalizedTokens = tokenizedSentence.split(" ");
     for (int i = 0; i < tokens.size(); i++) {
