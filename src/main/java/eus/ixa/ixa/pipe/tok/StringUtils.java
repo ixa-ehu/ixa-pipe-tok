@@ -1,6 +1,7 @@
 package eus.ixa.ixa.pipe.tok;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class StringUtils {
 
@@ -26,6 +27,17 @@ public class StringUtils {
     }
     if (sb.length() > 0) {
        sb.setLength(sb.length() - 1);
+    }
+    return sb.toString();
+  }
+  
+  public static String createDisjunctRegexFromList(List<String> words) {
+    StringBuilder sb = new StringBuilder();
+    for (String word : words) {
+      sb.append(word).append("|");
+    }
+    if (sb.length() > 0) {
+      sb.setLength(sb.length() - 1);
     }
     return sb.toString();
   }

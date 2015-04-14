@@ -23,12 +23,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class provides a multilingual rule based tokenizer. It also normalizes
- * the input text removing redundant white spaces and normalizing punctuation
- * based on several corpora conventions such as Penn Treebank and Ancora.
- * 
- * Offsets are calculating after removing multi-spaces but maintaining paragraphs
- * and newlines.
+ * This class provides a multilingual rule based tokenizer. It also
+ * provides normalization based on several corpora conventions such as
+ * Penn Treebank and Ancora.
  * 
  * @author ragerri
  * @version 2015-04-13
@@ -145,8 +142,10 @@ int offsetCounter = 0;
     List<List<Token>> result = new ArrayList<List<Token>>();
     
     for (String sentence : sentences) {
+      //TODO paragraphs should be removed here not in segmenter
       int prevIndex = 0;
-      int curIndex = 0; 
+      int curIndex = 0;
+      //TODO remove this
       sentence = sentence.trim();
       sentence = doubleSpaces.matcher(sentence).replaceAll(" ");
       if (DEBUG) {
@@ -201,7 +200,7 @@ int offsetCounter = 0;
     // contractions it's, l'agila
     line = treatContractions(line);
     // non breaker
-    line = nonBreaker.TokenizerNonBreaker(line);
+    //line = nonBreaker.TokenizerNonBreaker(line);
 
     // restore multidots
     line = restoreMultidots(line);
@@ -209,6 +208,7 @@ int offsetCounter = 0;
     //TODO does not work!
     line = detokenizeURLs(line);
     
+    //TODO remove this
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     

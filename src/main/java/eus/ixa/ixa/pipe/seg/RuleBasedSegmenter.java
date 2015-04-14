@@ -22,7 +22,6 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.tok.NonBreaker;
-import eus.ixa.ixa.pipe.tok.RuleBasedTokenizer;
 
 public class RuleBasedSegmenter implements SentenceSegmenter {
  
@@ -76,11 +75,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * If paragraph mark, maybe some space and lowercase then it is a spurious paragraph.
    */
-  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)\\s*(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Alphanumeric, maybe a space, paragraph mark, maybe a space, and lowercase letter or digit.
    */
-  public static Pattern alphaNumParaLowerNum = Pattern.compile("(\\p{Alnum})\\s*(\u00B6+)\\s*([\\p{Lower}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern alphaNumParaLowerNum = Pattern.compile("(\\p{Alnum})\\s*(\u00B6)+\\s*([\\p{Lower}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non-period end of sentence markers (?!), one or more spaces, sentence starters.
    */
@@ -173,8 +172,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   
   /**
    * Build the text from the Reader. Adds "JAR" for line terminations and
-   * "\u00B6" whenever two newlines are found together. It removes multi
-   * spaces and trims the text.
+   * "\u00B6" whenever two newlines are found together.
    * @return the string representing the text
    */
   public String buildText() {
@@ -192,8 +190,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
     //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");
-    text = text.trim();
-    text = RuleBasedTokenizer.doubleSpaces.matcher(text).replaceAll(" ");
     return text;
   }
 

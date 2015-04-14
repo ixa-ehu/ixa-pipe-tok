@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,43 +41,23 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class NonBreaker {
 
-  // Parse nonbreaker file for non breaking exceptions
-
-  public static Pattern dotSpaceNumericOnly = Pattern
-      .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
-
+  private static String SECTION = "\u00A7";
+  public static Pattern section = Pattern.compile(SECTION);
+  private static String NON_BREAKER = null;
+  
   /**
-   * Final punctuation in unicode.
+   * Segment everything not segmented with the RuleBasedSegmenter.
    */
-  public static Pattern finalPunct = Pattern.compile(RuleBasedSegmenter.FINAL_PUNCT);
-
-  public static Pattern alphaNumPunct = Pattern
-      .compile(
-          "([\\p{Alnum}\\.\\-]*)([\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]*)(\\.+)$",
-          Pattern.UNICODE_CHARACTER_CLASS);
-
-  public static Pattern upperCaseAcronym = Pattern.compile(
-      "(\\.)[\\p{Lu}\\-]+(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
-
-  public static Pattern startDigits = Pattern.compile("^\\d+",
-      Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern quoteSpaceUpperNumber = Pattern.compile(
-      "^( *[\'\"\\(\\[\\¿\\¡\\p{Punct}]* *[\\p{Lu}\\d])",
-      Pattern.UNICODE_CHARACTER_CLASS);
-
-  // SPECIAL CASES COVERED; LANGUAGE SPECIFIC RULES USING NON BREAKING
-  // PREFIXES FILES
-  public static Pattern WORD_DOT = Pattern.compile("^(\\S+)\\.$");
-  public static Pattern LOWER = Pattern.compile("^\\p{Lower}",
-      Pattern.UNICODE_CHARACTER_CLASS);
-
+  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  
   /**
-   * The nonBreakerFile to use for each language. The keys of the hash are the
-   * language codes, the values the nonBreakerMap.
+   * Do not split dot after this words if followed by number.
    */
-  private static ConcurrentHashMap<String, Map<String, String>> nonBreakers = new ConcurrentHashMap<String, Map<String, String>>();
-
-  private Map<String, String> nonBreakerMap;
+  public static String NON_BREAKER_DIGITS = "(al|art|no|pp)";
+  /**
+   * Re-attach segmented dots after non breaker digits.
+   */
+  public static Pattern nonBreakerDigits = Pattern.compile("((al|art|no|pp)[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    * 
@@ -87,23 +69,25 @@ public class NonBreaker {
    *          the options
    */
   public NonBreaker(Properties properties) {
-    nonBreakerMap = loadNonBreaker(properties);
+    loadNonBreaker(properties);
   }
 
-  private Map<String, String> loadNonBreaker(Properties properties) {
+  private void loadNonBreaker(Properties properties) {
     String lang = properties.getProperty("language");
-    nonBreakers.putIfAbsent(lang, createNonBreaker(lang));
-    return nonBreakers.get(lang);
+    if (NON_BREAKER == null) {
+      createNonBreaker(lang);
+    }
   }
 
-  private Map<String, String> createNonBreaker(String lang) {
+  private void createNonBreaker(String lang) {
+    List<String> nonBreakerList = new ArrayList<String>();
+    
     InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
     if (nonBreakerInputStream == null) {
       System.err.println("ERROR: Not nonbreaker file for language " + lang
           + " in src/main/resources!!");
       System.exit(1);
     }
-    nonBreakerMap = new HashMap<String, String>();
     BufferedReader breader = new BufferedReader(new InputStreamReader(
         nonBreakerInputStream));
     String line;
@@ -111,19 +95,13 @@ public class NonBreaker {
       while ((line = breader.readLine()) != null) {
         line = line.trim();
         if (!line.startsWith("#")) {
-          Matcher numonly = dotSpaceNumericOnly.matcher(line);
-          if (numonly.matches()) {
-            String pre = numonly.replaceAll("$1");
-            nonBreakerMap.put(pre, "2");
-          } else {
-            nonBreakerMap.put(line, "1");
+          nonBreakerList.add(line);
           }
         }
-      }
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return nonBreakerMap;
+    NON_BREAKER = StringUtils.createDisjunctRegexFromList(nonBreakerList);
   }
 
   private final InputStream getNonBreakerInputStream(String lang) {
@@ -161,44 +139,21 @@ public class NonBreaker {
    * decides when a period induces a new sentence or not.
    * 
    * @param line
-   *          the text to ber processed
+   *          the text to be processed
    * @return segmented text (with newlines included)
    */
   public String SegmenterNonBreaker(String line) {
-
-    StringBuilder sb = new StringBuilder();
-    String segmentedText = "";
-    int i;
-    String[] words = line.split(" ");
+   
+    //split everything not segmented in the segmenter
+    line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");
+   
+    //re-attached dots followed by numbers
+    line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
+    //TODO two first conditions
     
-    for (i = 0; i < (words.length - 1); i++) {
-      Matcher finalPunctMatcher = finalPunct.matcher(words[i]);
-      Matcher alphanumPunctMatcher = alphaNumPunct.matcher(words[i]);
-      Matcher upperAcro = upperCaseAcronym.matcher(words[i]);
-      Matcher upper = quoteSpaceUpperNumber.matcher(words[i + 1]);
-      Matcher startDigitsMatcher = startDigits.matcher(words[i + 1]);
-
-      if (alphanumPunctMatcher.find()) {
-        String prefix = alphanumPunctMatcher.replaceAll("$1");
-        if (words[i].contains(prefix) && nonBreakerMap.containsKey(prefix)
-            && (nonBreakerMap.get(prefix) == "1") && !finalPunctMatcher.find()) {
-          // not breaking
-        } else if (upperAcro.find()) {
-          // non-breaking, upper case acronym
-        } else if (upper.find()) {
-          if (!words[i].contains(prefix) || !nonBreakerMap.containsKey(prefix)
-              || (nonBreakerMap.get(prefix) != "2") || finalPunctMatcher.find()
-              || !startDigitsMatcher.find()) {
-            words[i] = words[i] + "\n";
-          }
-        }
-      }
-      sb.append(words[i]).append(" ");
-      segmentedText = sb.toString();
-    }
-    // add last index of words array removed for easy look ahead
-    segmentedText = segmentedText + words[i];
-    return segmentedText;
+    //split every section mark introduced
+    line = section.matcher(line).replaceAll("\n");
+    return line;
   }
 
   /**
@@ -209,36 +164,8 @@ public class NonBreaker {
    * @return line
    */
   public String TokenizerNonBreaker(String line) {
-    StringBuilder sb = new StringBuilder();
-    String segmentedText = "";
-    int i;
-    String[] words = line.split(" ");
-
-    for (i = 0; i < words.length; i++) {
-      Matcher wordDot = WORD_DOT.matcher(words[i]);
-
-      // find anything non-whitespace finishing with a period
-      if (wordDot.find()) {
-
-        String prefix = wordDot.replaceAll("$1");
-
-        if ((prefix.contains(".") && prefix.matches("\\p{Alpha}+"))
-            || (nonBreakerMap.containsKey(prefix) && nonBreakerMap.get(prefix) == "1")
-            || (i < (words.length - 1) && LOWER.matcher(words[i + 1]).find())) {
-          // do not tokenize
-        } else if ((nonBreakerMap.containsKey(prefix) && nonBreakerMap
-            .get(prefix) == "2")
-            && (i < (words.length - 1) && startDigits.matcher(words[i + 1])
-                .find())) {
-          // do not tokenize
-        } else {
-          words[i] = prefix + " .";
-        }
-      }
-      sb.append(words[i]).append(" ");
-      segmentedText = sb.toString();
-    }
-    return segmentedText;
+    line = line;
+    return line;
   }
 
 }

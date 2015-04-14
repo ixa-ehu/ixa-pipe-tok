@@ -1,7 +1,4 @@
-# Non breaking prefix file originally taken from https://github.com/moses-smt/mosesdecoder but further enriched by hand
-# by the IXA NLP Group. Contact details: rodrigo.agerri@ehu.es
-#Anything in this file, followed by a period (and an upper-case word), does NOT indicate an end-of-sentence marker.
-#Special cases are included for prefixes that ONLY appear before 0-9 numbers.
+# Anything in this file, followed by a period (and an upper-case word), does NOT indicate an end-of-sentence marker.
 
 #any single upper case letter  followed by a period is not a sentence ender (excluding I occasionally, but we leave it in)
 #usually upper case letters are initials in a name
@@ -547,13 +544,7 @@ i.e
 rev
 e.g
 
-#Numbers only. These should only induce breaks when followed by a numeric sequence
-# add NUMERIC_ONLY after the word for this function
-#This case is mostly for the english "No." which can either be a sentence of its own, or
-#if followed by a number, a non-breaking prefix
-al #NUMERIC_ONLY#
-No #NUMERIC_ONLY#
+# sometimes occur before number, but break anyway
 Nos
-Art #NUMERIC_ONLY#
 Nr
-pp #NUMERIC_ONLY#
+
