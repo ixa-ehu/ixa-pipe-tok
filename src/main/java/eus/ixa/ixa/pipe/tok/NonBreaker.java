@@ -45,13 +45,13 @@ public class NonBreaker {
    */
   public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * Do not split dot after this words if followed by number.
+   * Do not split dot after these words if followed by number.
    */
-  public static String NON_BREAKER_DIGITS = "(al|art|no|pp)";
+  public static String NON_BREAKER_DIGITS = "(al|[Aa]rt|[Nn]o|[Nn]r|p|pp|[Pp]ág)";
   /**
    * Re-attach segmented dots after non breaker digits.
    */
-  public static Pattern nonBreakerDigits = Pattern.compile("((al|art|no|pp)[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern nonBreakerDigits = Pattern.compile("(" + NON_BREAKER_DIGITS + "[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * General acronyms.
    */
