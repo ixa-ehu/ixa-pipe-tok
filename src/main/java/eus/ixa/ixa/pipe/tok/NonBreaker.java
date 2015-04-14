@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
+
 /**
  * This class implements exceptions for periods as sentence breakers and tokens.
  * It decides when a period induces a new sentence or a new token and when it
@@ -43,15 +45,9 @@ public class NonBreaker {
       .compile("(.*)\\s+(\\#NUMERIC_ONLY\\#)");
 
   /**
-   * Check initial punctuation in unicode.
+   * Final punctuation in unicode.
    */
-  public static Pattern initialPunct = Pattern
-      .compile("[\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]");
-  /**
-   * Final punctutation in unicode.
-   */
-  public static Pattern finalPunct = Pattern
-      .compile("[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019&apos;&quot;]");
+  public static Pattern finalPunct = Pattern.compile(RuleBasedSegmenter.FINAL_PUNCT);
 
   public static Pattern alphaNumPunct = Pattern
       .compile(

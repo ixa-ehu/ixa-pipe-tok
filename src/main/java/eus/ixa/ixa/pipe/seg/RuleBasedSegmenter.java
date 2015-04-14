@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.tok.NonBreaker;
+import eus.ixa.ixa.pipe.tok.RuleBasedTokenizer;
 
 public class RuleBasedSegmenter implements SentenceSegmenter {
  
@@ -44,72 +45,68 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Paragraph pattern.
    */
-  public static Pattern paragraph = Pattern.compile("\u00B6");
+  public static Pattern paragraph = Pattern.compile(PARAGRAPH);
   /**
-   * End of sentence punctuation, paragraph mark and link.
+   * Initial punctuation in unicode.
+   */
+  public static String INITIAL_PUNCT = "[\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]";
+  /**
+   * Final punctuation in unicode.
+   */
+  public static String FINAL_PUNCT = "[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019&apos;&quot;]";
+  /**
+   * End of sentence markers, paragraph mark and link.
    */
   public static Pattern endPunctLinkPara = Pattern.compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*(http|www|ftp)");
   /**
    * End of sentence marker, one or more paragraph marks, maybe some starting punctuation, uppercase.
    */
   public static Pattern conventionalPara = Pattern
-      .compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Paragraph marks, maybe some starting punctuation, uppercase or digit or punctuation.
-   */
-  public static Pattern paraUpperDigitPunct = Pattern.compile("(\u00B6)+[\\ ]*([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}\\p{Digit}\\p{Punct}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * If space paragraph mark and lowercase then it is a spurious paragraph.
-   */
-  //TODO extend to other expressions different from lowercase letter? Maybe simply remove every paragraph not already segmented?
-  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)(\\p{Space}*\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Non-period end of sentence markers (?!), one or more spaces, sentence starters.
-   */
-  public static Pattern noPeriodSpaceEnd = Pattern
-      .compile("([?!])[\\ ]+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Non-period end of sentence markers (?!), paragraph mark, sentence starters.
-   */
-  public static Pattern noPeriodParaEnd = Pattern
-      .compile("([?!])(\u00B6)+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Multi-dots followed by sentence starters.
-   */
-  public static Pattern multiDotsSpaceStarters = Pattern
-      .compile("(\\.[\\.]+)[\\ ]+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Multi-dots followed by sentence starters.
-   */
-  public static Pattern multiDotsParaStarters = Pattern
-      .compile("(\\.[\\.]+)(\u00B6)+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * End of sentence marker, maybe a space, punctuation (quotes, brackets), space, maybe some more punctuation, maybe some space and uppercase.
-   */
-  public static Pattern endInsideQuotesSpace = Pattern
-      .compile("([?!\\.][\\ ]*[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]+)[\\ ]+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * End of sentence marker, maybe a space, punctuation (quotes, brackets), space, maybe some more punctuation, maybe some space and uppercase.
    */
   public static Pattern endInsideQuotesPara = Pattern
-      .compile("([?!\\.](\u00B6)*[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]+)(\u00B6)+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*(\u00B6)*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.](\u00B6)*" + FINAL_PUNCT + "+)(\u00B6)+(" + INITIAL_PUNCT + "*(\u00B6)*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Multi-dots, paragraph mark, sentence starters and uppercase.
+   */
+  public static Pattern multiDotsParaStarters = Pattern
+      .compile("(\\.[\\.]+)(\u00B6)+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * If paragraph mark, maybe some space and lowercase then it is a spurious paragraph.
+   */
+  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)\\s*(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Alphanumeric, maybe a space, paragraph mark, maybe a space, and lowercase letter or digit.
+   */
+  public static Pattern alphaNumParaLowerNum = Pattern.compile("(\\p{Alnum})\\s*(\u00B6+)\\s*([\\p{Lower}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Non-period end of sentence markers (?!), one or more spaces, sentence starters.
+   */
+  public static Pattern noPeriodSpaceEnd = Pattern
+      .compile("([?!])[\\ ]+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Multi-dots, space, sentence starters and uppercase.
+   */
+  public static Pattern multiDotsSpaceStarters = Pattern
+      .compile("(\\.[\\.]+)[\\ ]+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * End of sentence marker, maybe a space, punctuation (quotes, brackets), space, maybe some more punctuation, maybe some space and uppercase.
+   */
+  public static Pattern endInsideQuotesSpace = Pattern
+      .compile("([?!\\.][\\ ]*" + FINAL_PUNCT + "+)[\\ ]+(" + INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    *  End with some sort of punctuation and followed by a sentence starter punctuation
    *  and upper case.
    */
   public static Pattern punctSpaceUpper = Pattern
-      .compile("([?!\\.])[\\ ]+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   *  End with some sort of punctuation and followed by a sentence starter punctuation
-   *  and upper case.
-   */
-  public static Pattern punctParaUpper = Pattern
-      .compile("([?!\\.])(\u00B6)+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]+(\u00B6)*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.])[\\ ]+(" + INITIAL_PUNCT + "+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Wrongly introduced periods; Centraal.There.
    */
   public static Pattern wrongPeriods = Pattern.
-      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);  
+      compile("(\\w+[\\.]+)(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);  
   /**
   
   /**
@@ -146,18 +143,21 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     //end of sentence markers, paragraph mark and beginning of link
     text = endPunctLinkPara.matcher(text).replaceAll("$1\n$2$3");
     //TODO break the rest of the paragraphs
-    //TODO do this systematically
     text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
-    text = paraUpperDigitPunct.matcher(text).replaceAll("$1\n$2");
+    text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
+    text = multiDotsParaStarters.matcher(text).replaceAll("$1\n$2$3");
+    
     //remove spurious paragraphs
+    text = alphaNumParaLowerNum.matcher(text).replaceAll("$1 $3");
     text = spuriousParagraph.matcher(text).replaceAll(" $2");
+    
     // non-period end of sentence markers (?!) followed by sentence starters.
     text = noPeriodSpaceEnd.matcher(text).replaceAll("$1\n$2");
     // multi-dots followed by sentence starters
     text = multiDotsSpaceStarters.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
     text = endInsideQuotesSpace.matcher(text).replaceAll("$1\n$2");
-    text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
+   
     text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
     text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
     
@@ -173,7 +173,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   
   /**
    * Build the text from the Reader. Adds "JAR" for line terminations and
-   * "\u00B6" whenever two newlines are found together.
+   * "\u00B6" whenever two newlines are found together. It removes multi
+   * spaces and trims the text.
    * @return the string representing the text
    */
   public String buildText() {
@@ -191,6 +192,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
     //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");
+    text = text.trim();
+    text = RuleBasedTokenizer.doubleSpaces.matcher(text).replaceAll(" ");
     return text;
   }
 
