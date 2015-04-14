@@ -21,12 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
@@ -43,8 +39,7 @@ public class NonBreaker {
 
   private static String SECTION = "\u00A7";
   public static Pattern section = Pattern.compile(SECTION);
-  private static String NON_BREAKER = null;
-  
+   
   /**
    * Segment everything not segmented with the RuleBasedSegmenter.
    */
@@ -58,12 +53,19 @@ public class NonBreaker {
    * Re-attach segmented dots after non breaker digits.
    */
   public static Pattern nonBreakerDigits = Pattern.compile("((al|art|no|pp)[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
-
+  /**
+   * Acronyms or other words not to be segmented or tokenized.
+   */
+  private static String NON_BREAKER = null;
+  private Pattern nonBreaker = Pattern.compile("(" + NON_BREAKER + "[\\ ]*[\\.]*)" + SECTION);
+  /**
+   * General acronyms
+   */
+  public static Pattern acronym = Pattern.compile("(\\p{Alpha})(\\.[\u00A7\\ ]*\\p{Alpha})+([\u00A7\\ ]*[\\.])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * 
-   * This constructor reads nonbreaking-prefix.lang files in resources and
-   * assigns "1" as value when the word does not create a break (Dr.) and "2"
-   * when the word does not create a break if followed by a number (No. 1)
+   * This constructor reads some non breaking prefixes files in resources
+   * to create exceptions of segmentation and tokenization.
    * 
    * @param properties
    *          the options
@@ -149,10 +151,13 @@ public class NonBreaker {
    
     //re-attached dots followed by numbers
     line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
-    //TODO two first conditions
-    
+    //re-attached segmented dots preceded by a word in the non breaker list
+    line = nonBreaker.matcher(line).replaceAll("$1");
+    //acronyms
+    //TODO this is undercooked. Rethink.
+    line = acronym.matcher(line).replaceAll("$1$2$3");
     //split every section mark introduced
-    line = section.matcher(line).replaceAll("\n");
+    //line = section.matcher(line).replaceAll("\n");
     return line;
   }
 

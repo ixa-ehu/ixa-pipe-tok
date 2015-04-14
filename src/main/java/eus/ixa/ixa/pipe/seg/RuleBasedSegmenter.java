@@ -141,7 +141,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     
     //end of sentence markers, paragraph mark and beginning of link
     text = endPunctLinkPara.matcher(text).replaceAll("$1\n$2$3");
-    //TODO break the rest of the paragraphs
+    //TODO break the rest of paragraphs
     text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
     text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
     text = multiDotsParaStarters.matcher(text).replaceAll("$1\n$2$3");
