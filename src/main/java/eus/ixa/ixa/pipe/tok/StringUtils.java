@@ -36,9 +36,9 @@ public class StringUtils {
     for (String word : words) {
       sb.append(word).append("|");
     }
-    if (sb.length() > 0) {
-      sb.setLength(sb.length() - 1);
-    }
-    return sb.toString();
+    String regExp = sb.toString();
+    regExp = regExp.replaceAll("\\|\\|", "\\|");
+    String result = regExp.substring(1, (regExp.length() - 1));
+    return result;
   }
 }

@@ -48,7 +48,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Initial punctuation in unicode.
    */
-  public static String INITIAL_PUNCT = "[\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]";
+  public static String INITIAL_PUNCT = "[\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]";
   /**
    * Final punctuation in unicode.
    */
@@ -96,8 +96,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   public static Pattern endInsideQuotesSpace = Pattern
       .compile("([?!\\.][\\ ]*" + FINAL_PUNCT + "+)[\\ ]+(" + INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   *  End with some sort of punctuation and followed by a sentence starter punctuation
-   *  and upper case.
+   *  End of sentence marker, sentence starter punctuation and upper case.
    */
   public static Pattern punctSpaceUpper = Pattern
       .compile("([?!\\.])[\\ ]+(" + INITIAL_PUNCT + "+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
@@ -156,15 +155,15 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = multiDotsSpaceStarters.matcher(text).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
     text = endInsideQuotesSpace.matcher(text).replaceAll("$1\n$2");
-   
+    //end of sentence marker, sentence starter punctuation and upper case.
     text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
-    text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
-    
     //end of sentence markers, maybe space or paragraph mark and beginning of link
     text = endPunctLinkSpace.matcher(text).replaceAll("$1\n$2");
     
     // non breaker segments everything else with some exceptions
     text = nonBreaker.SegmenterNonBreaker(text);
+    //remove apparent mistakes
+    //text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
    
     String[] sentences = text.split("\n");
     return sentences;

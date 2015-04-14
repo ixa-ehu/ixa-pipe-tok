@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
@@ -39,12 +40,10 @@ public class NonBreaker {
 
   private static String SECTION = "\u00A7";
   public static Pattern section = Pattern.compile(SECTION);
-   
   /**
    * Segment everything not segmented with the RuleBasedSegmenter.
    */
   public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
-  
   /**
    * Do not split dot after this words if followed by number.
    */
@@ -54,14 +53,18 @@ public class NonBreaker {
    */
   public static Pattern nonBreakerDigits = Pattern.compile("((al|art|no|pp)[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * Acronyms or other words not to be segmented or tokenized.
+   * General acronyms.
+   */
+  public static Pattern acronym = Pattern.compile("(\\p{Alpha})(\\.(\u00A7)[\\ ]*\\p{Alpha})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Do not segment 11.1 and so on.
+   */
+  public static Pattern numbers = Pattern.compile("(\\p{Digit}+[\\.])[\\ ]*[\u00A7][\\ ]*(\\p{Digit}+)", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Non breaker prefix from the file.
    */
   private static String NON_BREAKER = null;
-  private Pattern nonBreaker = Pattern.compile("(" + NON_BREAKER + "[\\ ]*[\\.]*)" + SECTION);
-  /**
-   * General acronyms
-   */
-  public static Pattern acronym = Pattern.compile("(\\p{Alpha})(\\.[\u00A7\\ ]*\\p{Alpha})+([\u00A7\\ ]*[\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  
   /**
    * 
    * This constructor reads some non breaking prefixes files in resources
@@ -152,12 +155,25 @@ public class NonBreaker {
     //re-attached dots followed by numbers
     line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
     //re-attached segmented dots preceded by a word in the non breaker list
+    Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
     line = nonBreaker.matcher(line).replaceAll("$1");
     //acronyms
-    //TODO this is undercooked. Rethink.
-    line = acronym.matcher(line).replaceAll("$1$2$3");
-    //split every section mark introduced
-    //line = section.matcher(line).replaceAll("\n");
+    line = deSegmentAcronyms(line);
+    //de-segment 11.1. numbers
+    line = numbers.matcher(line).replaceAll("$1$2");
+    //split any remaining section mark
+    line = section.matcher(line).replaceAll("\n");
+    return line;
+  }
+  
+  public static String deSegmentAcronyms(String line) {
+    Matcher linkMatcher = acronym.matcher(line);
+    StringBuffer sb = new StringBuffer();
+    while (linkMatcher.find()) {
+      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll(SECTION, ""));
+    }
+    linkMatcher.appendTail(sb);
+    line = sb.toString();
     return line;
   }
 
