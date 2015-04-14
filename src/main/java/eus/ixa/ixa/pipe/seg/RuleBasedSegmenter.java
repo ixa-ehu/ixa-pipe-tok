@@ -40,11 +40,28 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Two lines.
    */
-  public static Pattern doubleLine = Pattern.compile("(<JAR><JAR>)");
+  public static Pattern doubleLineBreak = Pattern.compile("(<JAR><JAR>)");
+  /**
+   * Paragraph pattern.
+   */
+  public static Pattern paragraph = Pattern.compile("\u00B6");
+  /**
+   * End of sentence punctuation, paragraph mark and link.
+   */
+  public static Pattern endPunctLinkPara = Pattern.compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*(http|www|ftp)");
+  /**
+   * End of sentence marker, one or more paragraph marks, maybe some starting punctuation, uppercase.
+   */
+  public static Pattern conventionalPara = Pattern
+      .compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Paragraph marks, maybe some starting punctuation, uppercase or digit or punctuation.
+   */
+  public static Pattern paraUpperDigitPunct = Pattern.compile("(\u00B6)+[\\ ]*([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}\\p{Digit}\\p{Punct}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * If space paragraph mark and lowercase then it is a spurious paragraph.
    */
-  //TODO extend to other expressions different from lower?
+  //TODO extend to other expressions different from lowercase letter? Maybe simply remove every paragraph not already segmented?
   public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)(\\p{Space}*\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non-period end of sentence markers (?!), one or more spaces, sentence starters.
@@ -92,20 +109,13 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * Wrongly introduced periods; Centraal.There.
    */
   public static Pattern wrongPeriods = Pattern.
-      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  
-  public static Pattern conventionalPara = Pattern
-      .compile("([?!\\.])(\u00B6)+([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      compile("(\\w+[\\.]+)([\'\"\\(\\[\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);  
   /**
   
   /**
-   * End of sentence punctuation, spaces and link.
+   * End of sentence punctuation, maybe spaces and link.
    */
-  public static Pattern endPunctLinkSpace = Pattern.compile("([?!\\.])\\s+(http.+)");
-  /**
-   * End of sentence punctuation, spaces and link.
-   */
-  public static Pattern endPunctLinkPara = Pattern.compile("([?!\\.])(\u00B6)+(http.+|www.+|ftp.+)", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern endPunctLinkSpace = Pattern.compile("([?!\\.])[\\ ]*(http|www|ftp)");
   
   private static Boolean DEBUG = false;
 
@@ -133,6 +143,12 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
 
   private String[] segment(String text) {
     
+    //end of sentence markers, paragraph mark and beginning of link
+    text = endPunctLinkPara.matcher(text).replaceAll("$1\n$2$3");
+    //TODO break the rest of the paragraphs
+    //TODO do this systematically
+    text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
+    text = paraUpperDigitPunct.matcher(text).replaceAll("$1\n$2");
     //remove spurious paragraphs
     text = spuriousParagraph.matcher(text).replaceAll(" $2");
     // non-period end of sentence markers (?!) followed by sentence starters.
@@ -144,14 +160,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
     text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
     text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
-    //Segmented sentence appears empty when group is not properly specified (e.g., maybe $3 is just a blank).CAREFUL!!
-    //TODO this does not work
+    
+    //end of sentence markers, maybe space or paragraph mark and beginning of link
     text = endPunctLinkSpace.matcher(text).replaceAll("$1\n$2");
     
-    //TODO break the rest of the paragraphs
-    //TODO do this properly in the nonbreaker
-    text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
-    // non prefix breaker detects exceptions to sentence breaks
+    // non breaker segments everything else with some exceptions
     text = nonBreaker.SegmenterNonBreaker(text);
    
     String[] sentences = text.split("\n");
@@ -175,7 +188,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     }
     String text = sb.toString();
     //<JAR><JAR> to paragraph mark in unicode
-    text = doubleLine.matcher(text).replaceAll(PARAGRAPH);
+    text = doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
     //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");
     return text;

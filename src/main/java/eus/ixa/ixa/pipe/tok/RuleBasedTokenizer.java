@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
  */
 public class RuleBasedTokenizer implements Tokenizer {
 
+public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
  /**
  * Non printable control characters.
  */
@@ -84,7 +85,7 @@ public static Pattern noDigitCommaDigit = Pattern
 /**
  * Detect wrongly tokenized links.
  */
-public static Pattern link = Pattern
+public static Pattern wrongLink = Pattern
     .compile("((http|ftp)\\s:\\s//\\s*[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
 
 /**
@@ -116,15 +117,7 @@ public static Pattern englishApos = Pattern.compile("(\\p{Alpha})[']([msdMSD]|re
  * Digit apostrophe and s (for 1990's).
  */
 public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
-/**
- * Paragraph pattern.
- */
-public static Pattern paragraph = Pattern.compile("(<P>)+");
-/**
- * Re-tokenize wrongly split paragraphs.
- */
-public static Pattern tokParagraph = Pattern.compile("< P >");
-public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
+
 private static boolean DEBUG = false;
 /**
  * Offset counter.
@@ -277,7 +270,7 @@ int offsetCounter = 0;
   }
 
   private String detokenizeURLs(String line) {
-    Matcher linkMatcher = link.matcher(line);
+    Matcher linkMatcher = wrongLink.matcher(line);
     StringBuffer sb = new StringBuffer();
     while (linkMatcher.find()) {
       linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
