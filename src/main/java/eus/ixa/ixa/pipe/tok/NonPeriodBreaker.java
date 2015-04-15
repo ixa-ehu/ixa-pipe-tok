@@ -43,7 +43,7 @@ public class NonPeriodBreaker {
   /**
    * Segment everything not segmented in the SentenceSegmenter.
    */
-  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)[\\ ]*(" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)[\\ ]*(" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not split dot after these words if followed by number.
    */
@@ -55,7 +55,7 @@ public class NonPeriodBreaker {
   /**
    * General acronyms.
    */
-  public static Pattern acronym = Pattern.compile("(\\p{Alpha})(\\.(\u00A7)[\\ ]*\\p{Alpha})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.(\u00A7)[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.
    */
@@ -174,6 +174,7 @@ public class NonPeriodBreaker {
     Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
     line = nonBreaker.matcher(line).replaceAll("$1");
     //acronyms
+    //TODO work this a little bit better
     line = deSegmentAcronyms(line);
     //de-segment 11.1. numbers
     line = numbers.matcher(line).replaceAll("$1$2");
