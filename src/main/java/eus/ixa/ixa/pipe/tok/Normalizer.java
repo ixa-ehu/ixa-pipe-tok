@@ -52,7 +52,8 @@ public class Normalizer {
   public static final Pattern rightDoubleQuote = Pattern.compile("[\u00BB\u0094\u201D]");
   public static final Pattern singleAsciiQuote = Pattern.compile("'|\u0027");
   public static final Pattern doubleAsciiQuote = Pattern.compile("\"");
-  public static final Pattern toAsciiSingleQuote = Pattern.compile("[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\']");
+  public static final String TO_ASCII_SINGLE_QUOTE = "[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\']";
+  public static final Pattern toAsciiSingleQuote = Pattern.compile("TO_ASCII_SINGLE_QUOTE");
   public static final Pattern toAsciiDoubleQuote = Pattern.compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
 
   /**
@@ -63,7 +64,7 @@ public class Normalizer {
    * @return the normalized string
    */
   public static String convertNonCanonicalStrings(String line, String lang) {
-    //System.err.println((int)'–');
+    //System.err.println((int)'’');
     line = apostrophe.matcher(line).replaceAll("'");
     line = ellipsis.matcher(line).replaceAll(THREE_DOTS);
     line = longDash.matcher(line).replaceAll("--");

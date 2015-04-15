@@ -40,6 +40,7 @@ public class StringUtils {
     }
     String regExp = sb.toString();
     regExp = doubleBar.matcher(regExp).replaceAll("\\|");
+    regExp = regExp.replaceAll("\\.", "\\\\.");
     String result = regExp.substring(1, (regExp.length() - 1));
     return result;
   }

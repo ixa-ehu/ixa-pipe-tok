@@ -172,7 +172,7 @@ public class NonPeriodBreaker {
     line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
     //re-attached segmented dots preceded by a word in the non breaker list
     Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
-    line = nonBreaker.matcher(line).replaceAll("$1");
+    line = nonBreaker.matcher(line).replaceAll(" $1 ");
     //acronyms
     line = deSegmentAcronyms(line);
     //de-segment 11.1. numbers
@@ -191,7 +191,7 @@ public class NonPeriodBreaker {
     Matcher linkMatcher = acronym.matcher(line);
     StringBuffer sb = new StringBuffer();
     while (linkMatcher.find()) {
-      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll(SECTION, ""));
+      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll(SECTION, " "));
     }
     linkMatcher.appendTail(sb);
     line = sb.toString();

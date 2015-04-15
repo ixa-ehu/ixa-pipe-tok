@@ -44,7 +44,7 @@ public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
  * Tokenize everything but these characters.
  */
 public static Pattern specials = Pattern
-     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\'])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Question and exclamation marks (do not separate if multiple).
  */
@@ -64,23 +64,20 @@ public static Pattern dotmultiDot = Pattern.compile("DOTMULTI\\.");
  /**
  * Dot multi pattern followed by anything.
  */
-public static Pattern dotmultiDotAny = Pattern
-     .compile("DOTMULTI\\.([^\\.])");
+public static Pattern dotmultiDotAny = Pattern.compile("DOTMULTI\\.([^\\.])");
  /**
  * No digit comma and no digit.
  */
-public static Pattern noDigitCommaNoDigit = Pattern
-     .compile("([^\\d])[,]([^\\d])");
+public static Pattern noDigitComma = Pattern.compile("([^\\p{Digit}])(,)", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern commaNoDigit= Pattern.compile("(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Digit comma and non digit.
  */
-public static Pattern digitCommaNoDigit = Pattern
-     .compile("([\\d])[,]([^\\d])");
+public static Pattern digitCommaNoDigit = Pattern.compile("([\\p{Digit}])(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Non digit comma and digit.
  */
-public static Pattern noDigitCommaDigit = Pattern
-     .compile("([^\\d])[,](\\d)");
+public static Pattern noDigitCommaDigit = Pattern.compile("([^\\p{Digit}])(,)(\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Detect wrongly tokenized links.
  */
@@ -91,35 +88,35 @@ public static Pattern wrongLink = Pattern
  * No alphabetic apostrophe and no alphabetic.
  */
 public static Pattern noAlphaAposNoAlpha = Pattern
-    .compile("([^\\p{Alpha}])['](^[\\p{Alpha}')])", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha})])", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Non alpha, digit, apostrophe and alpha.
  */
 public static Pattern noAlphaDigitAposAlpha = Pattern
-    .compile("([^\\p{Alpha}\\d])['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("([^\\p{Alpha}\\d])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Alphabetic apostrophe and non alpha.
  */
 public static Pattern alphaAposNonAlpha = Pattern
-    .compile("(\\p{Alpha})[']([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Alphabetic apostrophe and alphabetic. Mostly for romance languages separation.
  */
 public static Pattern AlphaAposAlpha = Pattern
-    .compile("(\\p{Alpha})['](\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
-
+    .compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Split English apostrophes. 
  */
-public static Pattern englishApos = Pattern.compile("(\\p{Alpha})[']([msdMSD]|re|ve|ll)", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern englishApos = Pattern.compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([msdMSD]|re|ve|ll)", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Digit apostrophe and s (for 1990's).
  */
-public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
+public static Pattern yearApos = Pattern.compile("([\\p{Digit}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern otherApos = Pattern.compile("(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")");
 
 public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
 
-private static boolean DEBUG = true;
+private static boolean DEBUG = false;
 
   private TokenFactory tokenFactory;
   private NonPeriodBreaker nonBreaker;
@@ -196,19 +193,22 @@ private static boolean DEBUG = true;
     line = generateMultidots(line);
 
     // separate "," except if within numbers (1,200)
-    line = noDigitCommaNoDigit.matcher(line).replaceAll("$1 , $2");
+    line = noDigitComma.matcher(line).replaceAll("$1 $2");
+    line = commaNoDigit.matcher(line).replaceAll("$1 $2");
     // separate pre and post digit
-    line = digitCommaNoDigit.matcher(line).replaceAll("$1 , $2");
-    line = noDigitCommaDigit.matcher(line).replaceAll("$1 , $2");
+    line = digitCommaNoDigit.matcher(line).replaceAll("$1 $2 $3");
+    line = noDigitCommaDigit.matcher(line).replaceAll("$1 $2 $3");
 
     // contractions it's, l'agila, c'est
     line = treatContractions(line);
+    //TODO future.'?
     // non breaker
     line = nonBreaker.TokenizerNonBreaker(line);
 
     // restore multidots
     line = restoreMultidots(line);
     // urls
+    //TODO normalize URLs after tokenization for offsets
     line = detokenizeURLs(line);
     
     //these are fine because they do not affect offsets
@@ -263,13 +263,13 @@ private static boolean DEBUG = true;
 
   private String treatContractions(String line) {
     
-      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 ' $2");
-      line = englishApos.matcher(line).replaceAll("$1 '$2");
-      line = yearApos.matcher(line).replaceAll("$1 '$2");
+      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
+      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
+      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");
+      line = englishApos.matcher(line).replaceAll("$1 $2$3");
+      line = yearApos.matcher(line).replaceAll("$1 $2$3");
       // romance tokenization of apostrophes c' l'
-      line = AlphaAposAlpha.matcher(line).replaceAll("$1' $2");
+      line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
     return line;
   }
 
