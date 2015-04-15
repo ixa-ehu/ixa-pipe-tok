@@ -23,6 +23,13 @@ import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.tok.NonBreaker;
 
+/**
+ * Rule based sentence segmenter. Implements some rules to break the text
+ * into sentences. It also removes possible spurious paragraphs and newlines.
+ * Exceptions are managed by the NonBreaker class.
+ * @author ragerri
+ * @version 2015-04-14
+ */
 public class RuleBasedSegmenter implements SentenceSegmenter {
  
   /**
@@ -73,9 +80,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   public static Pattern multiDotsParaStarters = Pattern
       .compile("(\\.[\\.]+)(\u00B6)+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * If paragraph mark, maybe some space and lowercase then it is a spurious paragraph.
+   * If paragraph mark, maybe some space and lowercase or punctuation then it is a spurious paragraph.
    */
-  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*(\\p{Lower})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*([\\p{Lower}\\p{Punct}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Alphanumeric, maybe a space, paragraph mark, maybe a space, and lowercase letter or digit.
    */
@@ -100,11 +107,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public static Pattern punctSpaceUpper = Pattern
       .compile("([?!\\.])[\\ ]+(" + INITIAL_PUNCT + "+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
-   * Wrongly introduced periods; Centraal.There.
-   */
-  public static Pattern wrongPeriods = Pattern.
-      compile("(\\w+[\\.]+)(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);  
   /**
   
   /**
@@ -162,8 +164,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     
     // non breaker segments everything else with some exceptions
     text = nonBreaker.SegmenterNonBreaker(text);
-    //remove apparent mistakes
-    //text = wrongPeriods.matcher(text).replaceAll("$1\n$2");
    
     String[] sentences = text.split("\n");
     return sentences;
@@ -185,7 +185,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
       e.printStackTrace();
     }
     String text = sb.toString();
-    //<JAR><JAR> to paragraph mark in unicode
+    //<JAR><JAR> to PARAGRAPH mark in unicode
     text = doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
     //<JAR> to " "
     text = lineBreak.matcher(text).replaceAll(" ");

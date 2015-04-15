@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+  
+  public static Pattern doubleBar = Pattern.compile("\\|\\|");
 
   private StringUtils() {
     
@@ -37,7 +39,7 @@ public class StringUtils {
       sb.append(word).append("|");
     }
     String regExp = sb.toString();
-    regExp = regExp.replaceAll("\\|\\|", "\\|");
+    regExp = doubleBar.matcher(regExp).replaceAll("\\|");
     String result = regExp.substring(1, (regExp.length() - 1));
     return result;
   }

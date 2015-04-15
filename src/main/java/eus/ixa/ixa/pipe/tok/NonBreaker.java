@@ -41,7 +41,7 @@ public class NonBreaker {
   private static String SECTION = "\u00A7";
   public static Pattern section = Pattern.compile(SECTION);
   /**
-   * Segment everything not segmented with the RuleBasedSegmenter.
+   * Segment everything not segmented in the SentenceSegmenter.
    */
   public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
@@ -57,11 +57,11 @@ public class NonBreaker {
    */
   public static Pattern acronym = Pattern.compile("(\\p{Alpha})(\\.(\u00A7)[\\ ]*\\p{Alpha})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * Do not segment 11.1 and so on.
+   * Do not segment numbers like 11.1.
    */
   public static Pattern numbers = Pattern.compile("(\\p{Digit}+[\\.])[\\ ]*[\u00A7][\\ ]*(\\p{Digit}+)", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * Non breaker prefix from the file.
+   * Non breaker prefix read from the files in resources.
    */
   private static String NON_BREAKER = null;
   
@@ -149,7 +149,7 @@ public class NonBreaker {
    */
   public String SegmenterNonBreaker(String line) {
    
-    //split everything not segmented in the segmenter
+    //split everything not segmented in the SentenceSegmenter
     line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");
    
     //re-attached dots followed by numbers
@@ -166,6 +166,11 @@ public class NonBreaker {
     return line;
   }
   
+  /**
+   * Removes wrongly introduce SECTION marks in acronyms.
+   * @param line the text
+   * @return the segmented text
+   */
   public static String deSegmentAcronyms(String line) {
     Matcher linkMatcher = acronym.matcher(line);
     StringBuffer sb = new StringBuffer();
