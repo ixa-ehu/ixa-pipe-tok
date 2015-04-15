@@ -64,9 +64,11 @@ public class Annotate {
    * Paragraph counter.
    */
   int noParas = 1;
+  
   public Annotate(BufferedReader breader, Properties properties) {
-    segmenter = new RuleBasedSegmenter(breader, properties);
-    toker = new RuleBasedTokenizer(properties);
+    String text = InputOuput.readText(breader);
+    segmenter = new RuleBasedSegmenter(text, properties);
+    toker = new RuleBasedTokenizer(text, properties);
   }
 
   public void tokenizeToKAF(KAFDocument kaf) throws IOException {

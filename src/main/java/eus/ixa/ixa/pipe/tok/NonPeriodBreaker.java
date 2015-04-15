@@ -38,7 +38,7 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class NonPeriodBreaker {
 
-  private static String SECTION = "\u00A7";
+  public static String SECTION = "\u00A7";
   public static Pattern section = Pattern.compile(SECTION);
   /**
    * Segment everything not segmented in the SentenceSegmenter.
@@ -79,7 +79,7 @@ public class NonPeriodBreaker {
   /**
    * Non breaker prefix read from the files in resources.
    */
-  private static String NON_BREAKER = null;
+  private String NON_BREAKER = null;
   
   /**
    * 

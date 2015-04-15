@@ -16,8 +16,6 @@
 
 package eus.ixa.ixa.pipe.seg;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -38,11 +36,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Constant representing a paragraph (a doubleLine) in the original input text.
    */
-  public static final String PARAGRAPH = "\u00B6";
+  public static final String PARAGRAPH = "\u00B6\u00B6";
   /**
    * Line break pattern.
    */
-  public static Pattern lineBreak = Pattern.compile("(<JAR>)");
+  public static Pattern lineBreak = Pattern.compile("<JAR>");
   /**
    * Two lines.
    */
@@ -62,30 +60,30 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * End of sentence markers, paragraph mark and link.
    */
-  public static Pattern endPunctLinkPara = Pattern.compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*(http|www|ftp)");
+  public static Pattern endPunctLinkPara = Pattern.compile("([?!\\.])[\\ ]*(\u00B6\u00B6)+[\\ ]*(http|www|ftp)");
   /**
    * End of sentence marker, one or more paragraph marks, maybe some starting punctuation, uppercase.
    */
   public static Pattern conventionalPara = Pattern
-      .compile("([?!\\.])[\\ ]*(\u00B6)+[\\ ]*(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.])[\\ ]*(\u00B6\u00B6)+[\\ ]*(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * End of sentence marker, maybe a space, punctuation (quotes, brackets), space, maybe some more punctuation, maybe some space and uppercase.
    */
   public static Pattern endInsideQuotesPara = Pattern
-      .compile("([?!\\.](\u00B6)*" + FINAL_PUNCT + "+)(\u00B6)+(" + INITIAL_PUNCT + "*(\u00B6)*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("([?!\\.](\u00B6)*" + FINAL_PUNCT + "+)(\u00B6\u00B6)+(" + INITIAL_PUNCT + "*(\u00B6\u00B6)*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Multi-dots, paragraph mark, sentence starters and uppercase.
    */
   public static Pattern multiDotsParaStarters = Pattern
-      .compile("(\\.[\\.]+)(\u00B6)+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+      .compile("(\\.[\\.]+)(\u00B6\u00B6)+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * If paragraph mark, maybe some space and lowercase or punctuation (not start of sentence markers) then it is a spurious paragraph.
    */
-  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*([\\p{Lower}\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6\u00B6)+\\s*([\\p{Lower}\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Alphanumeric, maybe a space, paragraph mark, maybe a space, and lowercase letter or digit.
    */
-  public static Pattern alphaNumParaLowerNum = Pattern.compile("(\\p{Alnum})\\s*(\u00B6)+\\s*([\\p{Lower}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern alphaNumParaLowerNum = Pattern.compile("(\\p{Alnum})\\s*(\u00B6\u00B6)+\\s*([\\p{Lower}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non-period end of sentence markers (?!), one or more spaces, sentence starters.
    */
@@ -118,25 +116,25 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * The nonbreaker decides when to split strings followed by periods.
    */
   private NonPeriodBreaker nonBreaker;
-  private BufferedReader breader;
+  private String text;
 
   /**
    * Construct a RuleBasedSegmenter from a BufferedReader and the properties.
-   * @param reader the reader
+   * @param originalText the text to be segmented
    * @param properties the properties
    */
-  public RuleBasedSegmenter(BufferedReader reader, Properties properties) {
+  public RuleBasedSegmenter(String originalText, Properties properties) {
     if (nonBreaker == null) {
       nonBreaker = new NonPeriodBreaker(properties);
     }
-    this.breader = reader;
+    //TODO improve this, when should we load the text?
+     text = buildText(originalText);
   }
   
   /* (non-Javadoc)
    * @see eus.ixa.ixa.pipe.seg.SentenceSegmenter#segmentSentence()
    */
   public String[] segmentSentence() {
-    String text = buildText();
     if (DEBUG) {
       System.err.println("->Build:" + text);
     }
@@ -149,10 +147,10 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * @param text the text be segmented
    * @return the sentences
    */
-  private String[] segment(String text) {
+  private String[] segment(String builtText) {
     
     //end of sentence markers, paragraph mark and beginning of link
-    text = endPunctLinkPara.matcher(text).replaceAll("$1\n$2$3");
+    String text = endPunctLinkPara.matcher(builtText).replaceAll("$1\n$2$3");
     //TODO break the rest of paragraphs
     text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
     text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
@@ -180,26 +178,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     return sentences;
   }
   
-  /**
-   * Build the text from the Reader. Adds "JAR" for line terminations and
-   * "\u00B6" whenever two newlines are found together.
-   * @return the string representing the text
-   */
-  public String buildText() {
-    String line;
-    StringBuilder sb = new StringBuilder();
-    try {
-      while ((line = breader.readLine()) != null) {
-        sb.append(line).append(LINE_BREAK);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    String text = sb.toString();
-    //<JAR><JAR> to PARAGRAPH mark in unicode
-    text = doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
-    //<JAR> to " "
-    text = lineBreak.matcher(text).replaceAll(" ");
+  public static String buildText(String text) {
+    // <JAR><JAR> to PARAGRAPH mark in unicode
+    text = RuleBasedSegmenter.doubleLineBreak.matcher(text).replaceAll(PARAGRAPH);
+    // <JAR> to " "
+    text = RuleBasedSegmenter.lineBreak.matcher(text).replaceAll(" ");
     return text;
   }
 

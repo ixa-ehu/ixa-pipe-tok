@@ -22,6 +22,8 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
+
 /**
  * This class provides a multilingual rule based tokenizer. It also
  * provides normalization based on several corpora conventions such as
@@ -115,55 +117,57 @@ public static Pattern englishApos = Pattern.compile("(\\p{Alpha})[']([msdMSD]|re
  */
 public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
 
+public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
+
 private static boolean DEBUG = false;
-/**
- * Offset counter.
- */
-int offsetCounter = 0;
 
   private TokenFactory tokenFactory;
   private NonPeriodBreaker nonBreaker;
-  private static String lang;
+  private String lang;
+  private String originalText;
 
   /**
-   * RuleBasedTokenizer constructor.
-   * @param properties
+   * Construct a rule based tokenizer.
+   * @param text the text used for offset calculation
+   * @param properties the options
    */
-  public RuleBasedTokenizer(Properties properties) {
-    lang = properties.getProperty("language");
+  public RuleBasedTokenizer(String text, Properties properties) {
+    this.lang = properties.getProperty("language");
     nonBreaker = new NonPeriodBreaker(properties);
     tokenFactory = new TokenFactory();
+    //TODO improve this
+    originalText = RuleBasedSegmenter.buildText(text);    
   }
+  
 
   /* (non-Javadoc)
    * @see eus.ixa.ixa.pipe.tok.Tokenizer#tokenize(java.lang.String[])
    */
   public List<List<Token>> tokenize(String[] sentences) {
+    int prevIndex = 0;
+    int curIndex = 0;
     List<List<Token>> result = new ArrayList<List<Token>>();
-    
+    //TODO improve this
+    String offsetText = originalText;
     for (String sentence : sentences) {
-      //TODO paragraph marks (spurious) to be removed here!!!
-      int prevIndex = 0;
-      int curIndex = 0;
       if (DEBUG) {
         System.err.println("-> Segmented:" + sentence);
       }
       List<Token> tokens = new ArrayList<Token>();
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
-        curIndex = sentence.indexOf(curTokens[i], prevIndex);
-        int offset = curIndex + offsetCounter;
-        Token curToken = tokenFactory.createToken(curTokens[i], offset, curTokens[i].length());
+        curIndex = offsetText.indexOf(curTokens[i], prevIndex);
+        Token curToken = tokenFactory.createToken(curTokens[i], curIndex, curTokens[i].length());
         if (DEBUG) {
-        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " offset: " + offset + " prev: "  + prevIndex);
+        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " prev: "  + prevIndex);
         }
         if (curToken.tokenLength() != 0) {
           tokens.add(curToken);
         }
         prevIndex = curIndex + curToken.tokenLength();
       }
-      offsetCounter = offsetCounter + (sentence.length() + 1);
-      normalizeTokens(tokens);
+      String language = lang;
+      normalizeTokens(tokens, language);
       result.add(tokens);
     }
     return result;
@@ -211,6 +215,7 @@ int offsetCounter = 0;
     //these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
+    line = detokenParagraphs.matcher(line).replaceAll("$1$2");
     
     if (DEBUG) {
       System.out.println("->Tokens:" + line);
@@ -286,7 +291,7 @@ int offsetCounter = 0;
    * conventions.
    * @param tokens the tokens
    */
-  public static void normalizeTokens(List<Token> tokens) {
+  public static void normalizeTokens(List<Token> tokens, String lang) {
     String tokenizedSentence = StringUtils.getStringFromTokens(tokens);
     tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence, lang);
     //TODO work to do in English with double ascii quotes
