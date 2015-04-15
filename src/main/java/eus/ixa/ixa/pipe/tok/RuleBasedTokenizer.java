@@ -119,7 +119,7 @@ public static Pattern yearApos = Pattern.compile("([\\d])[']([s])");
 
 public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
 
-private static boolean DEBUG = false;
+private static boolean DEBUG = true;
 
   private TokenFactory tokenFactory;
   private NonPeriodBreaker nonBreaker;
@@ -209,7 +209,6 @@ private static boolean DEBUG = false;
     // restore multidots
     line = restoreMultidots(line);
     // urls
-    //TODO does not work!
     line = detokenizeURLs(line);
     
     //these are fine because they do not affect offsets

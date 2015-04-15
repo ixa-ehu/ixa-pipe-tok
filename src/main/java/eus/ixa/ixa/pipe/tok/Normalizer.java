@@ -45,15 +45,15 @@ public class Normalizer {
   private static final Pattern cents = Pattern.compile("\u00A2");
   private static final Pattern sterling = Pattern.compile("\u00A3");
   
-  public static final Pattern apostrophe = Pattern.compile("['\u0027\u0092\u2019]|&apos;");
+  public static final Pattern apostrophe = Pattern.compile("['\u0027\u0092\u2019]");
   public static final Pattern leftSingleQuote = Pattern.compile("[\u0091\u201B\u2018\u2039]");
   public static final Pattern rightSingleQuote = Pattern.compile("[\u0027\u0092\u203A\u2019]");
   public static final Pattern leftDoubleQuote = Pattern.compile("[\u00AB\u0093\u201C]");
   public static final Pattern rightDoubleQuote = Pattern.compile("[\u00BB\u0094\u201D]");
-  public static final Pattern singleAsciiQuote = Pattern.compile("&apos;|'|\u0027");
-  public static final Pattern doubleAsciiQuote = Pattern.compile("\"|&quot;");
-  public static final Pattern toAsciiSingleQuote = Pattern.compile("&apos;|[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\']");
-  public static final Pattern toAsciiDoubleQuote = Pattern.compile("&quot;|[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
+  public static final Pattern singleAsciiQuote = Pattern.compile("'|\u0027");
+  public static final Pattern doubleAsciiQuote = Pattern.compile("\"");
+  public static final Pattern toAsciiSingleQuote = Pattern.compile("[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\']");
+  public static final Pattern toAsciiDoubleQuote = Pattern.compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
 
   /**
    * Convert several strings to their unicode counterparts according

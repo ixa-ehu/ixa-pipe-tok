@@ -174,7 +174,6 @@ public class NonPeriodBreaker {
     Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
     line = nonBreaker.matcher(line).replaceAll("$1");
     //acronyms
-    //TODO work this a little bit better
     line = deSegmentAcronyms(line);
     //de-segment 11.1. numbers
     line = numbers.matcher(line).replaceAll("$1$2");

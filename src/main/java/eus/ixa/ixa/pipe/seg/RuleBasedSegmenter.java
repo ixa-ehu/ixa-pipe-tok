@@ -52,11 +52,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Initial punctuation in unicode.
    */
-  public static String INITIAL_PUNCT = "[\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039&apos;&quot;]";
+  public static String INITIAL_PUNCT = "[\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
   /**
    * Final punctuation in unicode.
    */
-  public static String FINAL_PUNCT = "[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019&apos;&quot;]";
+  public static String FINAL_PUNCT = "[\'\"\\)\\]\\%\u00BB\u003D\u0092\u0094\u201D\u203A\u2019]";
   /**
    * End of sentence markers, paragraph mark and link.
    */
@@ -150,31 +150,28 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   private String[] segment(String builtText) {
     
     //end of sentence markers, paragraph mark and beginning of link
-    String text = endPunctLinkPara.matcher(builtText).replaceAll("$1\n$2$3");
-    //TODO break the rest of paragraphs
-    text = conventionalPara.matcher(text).replaceAll("$1\n$2$3");
-    text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
-    text = multiDotsParaStarters.matcher(text).replaceAll("$1\n$2$3");
-    
-    //TODO remove spurious paragraphs in tokenizer class for correct offset calculation!!
-    text = alphaNumParaLowerNum.matcher(text).replaceAll("$1 $3");
-    text = spuriousParagraph.matcher(text).replaceAll(" $2");
+    String line = endPunctLinkPara.matcher(builtText).replaceAll("$1\n$2$3");
+    line = conventionalPara.matcher(line).replaceAll("$1\n$2$3");
+    line = endInsideQuotesPara.matcher(line).replaceAll("$1\n$3$4");
+    line = multiDotsParaStarters.matcher(line).replaceAll("$1\n$2$3");
+    // remove spurious paragraphs
+    line = alphaNumParaLowerNum.matcher(line).replaceAll("$1 $3");
+    line = spuriousParagraph.matcher(line).replaceAll(" $2");
     
     // non-period end of sentence markers (?!) followed by sentence starters.
-    text = noPeriodSpaceEnd.matcher(text).replaceAll("$1\n$2");
+    line = noPeriodSpaceEnd.matcher(line).replaceAll("$1\n$2");
     // multi-dots followed by sentence starters
-    text = multiDotsSpaceStarters.matcher(text).replaceAll("$1\n$2");
+    line = multiDotsSpaceStarters.matcher(line).replaceAll("$1\n$2");
     // end of sentence inside quotes or brackets
-    text = endInsideQuotesSpace.matcher(text).replaceAll("$1\n$2");
+    line = endInsideQuotesSpace.matcher(line).replaceAll("$1\n$2");
     //end of sentence marker, sentence starter punctuation and upper case.
-    text = punctSpaceUpper.matcher(text).replaceAll("$1\n$2");
+    line = punctSpaceUpper.matcher(line).replaceAll("$1\n$2");
     //end of sentence markers, maybe space or paragraph mark and beginning of link
-    text = endPunctLinkSpace.matcher(text).replaceAll("$1\n$2");
+    line = endPunctLinkSpace.matcher(line).replaceAll("$1\n$2");
     
     // non breaker segments everything else with some exceptions
-    text = nonBreaker.SegmenterNonBreaker(text);
-   
-    String[] sentences = text.split("\n");
+    line = nonBreaker.SegmenterNonBreaker(line);
+    String[] sentences = line.split("\n");
     return sentences;
   }
   
