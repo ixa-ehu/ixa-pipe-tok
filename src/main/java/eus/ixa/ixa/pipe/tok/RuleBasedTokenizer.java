@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * Penn Treebank and Ancora.
  * 
  * @author ragerri
- * @version 2015-04-13
+ * @version 2015-04-14
  *
  */
 public class RuleBasedTokenizer implements Tokenizer {
@@ -142,12 +142,9 @@ int offsetCounter = 0;
     List<List<Token>> result = new ArrayList<List<Token>>();
     
     for (String sentence : sentences) {
-      //TODO paragraphs should be removed here not in segmenter
+      //TODO paragraph marks (spurious) to be removed here!!!
       int prevIndex = 0;
       int curIndex = 0;
-      //TODO remove this
-      sentence = sentence.trim();
-      sentence = doubleSpaces.matcher(sentence).replaceAll(" ");
       if (DEBUG) {
         System.err.println("-> Segmented:" + sentence);
       }

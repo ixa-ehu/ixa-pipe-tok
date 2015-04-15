@@ -24,9 +24,8 @@ import java.util.regex.Pattern;
 import eus.ixa.ixa.pipe.tok.NonPeriodBreaker;
 
 /**
- * Rule based sentence segmenter. Implements some rules to break the text
- * into sentences. It also removes possible spurious paragraphs and newlines.
- * Exceptions are managed by the NonBreaker class.
+ * Rule based SentenceSegmenter. It also removes possible spurious paragraphs and newlines.
+ * Exceptions are managed by the NonPeriodBreaker class.
  * @author ragerri
  * @version 2015-04-14
  */
@@ -80,9 +79,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   public static Pattern multiDotsParaStarters = Pattern
       .compile("(\\.[\\.]+)(\u00B6)+(" + INITIAL_PUNCT + "*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * If paragraph mark, maybe some space and lowercase or punctuation then it is a spurious paragraph.
+   * If paragraph mark, maybe some space and lowercase or punctuation (not start of sentence markers) then it is a spurious paragraph.
    */
-  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*([\\p{Lower}\\p{Punct}])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern spuriousParagraph = Pattern.compile("(\u00B6)+\\s*([\\p{Lower}\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Alphanumeric, maybe a space, paragraph mark, maybe a space, and lowercase letter or digit.
    */
@@ -107,7 +106,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public static Pattern punctSpaceUpper = Pattern
       .compile("([?!\\.])[\\ ]+(" + INITIAL_PUNCT + "+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
-  /**
   
   /**
    * End of sentence punctuation, maybe spaces and link.
@@ -122,6 +120,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   private NonPeriodBreaker nonBreaker;
   private BufferedReader breader;
 
+  /**
+   * Construct a RuleBasedSegmenter from a BufferedReader and the properties.
+   * @param reader the reader
+   * @param properties the properties
+   */
   public RuleBasedSegmenter(BufferedReader reader, Properties properties) {
     if (nonBreaker == null) {
       nonBreaker = new NonPeriodBreaker(properties);
@@ -129,6 +132,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     this.breader = reader;
   }
   
+  /* (non-Javadoc)
+   * @see eus.ixa.ixa.pipe.seg.SentenceSegmenter#segmentSentence()
+   */
   public String[] segmentSentence() {
     String text = buildText();
     if (DEBUG) {
@@ -138,6 +144,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     return sentences;
   }
 
+  /**
+   * Segments sentences and calls the NonPeriodBreaker for exceptions.
+   * @param text the text be segmented
+   * @return the sentences
+   */
   private String[] segment(String text) {
     
     //end of sentence markers, paragraph mark and beginning of link
@@ -147,7 +158,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     text = endInsideQuotesPara.matcher(text).replaceAll("$1\n$3$4");
     text = multiDotsParaStarters.matcher(text).replaceAll("$1\n$2$3");
     
-    //remove spurious paragraphs
+    //TODO remove spurious paragraphs in tokenizer class for correct offset calculation!!
     text = alphaNumParaLowerNum.matcher(text).replaceAll("$1 $3");
     text = spuriousParagraph.matcher(text).replaceAll(" $2");
     
