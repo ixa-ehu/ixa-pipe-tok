@@ -122,7 +122,7 @@ private static boolean DEBUG = false;
 int offsetCounter = 0;
 
   private TokenFactory tokenFactory;
-  private NonBreaker nonBreaker;
+  private NonPeriodBreaker nonBreaker;
   private static String lang;
 
   /**
@@ -131,7 +131,7 @@ int offsetCounter = 0;
    */
   public RuleBasedTokenizer(Properties properties) {
     lang = properties.getProperty("language");
-    nonBreaker = new NonBreaker(properties);
+    nonBreaker = new NonPeriodBreaker(properties);
     tokenFactory = new TokenFactory();
   }
 
@@ -179,6 +179,9 @@ int offsetCounter = 0;
    */
   private String[] getTokens(String line) {
 
+    //these are fine because they do not affect offsets
+    line = line.trim();
+    line = doubleSpaces.matcher(line).replaceAll(" ");
     // remove ASCII stuff
     line = asciiHex.matcher(line).replaceAll(" ");
     // separate question and exclamation marks
@@ -208,7 +211,7 @@ int offsetCounter = 0;
     //TODO does not work!
     line = detokenizeURLs(line);
     
-    //TODO remove this
+    //these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     

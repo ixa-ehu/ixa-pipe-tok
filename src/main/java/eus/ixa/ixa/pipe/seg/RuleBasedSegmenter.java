@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import eus.ixa.ixa.pipe.tok.NonBreaker;
+import eus.ixa.ixa.pipe.tok.NonPeriodBreaker;
 
 /**
  * Rule based sentence segmenter. Implements some rules to break the text
@@ -119,12 +119,12 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * The nonbreaker decides when to split strings followed by periods.
    */
-  private NonBreaker nonBreaker;
+  private NonPeriodBreaker nonBreaker;
   private BufferedReader breader;
 
   public RuleBasedSegmenter(BufferedReader reader, Properties properties) {
     if (nonBreaker == null) {
-      nonBreaker = new NonBreaker(properties);
+      nonBreaker = new NonPeriodBreaker(properties);
     }
     this.breader = reader;
   }
