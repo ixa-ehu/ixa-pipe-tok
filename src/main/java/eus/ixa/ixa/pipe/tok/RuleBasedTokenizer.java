@@ -82,7 +82,7 @@ public static Pattern noDigitCommaDigit = Pattern.compile("([^\\p{Digit}])(,)(\\
  * Detect wrongly tokenized links.
  */
 public static Pattern wrongLink = Pattern
-    .compile("((http|ftp)\\s:\\s//\\s*[\\s-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_(|])");
+    .compile("((http|ftp)\\s:\\s//\\s*[\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;]+[-\\p{Alpha}\\p{Digit}\\+&@#/%=~_\\(|])", Pattern.UNICODE_CHARACTER_CLASS);
 
 /**
  * No alphabetic apostrophe and no alphabetic.
@@ -280,7 +280,7 @@ private static boolean DEBUG = false;
       linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
     }
     linkMatcher.appendTail(sb);
-    line = sb.toString();
+    line = sb.append(" ").toString();
     return line;
   }
   

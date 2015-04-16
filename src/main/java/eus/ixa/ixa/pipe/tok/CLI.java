@@ -158,8 +158,10 @@ public class CLI {
 
     // read KAF/NAF document to tokenize raw element
     if (inputKafRaw) {
+      BufferedReader kafReader = new BufferedReader(new InputStreamReader(
+          System.in, "UTF-8"));
       // read KAF from standard input
-      kaf = KAFDocument.createFromStream(breader);
+      kaf = KAFDocument.createFromStream(kafReader);
       String text = kaf.getRawText();
       StringReader stringReader = new StringReader(text);
       breader = new BufferedReader(stringReader);
