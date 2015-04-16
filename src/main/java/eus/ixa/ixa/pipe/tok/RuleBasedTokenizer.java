@@ -44,7 +44,7 @@ public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
  * Tokenize everything but these characters.
  */
 public static Pattern specials = Pattern
-     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\'])", Pattern.UNICODE_CHARACTER_CLASS);
+     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Question and exclamation marks (do not separate if multiple).
  */
@@ -78,11 +78,14 @@ public static Pattern digitCommaNoDigit = Pattern.compile("([\\p{Digit}])(,)([^\
  * Non digit comma and digit.
  */
 public static Pattern noDigitCommaDigit = Pattern.compile("([^\\p{Digit}])(,)(\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
+
+public static final String TLP = "\\.asp|\\.at|\\.au|\\.az|\\.be|\\.biz|\\.cat|\\.ch|\\.com|\\.cym|\\.cz|\\.de|\\.dk|\\.edu|\\.es|\\.eu|\\.eus|\\.fr|\\.gal|\\.gov|\\.hk|\\.hu|\\.ie|\\.il|\\.info|\\.htm|\\.html|\\.it|\\.jp|\\.pl|\\.pt|\\.net|\\.nl|\\.org|\\.ru|\\.se|\\.sg|\\.sv|\\.uk|\\.zw";
 /**
  * Detect wrongly tokenized links.
  */
-public static Pattern wrongLink = Pattern
-    .compile("((http|ftp)\\s:\\s//\\s*[\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;]+[-\\p{Alpha}\\p{Digit}\\+&@#/%=~_\\(|])", Pattern.UNICODE_CHARACTER_CLASS);
+//.compile("((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;]+[-\\p{Alpha}\\p{Digit}\\+&@#/%=~_\\(|])", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern wrongLink = Pattern.compile("((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;-]+(" + TLP +"))", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern beginLink = Pattern.compile("(http|ftp)(\\s:\\s)(//\\s*)");
 
 /**
  * No alphabetic apostrophe and no alphabetic.
@@ -112,7 +115,6 @@ public static Pattern englishApos = Pattern.compile("(\\p{Alpha})(" + Normalizer
  * Digit apostrophe and s (for 1990's).
  */
 public static Pattern yearApos = Pattern.compile("([\\p{Digit}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])", Pattern.UNICODE_CHARACTER_CLASS);
-public static Pattern otherApos = Pattern.compile("(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")");
 
 public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
 
@@ -210,6 +212,7 @@ private static boolean DEBUG = false;
     // urls
     //TODO normalize URLs after tokenization for offsets
     line = detokenizeURLs(line);
+    line = beginLink.matcher(line).replaceAll("$1://");
     
     //these are fine because they do not affect offsets
     line = line.trim();
@@ -280,7 +283,7 @@ private static boolean DEBUG = false;
       linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
     }
     linkMatcher.appendTail(sb);
-    line = sb.append(" ").toString();
+    line = sb.toString();
     return line;
   }
   
