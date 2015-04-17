@@ -52,7 +52,7 @@ public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
  /**
  * Dash preceded or followed by space.
  */
-public static Pattern spaceDashSpace = Pattern.compile("( [\\-/]+|[\\-/]+ )");
+public static Pattern spaceDashSpace = Pattern.compile("( +[\\-/]+|[\\-/] +)");
  /**
  * Multidots.
  */
@@ -66,9 +66,12 @@ public static Pattern dotmultiDot = Pattern.compile("DOTMULTI\\.");
  */
 public static Pattern dotmultiDotAny = Pattern.compile("DOTMULTI\\.([^\\.])");
  /**
- * No digit comma and no digit.
+ * No digit comma.
  */
 public static Pattern noDigitComma = Pattern.compile("([^\\p{Digit}])(,)", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Comma and no digit.
+ */
 public static Pattern commaNoDigit= Pattern.compile("(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Digit comma and non digit.
@@ -83,15 +86,17 @@ public static final String TLP = "\\.asp|\\.at|\\.au|\\.az|\\.be|\\.biz|\\.cat|\
 /**
  * Detect wrongly tokenized links.
  */
-//.compile("((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;]+[-\\p{Alpha}\\p{Digit}\\+&@#/%=~_\\(|])", Pattern.UNICODE_CHARACTER_CLASS);
 public static Pattern wrongLink = Pattern.compile("((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;-]+(" + TLP +"))", Pattern.UNICODE_CHARACTER_CLASS);
+/**
+ * Re-tokenize beginning of link.
+ */
 public static Pattern beginLink = Pattern.compile("(http|ftp)(\\s:\\s)(//\\s*)");
 
 /**
  * No alphabetic apostrophe and no alphabetic.
  */
 public static Pattern noAlphaAposNoAlpha = Pattern
-    .compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha})])", Pattern.UNICODE_CHARACTER_CLASS);
+    .compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
 /**
  * Non alpha, digit, apostrophe and alpha.
  */
@@ -115,7 +120,13 @@ public static Pattern englishApos = Pattern.compile("(\\p{Alpha})(" + Normalizer
  * Digit apostrophe and s (for 1990's).
  */
 public static Pattern yearApos = Pattern.compile("([\\p{Digit}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])", Pattern.UNICODE_CHARACTER_CLASS);
-
+/**
+ * Tokenize apostrophes ocurring at the end of the string.
+ */
+public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
+/**
+ * De-tokenize paragraph marks.
+ */
 public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
 
 private static boolean DEBUG = false;
@@ -188,7 +199,7 @@ private static boolean DEBUG = false;
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
     line = spaceDashSpace.matcher(line).replaceAll(" $1 ");
-    // separate out other special characters [^\p{Alnum}s.'`,-?!/]
+    // tokenize everything but these characters [^\p{Alnum}s.'`,-?!/]
     line = specials.matcher(line).replaceAll(" $1 ");
 
     // do not separate multidots
@@ -203,8 +214,7 @@ private static boolean DEBUG = false;
 
     // contractions it's, l'agila, c'est
     line = treatContractions(line);
-    //TODO future.'?
-    // non breaker
+    // exceptions for period tokenization
     line = nonBreaker.TokenizerNonBreaker(line);
 
     // restore multidots
@@ -223,7 +233,6 @@ private static boolean DEBUG = false;
       System.out.println("->Tokens:" + line);
     }
     String[] tokens = line.split(" ");
-    
     return tokens;
   }
   
@@ -273,6 +282,7 @@ private static boolean DEBUG = false;
       line = yearApos.matcher(line).replaceAll("$1 $2$3");
       // romance tokenization of apostrophes c' l'
       line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
+      line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
     return line;
   }
 

@@ -49,10 +49,13 @@ public class Normalizer {
   public static final Pattern leftSingleQuote = Pattern.compile("[\u0091\u201B\u2018\u2039]");
   public static final Pattern rightSingleQuote = Pattern.compile("[\u0027\u0092\u203A\u2019]");
   public static final Pattern leftDoubleQuote = Pattern.compile("[\u00AB\u0093\u201C]");
+  public static final Pattern startLeftDoubleQuote = Pattern.compile("^[\u00AB\u0093\u201C\"]");
+  public static final Pattern startParaLeftDoubleQuote = Pattern.compile("([\u00B6\u00B6] *)\"");
+  public static final Pattern insideLeftDoubleQuote = Pattern.compile("([ \\(\\[\\{])\"");
   public static final Pattern rightDoubleQuote = Pattern.compile("[\u00BB\u0094\u201D]");
   public static final Pattern singleAsciiQuote = Pattern.compile("'|\u0027");
   public static final Pattern doubleAsciiQuote = Pattern.compile("\"");
-  public static final String TO_ASCII_SINGLE_QUOTE = "[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039\']";
+  public static final String TO_ASCII_SINGLE_QUOTE = "[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039']";
   public static final Pattern toAsciiSingleQuote = Pattern.compile("TO_ASCII_SINGLE_QUOTE");
   public static final Pattern toAsciiDoubleQuote = Pattern.compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
 
@@ -99,7 +102,10 @@ public class Normalizer {
       line = rightSingleQuote.matcher(line).replaceAll("'");
       line = leftDoubleQuote.matcher(line).replaceAll("``");
       line = rightDoubleQuote.matcher(line).replaceAll("''");
-      // TODO somehow retokenize to do properly the singleAscii and doubleAscii
+      //TODO double quotes to latex quotes
+      line = startLeftDoubleQuote.matcher(line).replaceAll("``");
+      line = startParaLeftDoubleQuote.matcher(line).replaceAll("$1``");
+      //line = insideLeftDoubleQuote.matcher(line).replaceAll("$1``");
     } else if (lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("eu")
         || lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl")
         || lang.equalsIgnoreCase("it") || lang.equalsIgnoreCase("nl")) {
