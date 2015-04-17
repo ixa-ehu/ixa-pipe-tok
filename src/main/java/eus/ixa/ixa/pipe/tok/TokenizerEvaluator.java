@@ -26,8 +26,6 @@ import java.util.List;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import eus.ixa.ixa.pipe.tok.Token;
-
 /**
  * The {@link TokenizerEvaluator} measures the performance of a 
  * tokenizer wrt to some reference {@link Token}s.

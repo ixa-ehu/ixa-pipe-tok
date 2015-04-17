@@ -164,7 +164,6 @@ public class NonPeriodBreaker {
    * @return segmented text (with newlines included)
    */
   public String SegmenterNonBreaker(String line) {
-    //TODO go back to previous implementation
    
     //split everything not segmented in the SentenceSegmenter
     line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");

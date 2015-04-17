@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.common.io.CharStreams;
+
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 /**

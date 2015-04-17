@@ -43,16 +43,15 @@ public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
  /**
  * Tokenize everything but these characters.
  */
-public static Pattern specials = Pattern
-     .compile("([^\\p{Alnum}\\p{Space}\\.\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])", Pattern.UNICODE_CHARACTER_CLASS);
+public static Pattern specials = Pattern.compile("([^\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])", Pattern.UNICODE_CHARACTER_CLASS);
  /**
  * Question and exclamation marks (do not separate if multiple).
  */
 public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
  /**
- * Dash preceded or followed by space.
+ * Dashes or slashes preceded or followed by space.
  */
-public static Pattern spaceDashSpace = Pattern.compile("( +[\\-/]+|[\\-/] +)");
+public static Pattern spaceDashSpace = Pattern.compile("( +[\u2014\u8212–\\-/]+|[\u2014\u8212–\\-/] +)");
  /**
  * Multidots.
  */
@@ -81,7 +80,9 @@ public static Pattern digitCommaNoDigit = Pattern.compile("([\\p{Digit}])(,)([^\
  * Non digit comma and digit.
  */
 public static Pattern noDigitCommaDigit = Pattern.compile("([^\\p{Digit}])(,)(\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
-
+/**
+ * Top level domains for stopping the wrongLink pattern below.
+ */
 public static final String TLP = "\\.asp|\\.at|\\.au|\\.az|\\.be|\\.biz|\\.cat|\\.ch|\\.com|\\.cym|\\.cz|\\.de|\\.dk|\\.edu|\\.es|\\.eu|\\.eus|\\.fr|\\.gal|\\.gov|\\.hk|\\.hu|\\.ie|\\.il|\\.info|\\.htm|\\.html|\\.it|\\.jp|\\.pl|\\.pt|\\.net|\\.nl|\\.org|\\.ru|\\.se|\\.sg|\\.sv|\\.uk|\\.zw";
 /**
  * Detect wrongly tokenized links.
@@ -90,8 +91,7 @@ public static Pattern wrongLink = Pattern.compile("((http|ftp)\\s:\\s//\\s*[\\s\
 /**
  * Re-tokenize beginning of link.
  */
-public static Pattern beginLink = Pattern.compile("(http|ftp)(\\s:\\s)(//\\s*)");
-
+public static Pattern beginLink = Pattern.compile("(http|ftp)(\\s:\\s)(/\\s*/\\s*)");
 /**
  * No alphabetic apostrophe and no alphabetic.
  */
@@ -154,8 +154,11 @@ private static boolean DEBUG = false;
    * @see eus.ixa.ixa.pipe.tok.Tokenizer#tokenize(java.lang.String[])
    */
   public List<List<Token>> tokenize(String[] sentences) {
+    final long start = System.nanoTime();
+    int noTokens = 0;
     int prevIndex = 0;
     int curIndex = 0;
+    String language = lang;
     List<List<Token>> result = new ArrayList<List<Token>>();
     //TODO improve this
     String offsetText = originalText;
@@ -176,10 +179,13 @@ private static boolean DEBUG = false;
         }
         prevIndex = curIndex + curToken.tokenLength();
       }
-      String language = lang;
-      normalizeTokens(tokens, language);
       result.add(tokens);
+      noTokens = noTokens + curTokens.length;
     }
+    normalizeTokens(result, language);
+    final long duration = System.nanoTime() - start;
+    final double toksPerSecond = (double) noTokens / ((double) duration / 1000000000.0);
+    System.err.printf("ixa-pipe-tok tokenized %d tokens at %.2f tokens per second.%n", noTokens, toksPerSecond);
     return result;
   }
   
@@ -261,7 +267,7 @@ private static boolean DEBUG = false;
    * Restores the normalized multidots to its original state and it tokenizes
    * them.
    * 
-   * @param line
+   * @param line the line
    * @return the tokenized multidots
    */
   private String restoreMultidots(String line) {
@@ -273,6 +279,11 @@ private static boolean DEBUG = false;
     return line;
   }
 
+  /**
+   * Separate apostrophes.
+   * @param line the sentence
+   * @return the tokenized paragraphs
+   */
   private String treatContractions(String line) {
     
       line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
@@ -286,6 +297,11 @@ private static boolean DEBUG = false;
     return line;
   }
 
+  /**
+   * De-tokenize wrongly tokenized URLs.
+   * @param line the sentence
+   * @return the sentence containing the correct URL
+   */
   private String detokenizeURLs(String line) {
     Matcher linkMatcher = wrongLink.matcher(line);
     StringBuffer sb = new StringBuffer();
@@ -303,14 +319,11 @@ private static boolean DEBUG = false;
    * conventions.
    * @param tokens the tokens
    */
-  public static void normalizeTokens(List<Token> tokens, String lang) {
-    String tokenizedSentence = StringUtils.getStringFromTokens(tokens);
-    tokenizedSentence = Normalizer.convertNonCanonicalStrings(tokenizedSentence, lang);
-    //TODO work to do in English with double ascii quotes
-    tokenizedSentence= Normalizer.normalizeQuotes(tokenizedSentence, lang);
-    String[] normalizedTokens = tokenizedSentence.split(" ");
-    for (int i = 0; i < tokens.size(); i++) {
-      tokens.get(i).setTokenValue(normalizedTokens[i]);
+  public static void normalizeTokens(List<List<Token>> tokens, String lang) {
+    for (List<Token> sentence : tokens) {
+      Normalizer.convertNonCanonicalStrings(sentence, lang);
+      Normalizer.normalizeQuotes(sentence, lang);
+      Normalizer.normalizeDoubleQuotes(sentence, lang);
     }
   }
 }

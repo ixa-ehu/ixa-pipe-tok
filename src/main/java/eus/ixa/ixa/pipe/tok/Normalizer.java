@@ -16,6 +16,8 @@
 
 package eus.ixa.ixa.pipe.tok;
 
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -49,70 +51,106 @@ public class Normalizer {
   public static final Pattern leftSingleQuote = Pattern.compile("[\u0091\u201B\u2018\u2039]");
   public static final Pattern rightSingleQuote = Pattern.compile("[\u0027\u0092\u203A\u2019]");
   public static final Pattern leftDoubleQuote = Pattern.compile("[\u00AB\u0093\u201C]");
-  public static final Pattern startLeftDoubleQuote = Pattern.compile("^[\u00AB\u0093\u201C\"]");
-  public static final Pattern startParaLeftDoubleQuote = Pattern.compile("([\u00B6\u00B6] *)\"");
-  public static final Pattern insideLeftDoubleQuote = Pattern.compile("([ \\(\\[\\{])\"");
   public static final Pattern rightDoubleQuote = Pattern.compile("[\u00BB\u0094\u201D]");
   public static final Pattern singleAsciiQuote = Pattern.compile("'|\u0027");
+  public static final Pattern invertSingleAsciiQuote = Pattern.compile("([\\p{Alpha}])([^\\p{Space}])", Pattern.UNICODE_CHARACTER_CLASS);
   public static final Pattern doubleAsciiQuote = Pattern.compile("\"");
+  public static final Pattern doubleAsciiQuoteAlphaNumeric = Pattern.compile("([\\p{Alpha}\\p{Digit}$])", Pattern.UNICODE_CHARACTER_CLASS);
+  
   public static final String TO_ASCII_SINGLE_QUOTE = "[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039']";
   public static final Pattern toAsciiSingleQuote = Pattern.compile("TO_ASCII_SINGLE_QUOTE");
   public static final Pattern toAsciiDoubleQuote = Pattern.compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
-
   /**
    * Convert several strings to their unicode counterparts according
    * to language convention.
-   * @param line the string to be normalized
+   * @param tokenValue the string to be normalized
    * @param lang the language
    * @return the normalized string
    */
-  public static String convertNonCanonicalStrings(String line, String lang) {
+  public static String convertNonCanonicalStrings(String tokenValue, String lang) {
     //System.err.println((int)'’');
-    line = apostrophe.matcher(line).replaceAll("'");
-    line = ellipsis.matcher(line).replaceAll(THREE_DOTS);
-    line = longDash.matcher(line).replaceAll("--");
+    tokenValue = apostrophe.matcher(tokenValue).replaceAll("'");
+    tokenValue = ellipsis.matcher(tokenValue).replaceAll(THREE_DOTS);
+    tokenValue = longDash.matcher(tokenValue).replaceAll("--");
     if (lang.equalsIgnoreCase("en")) {
-      line = oneFourth.matcher(line).replaceAll("1\\\\/4");
-      line = oneThird.matcher(line).replaceAll("1\\\\/3");
-      line = oneHalf.matcher(line).replaceAll("1\\\\/2");
-      line = threeQuarters.matcher(line).replaceAll("3\\\\/4");
-      line = sterling.matcher(line).replaceAll("#");
+      tokenValue = oneFourth.matcher(tokenValue).replaceAll("1\\\\/4");
+      tokenValue = oneThird.matcher(tokenValue).replaceAll("1\\\\/3");
+      tokenValue = oneHalf.matcher(tokenValue).replaceAll("1\\\\/2");
+      tokenValue = threeQuarters.matcher(tokenValue).replaceAll("3\\\\/4");
+      tokenValue = sterling.matcher(tokenValue).replaceAll("#");
     }
-    line = oneFourth.matcher(line).replaceAll("1/4");
-    line = oneThird.matcher(line).replaceAll("1/3");
-    line = oneHalf.matcher(line).replaceAll("1/2");
-    line = twoThirds.matcher(line).replaceAll("2/3");
-    line = threeQuarters.matcher(line).replaceAll("3/4");
-    line = cents.matcher(line).replaceAll("cents");
-    return line;
+    tokenValue = oneFourth.matcher(tokenValue).replaceAll("1/4");
+    tokenValue = oneThird.matcher(tokenValue).replaceAll("1/3");
+    tokenValue = oneHalf.matcher(tokenValue).replaceAll("1/2");
+    tokenValue = twoThirds.matcher(tokenValue).replaceAll("2/3");
+    tokenValue = threeQuarters.matcher(tokenValue).replaceAll("3/4");
+    tokenValue = cents.matcher(tokenValue).replaceAll("cents");
+    return tokenValue;
   }
-
-  /**
-   * Normalizing quotes is important for POS and parsing. This
-   * function normalizes quotes following corpora conventions for
-   * each language.
-   * @param line the string to be normalized
-   * @param lang the language
-   * @return the normalized string
-   */
-  public static String normalizeQuotes(String line, String lang) {
-
-    if (lang.equalsIgnoreCase("en")) {
-      line = leftSingleQuote.matcher(line).replaceAll("`");
-      line = rightSingleQuote.matcher(line).replaceAll("'");
-      line = leftDoubleQuote.matcher(line).replaceAll("``");
-      line = rightDoubleQuote.matcher(line).replaceAll("''");
-      //TODO double quotes to latex quotes
-      line = startLeftDoubleQuote.matcher(line).replaceAll("``");
-      line = startParaLeftDoubleQuote.matcher(line).replaceAll("$1``");
-      //line = insideLeftDoubleQuote.matcher(line).replaceAll("$1``");
-    } else if (lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("eu")
-        || lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl")
-        || lang.equalsIgnoreCase("it") || lang.equalsIgnoreCase("nl")) {
-      line = toAsciiSingleQuote.matcher(line).replaceAll("'");
-      line = toAsciiDoubleQuote.matcher(line).replaceAll("\"");
+  
+  public static void convertNonCanonicalStrings(List<Token> sentence, String lang) {
+    //System.err.println((int)'’');
+    for (Token token : sentence) {
+      token.setTokenValue(apostrophe.matcher(token.getTokenValue()).replaceAll("'"));
+      token.setTokenValue(ellipsis.matcher(token.getTokenValue()).replaceAll(THREE_DOTS));
+      token.setTokenValue(longDash.matcher(token.getTokenValue()).replaceAll("--"));
+      if (lang.equalsIgnoreCase("en")) {
+        token.setTokenValue(oneFourth.matcher(token.getTokenValue()).replaceAll("1\\\\/4"));
+        token.setTokenValue(oneThird.matcher(token.getTokenValue()).replaceAll("1\\\\/3"));
+        token.setTokenValue(oneHalf.matcher(token.getTokenValue()).replaceAll("1\\\\/2"));
+        token.setTokenValue(threeQuarters.matcher(token.getTokenValue()).replaceAll("3\\\\/4"));
+        token.setTokenValue(sterling.matcher(token.getTokenValue()).replaceAll("#"));
+      }
+      token.setTokenValue(oneFourth.matcher(token.getTokenValue()).replaceAll("1/4"));
+      token.setTokenValue(oneThird.matcher(token.getTokenValue()).replaceAll("1/3"));
+      token.setTokenValue(oneHalf.matcher(token.getTokenValue()).replaceAll("1/2"));
+      token.setTokenValue(twoThirds.matcher(token.getTokenValue()).replaceAll("2/3"));
+      token.setTokenValue(threeQuarters.matcher(token.getTokenValue()).replaceAll("3/4"));
+      token.setTokenValue(cents.matcher(token.getTokenValue()).replaceAll("cents"));
     }
-    return line;
+  }
+  
+  public static void normalizeQuotes(List<Token> sentence, String lang) {
+    
+    for (Token token : sentence) {
+      if (lang.equalsIgnoreCase("en")) {
+        token.setTokenValue(leftSingleQuote.matcher(token.getTokenValue()).replaceAll("`"));
+        token.setTokenValue(rightSingleQuote.matcher(token.getTokenValue()).replaceAll("'"));
+        token.setTokenValue(leftDoubleQuote.matcher(token.getTokenValue()).replaceAll("``"));
+        token.setTokenValue(rightDoubleQuote.matcher(token.getTokenValue()).replaceAll("''"));
+      } else if (lang.equalsIgnoreCase("de") || lang.equalsIgnoreCase("es") || lang.equalsIgnoreCase("eu")
+          || lang.equalsIgnoreCase("fr") || lang.equalsIgnoreCase("gl")
+          || lang.equalsIgnoreCase("it") || lang.equalsIgnoreCase("nl")) {
+        token.setTokenValue(toAsciiSingleQuote.matcher(token.getTokenValue()).replaceAll("'"));
+        token.setTokenValue(toAsciiDoubleQuote.matcher(token.getTokenValue()).replaceAll("\""));
+      }
+    }
+  }
+  
+  public static void normalizeDoubleQuotes(List<Token> sentence, String lang) {
+    
+    boolean isLeft = true;
+    for (int i = 0; i < sentence.size(); i++) {
+      if (lang.equalsIgnoreCase("en")) {
+        Matcher doubleAsciiQuoteMatcher = doubleAsciiQuote.matcher(sentence.get(i).getTokenValue());
+        Matcher singleAsciiQuoteMatcher = singleAsciiQuote.matcher(sentence.get(i).getTokenValue());
+        //if current token is "
+        if (doubleAsciiQuoteMatcher.find()) {
+          if (isLeft && (i < sentence.size() - 1) && doubleAsciiQuoteAlphaNumeric.matcher(sentence.get(i + 1).getTokenValue()).find()) {
+            sentence.get(i).setTokenValue("``");
+            isLeft = false;
+          } else if (!isLeft) {
+            sentence.get(i).setTokenValue("''");
+            isLeft = true;
+          }
+        } else if (singleAsciiQuoteMatcher.find()) {
+          if ((i < sentence.size() - 2) && sentence.get(i + 1).getTokenValue().matches("[A-Za-z]")
+              && sentence.get(i + 2).getTokenValue().matches("[^ \t\n\r\u00A0\u00B6]")) {
+            sentence.get(i).setTokenValue("`");
+          }
+        }
+      }
+    }
   }
 
 }
