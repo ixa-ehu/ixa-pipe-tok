@@ -60,33 +60,6 @@ public class Normalizer {
   public static final String TO_ASCII_SINGLE_QUOTE = "[\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039']";
   public static final Pattern toAsciiSingleQuote = Pattern.compile("TO_ASCII_SINGLE_QUOTE");
   public static final Pattern toAsciiDoubleQuote = Pattern.compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
-  /**
-   * Convert several strings to their unicode counterparts according
-   * to language convention.
-   * @param tokenValue the string to be normalized
-   * @param lang the language
-   * @return the normalized string
-   */
-  public static String convertNonCanonicalStrings(String tokenValue, String lang) {
-    //System.err.println((int)'’');
-    tokenValue = apostrophe.matcher(tokenValue).replaceAll("'");
-    tokenValue = ellipsis.matcher(tokenValue).replaceAll(THREE_DOTS);
-    tokenValue = longDash.matcher(tokenValue).replaceAll("--");
-    if (lang.equalsIgnoreCase("en")) {
-      tokenValue = oneFourth.matcher(tokenValue).replaceAll("1\\\\/4");
-      tokenValue = oneThird.matcher(tokenValue).replaceAll("1\\\\/3");
-      tokenValue = oneHalf.matcher(tokenValue).replaceAll("1\\\\/2");
-      tokenValue = threeQuarters.matcher(tokenValue).replaceAll("3\\\\/4");
-      tokenValue = sterling.matcher(tokenValue).replaceAll("#");
-    }
-    tokenValue = oneFourth.matcher(tokenValue).replaceAll("1/4");
-    tokenValue = oneThird.matcher(tokenValue).replaceAll("1/3");
-    tokenValue = oneHalf.matcher(tokenValue).replaceAll("1/2");
-    tokenValue = twoThirds.matcher(tokenValue).replaceAll("2/3");
-    tokenValue = threeQuarters.matcher(tokenValue).replaceAll("3/4");
-    tokenValue = cents.matcher(tokenValue).replaceAll("cents");
-    return tokenValue;
-  }
   
   public static void convertNonCanonicalStrings(List<Token> sentence, String lang) {
     //System.err.println((int)'’');

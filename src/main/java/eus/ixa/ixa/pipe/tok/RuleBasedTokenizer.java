@@ -170,13 +170,17 @@ private static boolean DEBUG = false;
       String[] curTokens = getTokens(sentence);
       for (int i = 0; i < curTokens.length; i++) {
         curIndex = offsetText.indexOf(curTokens[i], prevIndex);
-        Token curToken = tokenFactory.createToken(curTokens[i], curIndex, curTokens[i].length());
-        if (DEBUG) {
-        System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " prev: "  + prevIndex);
+        //crap rule for corrected URLs
+        if (curIndex == -1) {
+          curIndex = prevIndex + 1;
         }
+        Token curToken = tokenFactory.createToken(curTokens[i], curIndex, curTokens[i].length());
         if (curToken.tokenLength() != 0) {
           tokens.add(curToken);
         }
+        if (DEBUG) {
+          System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " prev: "  + prevIndex);
+          }
         prevIndex = curIndex + curToken.tokenLength();
       }
       result.add(tokens);
@@ -318,6 +322,7 @@ private static boolean DEBUG = false;
    * is done following languages and corpora (Penn TreeBank, Ancora, Tiger, Tutpenn, etc.)
    * conventions.
    * @param tokens the tokens
+   * @param lang the language
    */
   public static void normalizeTokens(List<List<Token>> tokens, String lang) {
     for (List<Token> sentence : tokens) {
