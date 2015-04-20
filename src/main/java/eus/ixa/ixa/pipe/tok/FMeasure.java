@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * Evaluation results are the arithmetic mean of the precision scores calculated
  * for each reference sample and the arithmetic mean of the recall scores
- * calculated for each reference sample. This class is specified for the Tokenizer 
- * evaluation which looks at the {@code Token} value and the index in the list 
- * of {@code Token}s
+ * calculated for each reference sample. This class is specified for the
+ * Tokenizer evaluation which looks at the {@code Token} value and the index in
+ * the list of {@code Token}s
  */
 public final class FMeasure {
 
@@ -80,17 +80,18 @@ public final class FMeasure {
     }
   }
 
-  public void updateScores(List<List<String>> references, List<List<String>> predictions) {
+  public void updateScores(final List<List<String>> references,
+      final List<List<String>> predictions) {
 
     truePositive += countTruePositives(references, predictions);
     selected += predictions.size();
     target += references.size();
   }
 
-  public void mergeInto(FMeasure measure) {
-    this.selected += measure.selected;
-    this.target += measure.target;
-    this.truePositive += measure.truePositive;
+  public void mergeInto(final FMeasure measure) {
+    selected += measure.selected;
+    target += measure.target;
+    truePositive += measure.truePositive;
   }
 
   /**
@@ -116,15 +117,16 @@ public final class FMeasure {
    * 
    * @return number of true positives
    */
-  static int countTruePositives(List<List<String>> references, List<List<String>> predictions) {
+  static int countTruePositives(final List<List<String>> references,
+      final List<List<String>> predictions) {
 
     int truePositives = 0;
 
-    for (List<String> reference : references) {
-      
-      for (List<String> prediction : predictions) {
-        
-        if (Arrays.equals(prediction.toArray(new Object[prediction.size()]), 
+    for (final List<String> reference : references) {
+
+      for (final List<String> prediction : predictions) {
+
+        if (Arrays.equals(prediction.toArray(new Object[prediction.size()]),
             reference.toArray(new Object[reference.size()]))) {
           truePositives++;
         }
@@ -143,7 +145,8 @@ public final class FMeasure {
    * 
    * @return the precision score or NaN if there are no predicted spans
    */
-  public static double precision(List<List<String>> references, List<List<String>> predictions) {
+  public static double precision(final List<List<String>> references,
+      final List<List<String>> predictions) {
 
     if (predictions.size() > 0) {
       return countTruePositives(references, predictions)
@@ -163,7 +166,8 @@ public final class FMeasure {
    * 
    * @return the recall score or NaN if there are no reference spans
    */
-  public static double recall(List<List<String>> references, List<List<String>> predictions) {
+  public static double recall(final List<List<String>> references,
+      final List<List<String>> predictions) {
 
     if (references.size() > 0) {
       return countTruePositives(references, predictions)

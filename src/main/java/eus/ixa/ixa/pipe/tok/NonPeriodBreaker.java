@@ -43,7 +43,10 @@ public class NonPeriodBreaker {
   /**
    * Segment everything not segmented in the SentenceSegmenter.
    */
-  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*" + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)[\\ ]*(" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*"
+      + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)[\\ ]*("
+      + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not split dot after these words if followed by number.
    */
@@ -51,15 +54,21 @@ public class NonPeriodBreaker {
   /**
    * Re-attach segmented dots after non breaker digits.
    */
-  public static Pattern nonBreakerDigits = Pattern.compile("(" + NON_BREAKER_DIGITS + "[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern nonBreakerDigits = Pattern.compile("("
+      + NON_BREAKER_DIGITS + "[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * General acronyms.
    */
-  public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.(\u00A7)[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern acronym = Pattern.compile(
+      "(\\p{Lu})(\\.(\u00A7)[\\ ]*\\p{Lu})+([\\.])",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.
    */
-  public static Pattern numbers = Pattern.compile("(\\p{Digit}+[\\.])[\\ ]*[\u00A7][\\ ]*(\\p{Digit}+)", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern numbers = Pattern.compile(
+      "(\\p{Digit}+[\\.])[\\ ]*[\u00A7][\\ ]*(\\p{Digit}+)",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Any non white space followed by a period.
    */
@@ -67,49 +76,52 @@ public class NonPeriodBreaker {
   /**
    * Starts with a lowercase.
    */
-  public static Pattern startLower = Pattern.compile("^\\p{Lower}+", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startLower = Pattern.compile("^\\p{Lower}+",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Starts with punctuation that is not beginning of sentence marker.
    */
-  public static Pattern startPunct = Pattern.compile("^[\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~]");
+  public static Pattern startPunct = Pattern
+      .compile("^[\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~]");
   /**
    * Starts with a digit.
    */
-  public static Pattern startDigit = Pattern.compile("^\\p{Digit}+", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startDigit = Pattern.compile("^\\p{Digit}+",
+      Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non breaker prefix read from the files in resources.
    */
   private String NON_BREAKER = null;
-  
+
   /**
    * 
-   * This constructor reads some non breaking prefixes files in resources
-   * to create exceptions of segmentation and tokenization.
+   * This constructor reads some non breaking prefixes files in resources to
+   * create exceptions of segmentation and tokenization.
    * 
    * @param properties
    *          the options
    */
-  public NonPeriodBreaker(Properties properties) {
+  public NonPeriodBreaker(final Properties properties) {
     loadNonBreaker(properties);
   }
 
-  private void loadNonBreaker(Properties properties) {
-    String lang = properties.getProperty("language");
+  private void loadNonBreaker(final Properties properties) {
+    final String lang = properties.getProperty("language");
     if (NON_BREAKER == null) {
       createNonBreaker(lang);
     }
   }
 
-  private void createNonBreaker(String lang) {
-    List<String> nonBreakerList = new ArrayList<String>();
-    
-    InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
+  private void createNonBreaker(final String lang) {
+    final List<String> nonBreakerList = new ArrayList<String>();
+
+    final InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
     if (nonBreakerInputStream == null) {
       System.err.println("ERROR: Not nonbreaker file for language " + lang
           + " in src/main/resources!!");
       System.exit(1);
     }
-    BufferedReader breader = new BufferedReader(new InputStreamReader(
+    final BufferedReader breader = new BufferedReader(new InputStreamReader(
         nonBreakerInputStream));
     String line;
     try {
@@ -117,15 +129,15 @@ public class NonPeriodBreaker {
         line = line.trim();
         if (!line.startsWith("#")) {
           nonBreakerList.add(line);
-          }
         }
-    } catch (IOException e) {
+      }
+    } catch (final IOException e) {
       e.printStackTrace();
     }
     NON_BREAKER = StringUtils.createDisjunctRegexFromList(nonBreakerList);
   }
 
-  private final InputStream getNonBreakerInputStream(String lang) {
+  private final InputStream getNonBreakerInputStream(final String lang) {
     InputStream nonBreakerInputStream = null;
     if (lang.equalsIgnoreCase("de")) {
       nonBreakerInputStream = getClass().getResourceAsStream(
@@ -164,34 +176,38 @@ public class NonPeriodBreaker {
    * @return segmented text (with newlines included)
    */
   public String SegmenterNonBreaker(String line) {
-   
-    //split everything not segmented in the SentenceSegmenter
+
+    // split everything not segmented in the SentenceSegmenter
     line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");
-   
-    //re-attached dots followed by numbers
+
+    // re-attached dots followed by numbers
     line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
-    //re-attached segmented dots preceded by a word in the non breaker list
-    Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
+    // re-attached segmented dots preceded by a word in the non breaker list
+    final Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER
+        + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
     line = nonBreaker.matcher(line).replaceAll(" $1 ");
-    //acronyms
+    // acronyms
     line = deSegmentAcronyms(line);
-    //de-segment 11.1. numbers
+    // de-segment 11.1. numbers
     line = numbers.matcher(line).replaceAll("$1$2");
-    //split any remaining section mark
+    // split any remaining section mark
     line = section.matcher(line).replaceAll("\n");
     return line;
   }
-  
+
   /**
    * Removes wrongly introduce SECTION marks in acronyms.
-   * @param line the text
+   * 
+   * @param line
+   *          the text
    * @return the segmented text
    */
   public static String deSegmentAcronyms(String line) {
-    Matcher linkMatcher = acronym.matcher(line);
-    StringBuffer sb = new StringBuffer();
+    final Matcher linkMatcher = acronym.matcher(line);
+    final StringBuffer sb = new StringBuffer();
     while (linkMatcher.find()) {
-      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll(SECTION, " "));
+      linkMatcher.appendReplacement(sb,
+          linkMatcher.group().replaceAll(SECTION, " "));
     }
     linkMatcher.appendTail(sb);
     line = sb.toString();
@@ -210,24 +226,32 @@ public class NonPeriodBreaker {
     // these are fine because they do not affect offsets
     line = line.trim();
     line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     String tokenizedText = "";
     int i;
-    String[] words = line.split(" ");
-    
+    final String[] words = line.split(" ");
+
     for (i = 0; i < words.length; i++) {
-      Matcher wordDotMatcher = wordDot.matcher(words[i]);
-      
+      final Matcher wordDotMatcher = wordDot.matcher(words[i]);
+
       // find anything non-whitespace finishing with a period
       if (wordDotMatcher.find()) {
-        String prefix = wordDotMatcher.replaceAll("$1");
-        
-        if ((prefix.contains(".") && prefix.matches("\\p{Alpha}+"))
-            || (prefix.matches("(" + NON_BREAKER + ")"))
-            || (i < (words.length - 1) && (startLower.matcher(words[i + 1]).find() || startPunct.matcher(words[i + 1]).find()))) {
-          // do not tokenize if (word contains a period and is alphabetic) OR word is a non breaker OR (word is a non breaker and next is (lowercase or starts with punctuation that is end of sentence marker))
-        } else if (prefix.matches(NON_BREAKER_DIGITS) && (i < (words.length - 1) && startDigit.matcher(words[i + 1]).find())) {
-          // do not tokenize if word is a nonbreaker digit AND next word starts with a digit 
+        final String prefix = wordDotMatcher.replaceAll("$1");
+
+        if (prefix.contains(".")
+            && prefix.matches("\\p{Alpha}+")
+            || prefix.matches("(" + NON_BREAKER + ")")
+            || i < words.length - 1
+            && (startLower.matcher(words[i + 1]).find() || startPunct.matcher(
+                words[i + 1]).find())) {
+          // do not tokenize if (word contains a period and is alphabetic) OR
+          // word is a non breaker OR (word is a non breaker and next is
+          // (lowercase or starts with punctuation that is end of sentence
+          // marker))
+        } else if (prefix.matches(NON_BREAKER_DIGITS) && i < words.length - 1
+            && startDigit.matcher(words[i + 1]).find()) {
+          // do not tokenize if word is a nonbreaker digit AND next word starts
+          // with a digit
         } else {
           words[i] = prefix + " .";
         }

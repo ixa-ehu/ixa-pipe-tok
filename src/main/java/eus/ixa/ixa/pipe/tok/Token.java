@@ -15,11 +15,10 @@
  */
 package eus.ixa.ixa.pipe.tok;
 
-
 /**
- * A <code>Token</code> object contains a single String, a startOffset and 
- * the length of the String. These attributes are set or returned
- * in response to requests.
+ * A <code>Token</code> object contains a single String, a startOffset and the
+ * length of the String. These attributes are set or returned in response to
+ * requests.
  * 
  * @author ragerri
  * @version 2013-11-25
@@ -39,15 +38,15 @@ public class Token {
    * Length of the word in the original input string
    */
   private int tokenLength = -1;
-  
+
   /**
    * Create a new token with a null content.
    */
   public Token() {
   }
 
-  public Token(String str) {
-    this.token = str;
+  public Token(final String str) {
+    token = str;
   }
 
   /**
@@ -60,8 +59,8 @@ public class Token {
    * @param tokenLength
    *          End offset in original text
    */
-  public Token(String str, int startOffset, int tokenLength) {
-    this.token = str;
+  public Token(final String str, final int startOffset, final int tokenLength) {
+    token = str;
     setStartOffset(startOffset);
     setTokenLength(tokenLength);
   }
@@ -93,13 +92,12 @@ public class Token {
     return tokenLength;
   }
 
-  public void setStartOffset(int beginPosition) {
-    this.startOffset = beginPosition;
+  public void setStartOffset(final int beginPosition) {
+    startOffset = beginPosition;
   }
 
-  public void setTokenLength(int tokLength) {
-    this.tokenLength = tokLength;
+  public void setTokenLength(final int tokLength) {
+    tokenLength = tokLength;
   }
 
 }
-

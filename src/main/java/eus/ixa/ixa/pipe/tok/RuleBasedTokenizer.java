@@ -25,162 +25,191 @@ import java.util.regex.Pattern;
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 /**
- * This class provides a multilingual rule based tokenizer. It also
- * provides normalization based on several corpora conventions such as
- * Penn Treebank and Ancora.
+ * This class provides a multilingual rule based tokenizer. It also provides
+ * normalization based on several corpora conventions such as Penn Treebank and
+ * Ancora.
  * 
  * @author ragerri
  * @version 2015-04-14
- *
+ * 
  */
 public class RuleBasedTokenizer implements Tokenizer {
 
-public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
- /**
- * Non printable control characters.
- */
-public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
- /**
- * Tokenize everything but these characters.
- */
-public static Pattern specials = Pattern.compile("([^\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])", Pattern.UNICODE_CHARACTER_CLASS);
- /**
- * Question and exclamation marks (do not separate if multiple).
- */
-public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
- /**
- * Dashes or slashes preceded or followed by space.
- */
-public static Pattern spaceDashSpace = Pattern.compile("( +[\u2014\u8212–\\-/]+|[\u2014\u8212–\\-/] +)");
- /**
- * Multidots.
- */
-public static Pattern multiDots = Pattern.compile("\\.([\\.]+)");
- /**
- * Multi dot pattern and extra dot.
- */
-public static Pattern dotmultiDot = Pattern.compile("DOTMULTI\\.");
- /**
- * Dot multi pattern followed by anything.
- */
-public static Pattern dotmultiDotAny = Pattern.compile("DOTMULTI\\.([^\\.])");
- /**
- * No digit comma.
- */
-public static Pattern noDigitComma = Pattern.compile("([^\\p{Digit}])(,)", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Comma and no digit.
- */
-public static Pattern commaNoDigit= Pattern.compile("(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
- /**
- * Digit comma and non digit.
- */
-public static Pattern digitCommaNoDigit = Pattern.compile("([\\p{Digit}])(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
- /**
- * Non digit comma and digit.
- */
-public static Pattern noDigitCommaDigit = Pattern.compile("([^\\p{Digit}])(,)(\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Top level domains for stopping the wrongLink pattern below.
- */
-public static final String TLP = "\\.asp|\\.at|\\.au|\\.az|\\.be|\\.biz|\\.cat|\\.ch|\\.com|\\.cym|\\.cz|\\.de|\\.dk|\\.edu|\\.es|\\.eu|\\.eus|\\.fr|\\.gal|\\.gov|\\.hk|\\.hu|\\.ie|\\.il|\\.info|\\.htm|\\.html|\\.it|\\.jp|\\.pl|\\.pt|\\.net|\\.nl|\\.org|\\.ru|\\.se|\\.sg|\\.sv|\\.uk|\\.zw";
-/**
- * Detect wrongly tokenized links.
- */
-public static Pattern wrongLink = Pattern.compile("((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;-]+(" + TLP +"))", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Re-tokenize beginning of link.
- */
-public static Pattern beginLink = Pattern.compile("(http|ftp)(\\s:\\s)(/\\s*/\\s*)");
-/**
- * No alphabetic apostrophe and no alphabetic.
- */
-public static Pattern noAlphaAposNoAlpha = Pattern
-    .compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Non alpha, digit, apostrophe and alpha.
- */
-public static Pattern noAlphaDigitAposAlpha = Pattern
-    .compile("([^\\p{Alpha}\\d])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Alphabetic apostrophe and non alpha.
- */
-public static Pattern alphaAposNonAlpha = Pattern
-    .compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Alphabetic apostrophe and alphabetic. Mostly for romance languages separation.
- */
-public static Pattern AlphaAposAlpha = Pattern
-    .compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Split English apostrophes. 
- */
-public static Pattern englishApos = Pattern.compile("(\\p{Alpha})(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([msdMSD]|re|ve|ll)", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Digit apostrophe and s (for 1990's).
- */
-public static Pattern yearApos = Pattern.compile("([\\p{Digit}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])", Pattern.UNICODE_CHARACTER_CLASS);
-/**
- * Tokenize apostrophes ocurring at the end of the string.
- */
-public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
-/**
- * De-tokenize paragraph marks.
- */
-public static Pattern detokenParagraphs =  Pattern.compile("(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
+  /**
+   * Non printable control characters.
+   */
+  public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
+  /**
+   * Tokenize everything but these characters.
+   */
+  public static Pattern specials = Pattern
+      .compile(
+          "([^\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])",
+          Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Question and exclamation marks (do not separate if multiple).
+   */
+  public static Pattern qexc = Pattern.compile("([\\¿\\?\\¡\\!]+)");
+  /**
+   * Dashes or slashes preceded or followed by space.
+   */
+  public static Pattern spaceDashSpace = Pattern
+      .compile("( +[\u2014\u8212–\\-/]+|[\u2014\u8212–\\-/] +)");
+  /**
+   * Multidots.
+   */
+  public static Pattern multiDots = Pattern.compile("\\.([\\.]+)");
+  /**
+   * Multi dot pattern and extra dot.
+   */
+  public static Pattern dotmultiDot = Pattern.compile("DOTMULTI\\.");
+  /**
+   * Dot multi pattern followed by anything.
+   */
+  public static Pattern dotmultiDotAny = Pattern.compile("DOTMULTI\\.([^\\.])");
+  /**
+   * No digit comma.
+   */
+  public static Pattern noDigitComma = Pattern.compile("([^\\p{Digit}])(,)",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Comma and no digit.
+   */
+  public static Pattern commaNoDigit = Pattern.compile("(,)([^\\p{Digit}])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Digit comma and non digit.
+   */
+  public static Pattern digitCommaNoDigit = Pattern.compile(
+      "([\\p{Digit}])(,)([^\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Non digit comma and digit.
+   */
+  public static Pattern noDigitCommaDigit = Pattern.compile(
+      "([^\\p{Digit}])(,)(\\p{Digit})", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Top level domains for stopping the wrongLink pattern below.
+   */
+  public static final String TLD = "\\.asp|\\.at|\\.au|\\.az|\\.be|\\.biz|\\.cat|\\.ch|\\.com|\\.cym|\\.cz|\\.de|\\.dk|\\.edu|\\.es|\\.eu|\\.eus|\\.fr|\\.gal|\\.gov|\\.hk|\\.hu|\\.ie|\\.il|\\.info|\\.htm|\\.html|\\.it|\\.jp|\\.pl|\\.pt|\\.net|\\.nl|\\.org|\\.ru|\\.se|\\.sg|\\.sv|\\.uk|\\.zw";
+  /**
+   * Detect wrongly tokenized links.
+   */
+  public static Pattern wrongLink = Pattern.compile(
+      "((http|ftp)\\s:\\s//\\s*[\\s\\p{Alpha}\\p{Digit}+&@#/%?=~_|!:,.;-]+("
+          + TLD + "))", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Re-tokenize beginning of link.
+   */
+  public static Pattern beginLink = Pattern
+      .compile("(http|ftp)(\\s:\\s)(/\\s*/\\s*)");
+  /**
+   * No alphabetic apostrophe and no alphabetic.
+   */
+  public static Pattern noAlphaAposNoAlpha = Pattern.compile("([^\\p{Alpha}])("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Non alpha, digit, apostrophe and alpha.
+   */
+  public static Pattern noAlphaDigitAposAlpha = Pattern.compile(
+      "([^\\p{Alpha}\\d])(" + Normalizer.TO_ASCII_SINGLE_QUOTE
+          + ")(\\p{Alpha})", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Alphabetic apostrophe and non alpha.
+   */
+  public static Pattern alphaAposNonAlpha = Pattern.compile("(\\p{Alpha})("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([^\\p{Alpha}])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Alphabetic apostrophe and alphabetic. Mostly for romance languages
+   * separation.
+   */
+  public static Pattern AlphaAposAlpha = Pattern.compile("(\\p{Alpha})("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Split English apostrophes.
+   */
+  public static Pattern englishApos = Pattern.compile("(\\p{Alpha})("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([msdMSD]|re|ve|ll)",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Digit apostrophe and s (for 1990's).
+   */
+  public static Pattern yearApos = Pattern.compile("([\\p{Digit}])("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Tokenize apostrophes ocurring at the end of the string.
+   */
+  public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])("
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
+  /**
+   * De-tokenize paragraph marks.
+   */
+  public static Pattern detokenParagraphs = Pattern.compile(
+      "(\u00B6)[\\ ]*(\u00B6)", Pattern.UNICODE_CHARACTER_CLASS);
 
-private static boolean DEBUG = false;
+  private static boolean DEBUG = false;
 
-  private TokenFactory tokenFactory;
-  private NonPeriodBreaker nonBreaker;
-  private String lang;
-  private String originalText;
+  private final TokenFactory tokenFactory;
+  private final NonPeriodBreaker nonBreaker;
+  private final String lang;
+  private final String originalText;
 
   /**
    * Construct a rule based tokenizer.
-   * @param text the text used for offset calculation
-   * @param properties the options
+   * 
+   * @param text
+   *          the text used for offset calculation
+   * @param properties
+   *          the options
    */
-  public RuleBasedTokenizer(String text, Properties properties) {
-    this.lang = properties.getProperty("language");
+  public RuleBasedTokenizer(final String text, final Properties properties) {
+    lang = properties.getProperty("language");
     nonBreaker = new NonPeriodBreaker(properties);
     tokenFactory = new TokenFactory();
-    //TODO improve this
-    originalText = RuleBasedSegmenter.buildText(text);    
+    // TODO improve this
+    originalText = RuleBasedSegmenter.buildText(text);
   }
-  
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see eus.ixa.ixa.pipe.tok.Tokenizer#tokenize(java.lang.String[])
    */
-  public List<List<Token>> tokenize(String[] sentences) {
+  @Override
+  public List<List<Token>> tokenize(final String[] sentences) {
     final long start = System.nanoTime();
     int noTokens = 0;
     int prevIndex = 0;
     int curIndex = 0;
-    String language = lang;
-    List<List<Token>> result = new ArrayList<List<Token>>();
-    //TODO improve this
-    String offsetText = originalText;
-    for (String sentence : sentences) {
+    final String language = lang;
+    final List<List<Token>> result = new ArrayList<List<Token>>();
+    // TODO improve this
+    final String offsetText = originalText;
+    for (final String sentence : sentences) {
       if (DEBUG) {
         System.err.println("-> Segmented:" + sentence);
       }
-      List<Token> tokens = new ArrayList<Token>();
-      String[] curTokens = getTokens(sentence);
-      for (int i = 0; i < curTokens.length; i++) {
-        curIndex = offsetText.indexOf(curTokens[i], prevIndex);
-        //crap rule for corrected URLs
+      final List<Token> tokens = new ArrayList<Token>();
+      final String[] curTokens = getTokens(sentence);
+      for (final String curToken2 : curTokens) {
+        curIndex = offsetText.indexOf(curToken2, prevIndex);
+        // crap rule for corrected URLs
         if (curIndex == -1) {
           curIndex = prevIndex + 1;
         }
-        Token curToken = tokenFactory.createToken(curTokens[i], curIndex, curTokens[i].length());
+        final Token curToken = tokenFactory.createToken(curToken2, curIndex,
+            curToken2.length());
         if (curToken.tokenLength() != 0) {
           tokens.add(curToken);
         }
         if (DEBUG) {
-          System.err.println("-> Token:" + curTokens[i] + " curIndex: " + curIndex + " prev: "  + prevIndex);
-          }
+          System.err.println("-> Token:" + curToken2 + " curIndex: " + curIndex
+              + " prev: " + prevIndex);
+        }
         prevIndex = curIndex + curToken.tokenLength();
       }
       result.add(tokens);
@@ -188,19 +217,23 @@ private static boolean DEBUG = false;
     }
     normalizeTokens(result, language);
     final long duration = System.nanoTime() - start;
-    final double toksPerSecond = (double) noTokens / ((double) duration / 1000000000.0);
-    System.err.printf("ixa-pipe-tok tokenized %d tokens at %.2f tokens per second.%n", noTokens, toksPerSecond);
+    final double toksPerSecond = noTokens / (duration / 1000000000.0);
+    System.err.printf(
+        "ixa-pipe-tok tokenized %d tokens at %.2f tokens per second.%n",
+        noTokens, toksPerSecond);
     return result;
   }
-  
+
   /**
    * Actual tokenization function.
-   * @param line the sentence to be tokenized
+   * 
+   * @param line
+   *          the sentence to be tokenized
    * @return an array containing the tokens for the sentence
    */
   private String[] getTokens(String line) {
 
-    //these are fine because they do not affect offsets
+    // these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     // remove ASCII stuff
@@ -230,22 +263,22 @@ private static boolean DEBUG = false;
     // restore multidots
     line = restoreMultidots(line);
     // urls
-    //TODO normalize URLs after tokenization for offsets
+    // TODO normalize URLs after tokenization for offsets
     line = detokenizeURLs(line);
     line = beginLink.matcher(line).replaceAll("$1://");
-    
-    //these are fine because they do not affect offsets
+
+    // these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     line = detokenParagraphs.matcher(line).replaceAll("$1$2");
-    
+
     if (DEBUG) {
       System.out.println("->Tokens:" + line);
     }
-    String[] tokens = line.split(" ");
+    final String[] tokens = line.split(" ");
     return tokens;
   }
-  
+
   /**
    * This function normalizes multi-period expressions (...) to make
    * tokenization easier.
@@ -256,7 +289,7 @@ private static boolean DEBUG = false;
   private String generateMultidots(String line) {
 
     line = multiDots.matcher(line).replaceAll(" DOTMULTI$1 ");
-    Matcher dotMultiDot = dotmultiDot.matcher(line);
+    final Matcher dotMultiDot = dotmultiDot.matcher(line);
 
     while (dotMultiDot.find()) {
       line = dotmultiDotAny.matcher(line).replaceAll("DOTDOTMULTI $1");
@@ -271,7 +304,8 @@ private static boolean DEBUG = false;
    * Restores the normalized multidots to its original state and it tokenizes
    * them.
    * 
-   * @param line the line
+   * @param line
+   *          the line
    * @return the tokenized multidots
    */
   private String restoreMultidots(String line) {
@@ -285,47 +319,56 @@ private static boolean DEBUG = false;
 
   /**
    * Separate apostrophes.
-   * @param line the sentence
+   * 
+   * @param line
+   *          the sentence
    * @return the tokenized paragraphs
    */
   private String treatContractions(String line) {
-    
-      line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
-      line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
-      line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");
-      line = englishApos.matcher(line).replaceAll("$1 $2$3");
-      line = yearApos.matcher(line).replaceAll("$1 $2$3");
-      // romance tokenization of apostrophes c' l'
-      line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
-      line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
+
+    line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
+    line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
+    line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");
+    line = englishApos.matcher(line).replaceAll("$1 $2$3");
+    line = yearApos.matcher(line).replaceAll("$1 $2$3");
+    // romance tokenization of apostrophes c' l'
+    line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
+    line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
     return line;
   }
 
   /**
    * De-tokenize wrongly tokenized URLs.
-   * @param line the sentence
+   * 
+   * @param line
+   *          the sentence
    * @return the sentence containing the correct URL
    */
   private String detokenizeURLs(String line) {
-    Matcher linkMatcher = wrongLink.matcher(line);
-    StringBuffer sb = new StringBuffer();
+    final Matcher linkMatcher = wrongLink.matcher(line);
+    final StringBuffer sb = new StringBuffer();
     while (linkMatcher.find()) {
-      linkMatcher.appendReplacement(sb, linkMatcher.group().replaceAll("\\s", ""));
+      linkMatcher.appendReplacement(sb,
+          linkMatcher.group().replaceAll("\\s", ""));
     }
     linkMatcher.appendTail(sb);
     line = sb.toString();
     return line;
   }
-  
+
   /**
-   * Set as value of the token its normalized counterpart. Normalization
-   * is done following languages and corpora (Penn TreeBank, Ancora, Tiger, Tutpenn, etc.)
-   * conventions.
-   * @param tokens the tokens
-   * @param lang the language
+   * Set as value of the token its normalized counterpart. Normalization is done
+   * following languages and corpora (Penn TreeBank, Ancora, Tiger, Tutpenn,
+   * etc.) conventions.
+   * 
+   * @param tokens
+   *          the tokens
+   * @param lang
+   *          the language
    */
-  public static void normalizeTokens(List<List<Token>> tokens, String lang) {
-    for (List<Token> sentence : tokens) {
+  public static void normalizeTokens(final List<List<Token>> tokens,
+      final String lang) {
+    for (final List<Token> sentence : tokens) {
       Normalizer.convertNonCanonicalStrings(sentence, lang);
       Normalizer.normalizeQuotes(sentence, lang);
       Normalizer.normalizeDoubleQuotes(sentence, lang);

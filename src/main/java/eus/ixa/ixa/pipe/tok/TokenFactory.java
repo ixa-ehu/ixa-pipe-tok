@@ -16,7 +16,6 @@
 
 package eus.ixa.ixa.pipe.tok;
 
-
 public class TokenFactory {
 
   final boolean addOffsets;
@@ -36,24 +35,27 @@ public class TokenFactory {
    * @param addOffsets
    *          if true, offSet annotations will be included (this is the default)
    */
-  public TokenFactory(boolean addOffsets) {
+  public TokenFactory(final boolean addOffsets) {
     this.addOffsets = addOffsets;
   }
 
-  
   /**
    * Constructs a Token as a String with corresponding offsets and length from
    * which to calculate start and end position of the Token. (Does not take
    * substring).
    * 
-   * @param tokenString string to be added to a Token object
-   * @param offset the starting offset of the Token
-   * @param length of the string
+   * @param tokenString
+   *          string to be added to a Token object
+   * @param offset
+   *          the starting offset of the Token
+   * @param length
+   *          of the string
    * @return a new Token object
    * 
    */
-  public Token createToken(String tokenString, int offset, int length) {
-    Token token = new Token();
+  public Token createToken(final String tokenString, final int offset,
+      final int length) {
+    final Token token = new Token();
     token.setTokenValue(tokenString);
     if (addOffsets) {
       token.setStartOffset(offset);
@@ -63,4 +65,3 @@ public class TokenFactory {
   }
 
 }
-
