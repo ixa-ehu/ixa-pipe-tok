@@ -55,7 +55,7 @@ public class RuleBasedTokenizer implements Tokenizer {
    * Dashes or slashes preceded or followed by space.
    */
   public static Pattern spaceDashSpace = Pattern
-      .compile("( +[\u2014\u8212–\\-/]+|[\u2014\u8212–\\-/] +)");
+      .compile("([\\ ]+[\u2014\u8212–\\-/]+|[\u2014\u8212–\\-/]+[\\ ]+)");
   /**
    * Multidots.
    */
@@ -103,6 +103,8 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   public static Pattern beginLink = Pattern
       .compile("(http|ftp)(\\s:\\s)(/\\s*/\\s*)");
+  
+  public static Pattern endLink = Pattern.compile("(" + TLD + ")\\s+(/)");
   /**
    * No alphabetic apostrophe and no alphabetic.
    */
@@ -266,6 +268,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     // TODO normalize URLs after tokenization for offsets
     line = detokenizeURLs(line);
     line = beginLink.matcher(line).replaceAll("$1://");
+    line = endLink.matcher(line).replaceAll("$1$2");
 
     // these are fine because they do not affect offsets
     line = line.trim();
