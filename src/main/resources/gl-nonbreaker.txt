@@ -115,6 +115,15 @@ s
 s.s.s
 vid
 vol
+máx
+mín
+Mgfca
+Mgfco
+núm
+páx
+pral
+Prof
+tfno
 
 # freeling
 
@@ -460,3 +469,24 @@ Vt
 [W]ash
 Wisc
 Wyo
+#dates
+Xan
+Feb
+Mar
+Abr
+Mai
+Xuñ
+Xul
+Ago
+Set
+Out
+Nov
+Dec
+Lun
+Ma
+Mér
+Xov
+Ven
+Sáb
+Dom
+

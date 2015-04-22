@@ -50,7 +50,7 @@ public class NonPeriodBreaker {
   /**
    * Do not split dot after these words if followed by number.
    */
-  public static String NON_BREAKER_DIGITS = "(al|[Aa]rt|[Nn]o|[Nn]r|p|pp|[Pp]ág)";
+  public static String NON_BREAKER_DIGITS = "(al|[Aa]rt|ca|figs?|[Nn]os?|[Nn]rs?|op|p|pp|[Pp]ág)";
   /**
    * Re-attach segmented dots after non breaker digits.
    */

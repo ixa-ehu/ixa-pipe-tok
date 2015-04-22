@@ -29,13 +29,16 @@ X
 Y
 Z
 
-#List of titles. These are often followed by upper-case names, but do not indicate sentence breaks
+#These are often followed by upper-case names, but do not indicate sentence breaks
 Adj
 Adm
 Adv
 Asst
+Assn
+Assoc
 Bart
 Bldg
+Blvd
 Brig
 Bros
 Capt
@@ -45,17 +48,27 @@ Comdr
 Con
 Corp
 Cpl
+Dep
+Dept
 DR
 Dr
 Drs
 Ens
+Esq
+ext
+Fac
 Gen
 Gov
 Hon
 Hr
 Hosp
+Inc
 Insp
+Intl
+Jr
 Lt
+Lieut
+Ltd
 MM
 MR
 MRS
@@ -71,9 +84,11 @@ Msgr
 Op
 Ord
 Pfc
+Plc
 Ph
 Prof
 Pvt
+Rd
 Rep
 Reps
 Res
@@ -83,10 +98,14 @@ Sen
 Sens
 Sfc
 Sgt
+Sys
 Sr
 St
+sq
 Supt
 Surg
+tel
+Univ
 
 # freeling
 
@@ -548,3 +567,57 @@ e.g
 Nos
 Nr
 
+# dates
+Jan
+Feb
+Mar
+Apr
+Jun
+Jul
+Aug
+Sept
+Oct
+Nov
+Dec
+Mon
+Tue
+Wed
+Thur
+Fri
+Sat
+#states
+Ala
+Ariz
+[A]rk
+Calif
+Colo
+Conn
+Dak
+Del
+Fla
+Ga
+[I]ll
+Ind
+Kans?
+Ky
+La
+[M]ass
+Md
+Mich
+Minn
+[M]iss
+Mo
+Mont
+Neb
+Nev
+Okla
+[O]re
+Pa
+Penn
+Tenn
+Tex
+Va
+Vt
+[W]ash
+Wisc
+Wyo
