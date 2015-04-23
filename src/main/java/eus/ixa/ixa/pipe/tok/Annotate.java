@@ -57,14 +57,6 @@ public class Annotate {
    * The sentence splitter.
    */
   private final RuleBasedSegmenter segmenter;
-  /**
-   * Sentence counter.
-   */
-  int noSents = 0;
-  /**
-   * Paragraph counter.
-   */
-  int noParas = 1;
 
   public Annotate(final BufferedReader breader, final Properties properties) {
     final String text = StringUtils.readText(breader);
@@ -73,6 +65,9 @@ public class Annotate {
   }
 
   public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
+    
+    int noSents = 0;
+    int  noParas = 1;
 
     final String[] sentences = segmenter.segmentSentence();
     final List<List<Token>> tokens = toker.tokenize(sentences);
@@ -103,7 +98,11 @@ public class Annotate {
     final List<List<Token>> tokens = toker.tokenize(sentences);
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
-        sb.append(token.getTokenValue().trim()).append("\n");
+        String tokenValue = token.getTokenValue();
+        if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
+          tokenValue = "*<P>*";
+        }
+        sb.append(tokenValue.trim()).append("\n");
       }
       sb.append("\n");
     }
@@ -124,7 +123,11 @@ public class Annotate {
     final List<List<Token>> tokens = toker.tokenize(sentences);
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
-        sb.append(token.getTokenValue().trim()).append(" ")
+        String tokenValue = token.getTokenValue();
+        if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
+          tokenValue = "*<P>*";
+        }
+        sb.append(tokenValue.trim()).append(" ")
             .append(token.startOffset()).append(" ")
             .append(token.tokenLength()).append("\n");
       }
@@ -146,10 +149,11 @@ public class Annotate {
     final List<List<Token>> tokens = toker.tokenize(sentences);
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
-        if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
-          sb.append(token.getTokenValue()).append("\n");
+        String tokenValue = token.getTokenValue();
+        if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
+          sb.append("*<P>*").append("\n");
         } else {
-          sb.append(token.getTokenValue().trim()).append(" ");
+          sb.append(tokenValue.trim()).append(" ");
         }
       }
       sb.append("\n");
@@ -157,8 +161,10 @@ public class Annotate {
     return sb.toString().trim();
   }
 
-  public void tokensToKAF(final Reader breader, final KAFDocument kaf)
+  public static void tokensToKAF(final Reader breader, final KAFDocument kaf)
       throws IOException {
+    int noSents = 0;
+    int noParas = 1;
     final List<String> sentences = CharStreams.readLines(breader);
     for (final String sentence : sentences) {
       noSents = noSents + 1;
