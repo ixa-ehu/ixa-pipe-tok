@@ -3,7 +3,7 @@ ixa-pipe-tok
 ============
 
 ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter.
-ixa-pipe-tok is part of IXA pipes, a multilingual NLP pipeline developed
+ixa-pipe-tok is part of IXA pipes, a set of multilingual NLP tools developed
 by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
@@ -34,25 +34,23 @@ This module provides Multilingual Sentence Segmentation and Tokenization for a n
 such as Dutch, German, English, French, Galician, Italian and Spanish.
 **ixa-pipe-tok outputs** tokenized and segmented text in **three formats**:
 
-  + **NAF (default)**: KAF is used to represent tokenized text but also to
+  + **NAF (default)**: NAF is used to represent tokenized text but also to
     as an interchange format between other ixa pipes tools
     (http://github.com/ixa-ehu). NAF is generated using Kaflib
     (http://github.com/ixa-ehu/kaflib).
   + **Oneline**: tokenized text with one sentence per line and markers
     (\*\<P\>\*) for paragraphs, if that option is chosen.
   + **Conll**: one token per line, two newlines per sentence and markers for
-    paragraphs (\*\<P\>\*) and offsets.
+    paragraphs (\*\<P\>\*) and offsets, if that option is chosen.
 
-ixa-pipe-tok also provides normalization functions
-to comply with annotation in corpora such as Penn Treebank for English and
-Ancora Corpus for Spanish.
+ixa-pipe-tok also provides normalization functions to comply with annotation in corpora such as Penn Treebank for English and
+Ancora Corpus for Spanish, among others.
   + **multilingual treatment of apostrophes** for Catalan, French and Italian styles
     (l' aquila, c' est, etc.) possibly applying to other languages with the same
     rules for splitting apostrophes.
-  + **multilingual support for non-breaking prefixes**, adding language-specific
-    non-breaking exceptions for Dutch, German, French, Galician, Italian and Spanish.
-  + **Ancora normalization**
-  + **paragraph tokenization** to provide paragraph information
+  + **language-specific non-breaking exceptions** for Dutch, German, English, French, Galician, Italian and Spanish.
+  + **Normalization** following several corpora conventions.
+  + **paragraph tokenization**.
 
 ### Features
 
@@ -94,14 +92,13 @@ via standard input and outputs NAF through standard output. The NAF format speci
 There are several options to tokenize with ixa-pipe-tok:
 
   + **lang**: choose language to create the lang attribute in KAF header
-  + **tokenizer**: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
-  + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
+  + **tokenizer**: choose tokenizer type. Currently only rule-based tokenizer is available.
+  + **normalize**: choose normalization method (see Normalizer class).
   + **nokaf**: do not output NAF format.
   + **outputFormat**: if --nokaf is used, choose between oneline or conll format output.
     + If -o conll is chosen, it is possible to choose whether to print
       offset information (--offsets) or not.
-  + **paragraphs**: do not print paragraph markers, e.g., \*\<P\>\*;
-  + **notok**: take already tokenized text as input and create a KAFDocument
+  + **notok**: take an already tokenized text as input and create a KAFDocument
   + **inputkaf**: take a NAF document as input instead of plain text file.
   + **kafversion**: specify the NAF version as parameter
 
@@ -118,7 +115,7 @@ The eval subcommand provides the following options:
   + **goldSet**: evaluate a tokenizer with respect to a tokenized gold standard. The
     input gold standard format must be *oneline* (tokenized text with one
     sentence per line) format.
-  + **tokenizer**: choose between the IxaPipeTokenizer and WhiteSpaceTokenizer
+  + **tokenizer**: currently only the rule-based tokenizer is available.
   + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
 
 **Example**:
@@ -136,7 +133,7 @@ this dependency to your pom.xml:
 <dependency>
     <groupId>eus.ixa</groupId>
     <artifactId>ixa-pipe-tok</artifactId>
-    <version>2.0.0</version>
+    <version>1.8.0</version>
 </dependency>
 ````
 
@@ -166,9 +163,9 @@ Installing the ixa-pipe-tok requires the following steps:
 If you already have installed in your machine the Java 1.7+ and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-### 1. Install JDK 1.7
+### 1. Install JDK 1.7+
 
-If you do not install JDK 1.7 in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
+If you do not install JDK 1.7+ in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
 ````shell
 export JAVA_HOME=/yourpath/local/java7
@@ -242,7 +239,7 @@ Most importantly, there you will find the module executable:
 ixa-pipe-tok-$version.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
-as you have a JVM 1.7 installed.
+as you have a JVM 1.7 or newer installed.
 
 To install the module in the local maven repository, usually located in ~/.m2/, execute:
 
@@ -257,6 +254,5 @@ Rodrigo Agerri
 IXA NLP Group
 University of the Basque Country (UPV/EHU)
 E-20018 Donostia-San Sebastián
-rodrigo.agerri@ehu.es
+rodrigo.agerri@ehu.eus
 ````
-

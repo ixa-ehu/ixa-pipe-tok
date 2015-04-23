@@ -25,10 +25,11 @@ import java.util.regex.Pattern;
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
 /**
- * This class provides a multilingual rule based tokenizer. It also provides
- * normalization based on several corpora conventions such as Penn Treebank and
- * Ancora.
- * 
+ * This class provides a multilingual rule based tokenizer. The
+ * input of the tokenizer must be a list of already segmented
+ * sentences. Additionally, the tokenizer normalizes according
+ * to language and corpus.
+ *
  * @author ragerri
  * @version 2015-04-14
  * 

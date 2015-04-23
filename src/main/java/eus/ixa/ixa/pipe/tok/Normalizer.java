@@ -22,8 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Normalizer class for converting punctuation mostly following various corpora
- * conventions such as Penn TreeBank and Ancora.
- * 
+ * conventions such as Penn TreeBank, Ancora, Tutpenn, Tiger and CTAG.
  * @author ragerri
  * @version 2015-04-13
  */
@@ -71,6 +70,12 @@ public class Normalizer {
   public static final Pattern toAsciiDoubleQuote = Pattern
       .compile("[\u00AB\u00BB\u0093\u0094\u201C\u201D\u201E\"]");
 
+  /**
+   * Converts non-unicode and other strings into their unicode
+   * counterparts.
+   * @param sentence the list of tokens
+   * @param lang the language
+   */
   public static void convertNonCanonicalStrings(final List<Token> sentence,
       final String lang) {
     // System.err.println((int)'’');
@@ -108,6 +113,11 @@ public class Normalizer {
     }
   }
 
+  /**
+   * Normalizes non-ambiguous quotes according to language and corpus.
+   * @param sentence the list of tokens
+   * @param lang the language
+   */
   public static void normalizeQuotes(final List<Token> sentence,
       final String lang) {
 
@@ -133,6 +143,12 @@ public class Normalizer {
     }
   }
 
+  /**
+   * Normalizes double and ambiguous quotes according to language
+   * and corpus.
+   * @param sentence the list of tokens
+   * @param lang the language
+   */
   public static void normalizeDoubleQuotes(final List<Token> sentence,
       final String lang) {
 

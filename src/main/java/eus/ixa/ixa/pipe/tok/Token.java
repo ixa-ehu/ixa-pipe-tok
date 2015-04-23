@@ -21,8 +21,7 @@ package eus.ixa.ixa.pipe.tok;
  * requests.
  * 
  * @author ragerri
- * @version 2013-11-25
- * 
+ * @version 2015-04-14
  */
 
 public class Token {
@@ -53,7 +52,7 @@ public class Token {
    * Creates a new <code>Token</code> with the given content.
    * 
    * @param str
-   *          The new label's content
+   *          The new token's value
    * @param startOffset
    *          Start offset in original text
    * @param tokenLength
@@ -70,10 +69,10 @@ public class Token {
   }
 
   /**
-   * Set the value for the label.
+   * Set the value for the token.
    * 
    * @param value
-   *          The value for the label
+   *          The value for the token
    */
   public void setTokenValue(final String value) {
     token = value;
@@ -84,18 +83,34 @@ public class Token {
     return token;
   }
 
+  /**
+   * Get the token starting offset.
+   * @return the offset
+   */
   public int startOffset() {
     return startOffset;
   }
 
+  /**
+   * Get the token length.
+   * @return the length
+   */
   public int tokenLength() {
     return tokenLength;
   }
 
+  /**
+   * Set the token offset.
+   * @param beginPosition the startOffset
+   */
   public void setStartOffset(final int beginPosition) {
     startOffset = beginPosition;
   }
 
+  /**
+   * Set the length of the token.
+   * @param tokLength the length
+   */
   public void setTokenLength(final int tokLength) {
     tokenLength = tokLength;
   }

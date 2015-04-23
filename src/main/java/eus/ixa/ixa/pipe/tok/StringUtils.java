@@ -7,14 +7,32 @@ import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 
+/**
+ * Several string utils. The functions of this class
+ * are to be used statically.
+ * @author ragerri
+ * @version 2015-04-14
+ */
 public class StringUtils {
 
+  /**
+   * Pattern to remove double bars from disjunct regex.
+   */
   public static Pattern doubleBar = Pattern.compile("\\|\\|");
 
+  /**
+   * This class is to be used statically.
+   */
   private StringUtils() {
 
   }
 
+  /**
+   * Get an array of Strings and convert it into a string
+   * separated by spaces.
+   * @param tokens the array
+   * @return the string
+   */
   public static String getStringFromTokens(final String[] tokens) {
     final StringBuilder sb = new StringBuilder();
     for (final String tok : tokens) {
@@ -26,6 +44,12 @@ public class StringUtils {
     return sb.toString();
   }
 
+  /**
+   * Get a List of Strings and convert it into a string
+   * separated by spaces.
+   * @param tokens the list of tokens
+   * @return the string
+   */
   public static String getStringFromTokens(final List<Token> tokens) {
     final StringBuilder sb = new StringBuilder();
     for (final Token tok : tokens) {
