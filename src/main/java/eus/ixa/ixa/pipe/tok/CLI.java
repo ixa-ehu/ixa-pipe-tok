@@ -20,7 +20,6 @@ import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,9 +37,6 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
 import org.jdom2.JDOMException;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
 /**
  * ixa-pipe-tok provides several configuration parameters:
@@ -93,16 +89,10 @@ public class CLI {
    * The parser that manages the tagging sub-command.
    */
   private final Subparser annotateParser;
-  /**
-   * The parser that manages the evaluation sub-command.
-   */
-  private final Subparser evalParser;
 
   public CLI() {
     annotateParser = subParsers.addParser("tok").help("Tagging CLI");
     loadAnnotateParameters();
-    evalParser = subParsers.addParser("eval").help("Evaluation CLI");
-    loadEvalParameters();
   }
 
   public static void main(final String[] args) throws IOException,
@@ -129,13 +119,11 @@ public class CLI {
       System.err.println("CLI options: " + parsedArguments);
       if (args[0].equals("tok")) {
         annotate(System.in, System.out);
-      } else if (args[0].equals("eval")) {
-        eval();
       }
     } catch (final ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-tok-" + version
-          + ".jar (tok|eval) -help for details");
+          + ".jar tok -help for details");
       System.exit(1);
     }
   }
@@ -265,51 +253,4 @@ public class CLI {
     return annotateProperties;
   }
 
-  public final void eval() throws IOException {
-    BufferedReader breader = null;
-    final String testset = parsedArguments.getString("goldSet");
-    final String normalize = parsedArguments.getString("normalize");
-    final String tokenizerType = parsedArguments.getString("tokenizer");
-    final String paragraphs = "no";
-    // tokenize standard input text
-    breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-    final Properties properties = setEvalProperties(tokenizerType, normalize,
-        paragraphs);
-    new Annotate(breader, properties);
-    // evaluate wrt to reference set
-    final File reference = new File(testset);
-    Files.toString(reference, Charsets.UTF_8);
-  }
-
-  private Properties setEvalProperties(final String tokenizer,
-      final String normalize, final String paragraphs) {
-    final Properties annotateProperties = new Properties();
-    annotateProperties.setProperty("tokenizer", tokenizer);
-    annotateProperties.setProperty("normalize", normalize);
-    annotateProperties.setProperty("paragraphs", paragraphs);
-    return annotateProperties;
-  }
-
-  private void loadEvalParameters() {
-
-    evalParser.addArgument("-g", "--goldSet").help(
-        "Input reference file to evaluate the tokenizer.\n");
-    evalParser
-        .addArgument("-n", "--normalize")
-        .choices("ancora", "default", "ptb")
-        .required(false)
-        .setDefault("default")
-        .help(
-            "Set normalization method; (s)ptb3 and ancora comply with "
-                + "Penn Treebank and Ancora normalizations respectively; the default option does not escape "
-                + "brackets or forward slashes. See README for more details.\n");
-    evalParser
-        .addArgument("-t", "--tokenizer")
-        .choices("ixa", "white")
-        .required(false)
-        .setDefault("ixa")
-        .help(
-            "Choose between using the IXA pipe tokenizer (default) or a WhiteSpace tokenizer.\n");
-
-  }
 }
