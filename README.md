@@ -4,7 +4,7 @@ ixa-pipe-tok
 
 ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter.
 ixa-pipe-tok is part of IXA pipes, a set of multilingual NLP tools developed
-by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes].
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 1.8.0.**
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
 pipes tools but also for **official releases, including source code and binary
