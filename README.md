@@ -24,7 +24,6 @@ for easy access to its API.
   + [Available features](#features)
 2. [Usage of ixa-pipe-tok](#cli-usage)
   + [Tokenization](#tokenizing)
-  + [Evaluation](#evaluation)
 3. [API via Maven Dependency](#api)
 4. [Git installation](#installation)
 
@@ -64,14 +63,13 @@ ixa-pipe-tok provides 2 basic functionalities:
 
 1. **tok**: reads a plain text or a NAF document containing a *raw* element and outputs
    tokens by sentences.
-2. **eval**: functionalities to help evaluating a tokenized text with a given test set.
 
-Each of these functionalities are accessible by adding (tok|eval) as a
+Each of these functionalities are accessible by adding tok as a
 subcommand to ixa-pipe-tok-$version.jar. Please read below and check the -help
 parameter:
 
 ````shell
-java -jar target/ixa-pipe-tok-$version.jar (tok|eval) -help
+java -jar target/ixa-pipe-tok-$version.jar tok -help
 ````
 
 ### Tokenizing
@@ -106,22 +104,6 @@ There are several options to tokenize with ixa-pipe-tok:
 
 ````shell
 cat file.txt java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
-````
-
-### Evaluation
-
-The eval subcommand provides the following options:
-
-  + **goldSet**: evaluate a tokenizer with respect to a tokenized gold standard. The
-    input gold standard format must be *oneline* (tokenized text with one
-    sentence per line) format.
-  + **tokenizer**: currently only the rule-based tokenizer is available.
-  + **normalize**: choose normalization method (see @link IxaPipeTokenizer)
-
-**Example**:
-
-````shell
-java -jar target/ixa.pipe.tok-$version.jar eval --goldSet gold.tok
 ````
 
 ## API
