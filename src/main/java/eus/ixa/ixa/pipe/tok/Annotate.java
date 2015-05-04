@@ -79,6 +79,7 @@ public class Annotate {
         } else {
           final WF wf = kaf.newWF(token.getTokenValue(), token.startOffset(),
               noSents);
+          wf.setLength(token.tokenLength());
           wf.setPara(noParas);
         }
       }

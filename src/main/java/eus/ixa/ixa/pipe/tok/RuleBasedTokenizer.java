@@ -161,6 +161,7 @@ public class RuleBasedTokenizer implements Tokenizer {
   private final NonPeriodBreaker nonBreaker;
   private final String lang;
   private final String originalText;
+  private boolean unTokenizable;
 
   /**
    * Construct a rule based tokenizer.
@@ -172,6 +173,7 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   public RuleBasedTokenizer(final String text, final Properties properties) {
     lang = properties.getProperty("language");
+    printUntokenizable(properties);
     nonBreaker = new NonPeriodBreaker(properties);
     tokenFactory = new TokenFactory();
     // TODO improve this
@@ -199,18 +201,18 @@ public class RuleBasedTokenizer implements Tokenizer {
       }
       final List<Token> tokens = new ArrayList<Token>();
       final String[] curTokens = getTokens(sentence);
-      for (final String curToken2 : curTokens) {
-        curIndex = offsetText.indexOf(curToken2, prevIndex);
+      for (final String arrayToken : curTokens) {
+        curIndex = offsetText.indexOf(arrayToken, prevIndex);
         // crap rule for corrected URLs
         if (curIndex == -1) {
           curIndex = prevIndex + 1;
         }
-        final Token curToken = tokenFactory.createToken(curToken2, curIndex,
-            curToken2.length());
+        final Token curToken = tokenFactory.createToken(arrayToken, curIndex,
+            arrayToken.length());
         //exceptions to WFs
         addTokens(curToken, tokens);
         if (DEBUG) {
-          System.err.println("-> Token:" + curToken2 + " curIndex: " + curIndex
+          System.err.println("-> Token:" + arrayToken + " curIndex: " + curIndex
               + " prev: " + prevIndex);
         }
         prevIndex = curIndex + curToken.tokenLength();
@@ -360,10 +362,24 @@ public class RuleBasedTokenizer implements Tokenizer {
     return line;
   }
   
-  private static void addTokens(Token curToken, List<Token> tokens) {
+  private void printUntokenizable(Properties properties) {
+    String untokenizable = properties.getProperty("untokenizable");
+    if (untokenizable.equalsIgnoreCase("yes")) {
+      unTokenizable = true;
+    } else {
+      unTokenizable = false;
+    }
+    
+  }
+  
+  private void addTokens(Token curToken, List<Token> tokens) {
     if (curToken.tokenLength() != 0) {
-      if (!replacement.matcher(curToken.getTokenValue()).matches()) {
+      if (unTokenizable) {
         tokens.add(curToken);
+      } else if (!unTokenizable) {
+        if (!replacement.matcher(curToken.getTokenValue()).matches()) {
+         tokens.add(curToken); 
+        }
       }
     }
     

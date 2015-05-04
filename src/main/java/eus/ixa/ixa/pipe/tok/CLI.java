@@ -43,11 +43,9 @@ import org.jdom2.JDOMException;
  * 
  * <ol>
  * <li>lang: choose language to create the lang attribute in KAF header.
- * <li>tokenizer: choose tokenizer type.
  * <li>normalize: choose normalization method.
- * <li>nokaf: do not output NAF document.
- * <li>outputFormat: if --nokaf is used, choose between oneline or conll format
- * output.
+ * <li>outputFormat: choose between oneline, conll or NAF as output.
+ * <li>untokenizable: print untokenizable (\uFFFD) characters.
  * <li>notok: take already tokenized text as input and create a KAFDocument with
  * it.
  * <li>inputkaf: take a NAF Document as input instead of plain text file.
@@ -130,15 +128,14 @@ public class CLI {
 
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException, JDOMException {
-    final String tokenizerType = parsedArguments.getString("tokenizer");
     final String outputFormat = parsedArguments.getString("outputFormat");
     final String normalize = parsedArguments.getString("normalize");
     final String lang = parsedArguments.getString("lang");
+    final String untokenizable = parsedArguments.getString("untokenizable");
     final String kafVersion = parsedArguments.getString("kafversion");
     final Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
     final Boolean noTok = parsedArguments.getBoolean("notok");
-    final Properties properties = setAnnotateProperties(lang, tokenizerType,
-        normalize);
+    final Properties properties = setAnnotateProperties(lang, normalize, untokenizable);
 
     BufferedReader breader = null;
     final BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
@@ -155,6 +152,7 @@ public class CLI {
       Annotate.tokensToKAF(noTokReader, kaf);
       newLp.setEndTimestamp();
       bwriter.write(kaf.toString());
+      noTokReader.close();
     } else {
       if (inputKafRaw) {
         final BufferedReader kafReader = new BufferedReader(
@@ -167,27 +165,24 @@ public class CLI {
       } else {
         kaf = new KAFDocument(lang, kafVersion);
         breader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-      } // tokenize in naf
-      if (parsedArguments.getBoolean("nokaf")) {
+      }
+      final Annotate annotator = new Annotate(breader, properties);
+      if (outputFormat.equalsIgnoreCase("conll")) {
+        if (parsedArguments.getBoolean("offsets")) {
+          bwriter.write(annotator.tokenizeToCoNLL());
+        } else {
+          bwriter.write(annotator.tokenizeToCoNLLOffsets());
+        }
+      } else if (outputFormat.equalsIgnoreCase("oneline")) {
+        bwriter.write(annotator.tokenizeToText());
+      } else {
         final KAFDocument.LinguisticProcessor newLp = kaf
             .addLinguisticProcessor("text", "ixa-pipe-tok-" + lang, version
                 + "-" + commit);
         newLp.setBeginTimestamp();
-        final Annotate annotator = new Annotate(breader, properties);
         annotator.tokenizeToKAF(kaf);
         newLp.setEndTimestamp();
         bwriter.write(kaf.toString());
-      } else {
-        final Annotate annotator = new Annotate(breader, properties);
-        if (outputFormat.equalsIgnoreCase("conll")) {
-          if (parsedArguments.getBoolean("offsets")) {
-            bwriter.write(annotator.tokenizeToCoNLL());
-          } else {
-            bwriter.write(annotator.tokenizeToCoNLLOffsets());
-          }
-        } else {
-          bwriter.write(annotator.tokenizeToText());
-        }
       }
       breader.close();
     }
@@ -202,7 +197,8 @@ public class CLI {
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
-    annotateParser.addArgument("-t", "--tokenizer").choices("rule")
+    annotateParser
+        .addArgument("-t", "--tokenizer").choices("rule")
         .required(false).setDefault("rule")
         .help("Choose the tokenizer type.\n");
     annotateParser
@@ -214,21 +210,24 @@ public class CLI {
         .help(
             "Set normalization method according to corpus; the default option does not escape "
                 + "brackets or forward slashes. See README for more details.\n");
-    annotateParser.addArgument("--nokaf").action(Arguments.storeFalse())
-        .help("Do not print tokens in KAF format, but plain text.\n");
+    annotateParser
+        .addArgument("-u","--untokenizable")
+        .choices("yes","no")
+        .setDefault("no")
+        .required(false)
+        .help("Print untokenizable characters.\n");
     annotateParser
         .addArgument("-o", "--outputFormat")
-        .choices("conll", "oneline")
-        .setDefault("oneline")
+        .choices("conll", "oneline", "naf")
+        .setDefault("naf")
         .required(false)
         .help(
-            "Choose between conll format (one token per line) or running tokenized text.\n");
+            "Choose output format; it defaults to NAF.\n");
     annotateParser
         .addArgument("--offsets")
         .action(Arguments.storeFalse())
         .help(
             "Do not print offset and lenght information of tokens in CoNLL format.\n");
-    // specify whether input if a KAF/NAF file
     annotateParser
         .addArgument("--inputkaf")
         .action(Arguments.storeTrue())
@@ -239,17 +238,17 @@ public class CLI {
         .action(Arguments.storeTrue())
         .help(
             "Build a KAF document from an already tokenized sentence per line file.\n");
-    // specify KAF version
-    annotateParser.addArgument("--kafversion").setDefault("v1.naf")
+    // specify NAF version
+    annotateParser.addArgument("--kafversion")
+         .setDefault("v1.naf")
         .help("Set kaf document version.\n");
   }
 
-  private Properties setAnnotateProperties(final String lang,
-      final String tokenizer, final String normalize) {
+  private Properties setAnnotateProperties(final String lang, final String normalize, final String untokenizable) {
     final Properties annotateProperties = new Properties();
     annotateProperties.setProperty("language", lang);
-    annotateProperties.setProperty("tokenizer", tokenizer);
     annotateProperties.setProperty("normalize", normalize);
+    annotateProperties.setProperty("untokenizable", untokenizable);
     return annotateProperties;
   }
 
