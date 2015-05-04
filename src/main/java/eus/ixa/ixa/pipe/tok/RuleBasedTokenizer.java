@@ -36,6 +36,7 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class RuleBasedTokenizer implements Tokenizer {
 
+  public static Pattern replacement = Pattern.compile("\uFFFD", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
   /**
    * Non printable control characters.
@@ -206,9 +207,8 @@ public class RuleBasedTokenizer implements Tokenizer {
         }
         final Token curToken = tokenFactory.createToken(curToken2, curIndex,
             curToken2.length());
-        if (curToken.tokenLength() != 0) {
-          tokens.add(curToken);
-        }
+        //exceptions to WFs
+        addTokens(curToken, tokens);
         if (DEBUG) {
           System.err.println("-> Token:" + curToken2 + " curIndex: " + curIndex
               + " prev: " + prevIndex);
@@ -358,6 +358,15 @@ public class RuleBasedTokenizer implements Tokenizer {
     linkMatcher.appendTail(sb);
     line = sb.toString();
     return line;
+  }
+  
+  private static void addTokens(Token curToken, List<Token> tokens) {
+    if (curToken.tokenLength() != 0) {
+      if (!replacement.matcher(curToken.getTokenValue()).matches()) {
+        tokens.add(curToken);
+      }
+    }
+    
   }
 
   /**

@@ -73,6 +73,8 @@ public class NonPeriodBreaker {
    * Any non white space followed by a period.
    */
   public static Pattern wordDot = Pattern.compile("^(\\S+)\\.$");
+  
+  public static Pattern alphabetic = Pattern.compile("\\p{Alpha}", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Starts with a lowercase.
    */
@@ -236,24 +238,24 @@ public class NonPeriodBreaker {
 
       // find anything non-whitespace finishing with a period
       if (wordDotMatcher.find()) {
-        final String prefix = wordDotMatcher.replaceAll("$1");
+        final String curWord = wordDotMatcher.replaceAll("$1");
 
-        if (prefix.contains(".")
-            && prefix.matches("\\p{Alpha}+")
-            || prefix.matches("(" + NON_BREAKER + ")")
-            || i < words.length - 1
+        if ((curWord.contains(".")
+            && alphabetic.matcher(curWord).find())
+            || curWord.matches("(" + NON_BREAKER + ")")
+            || (i < words.length - 1
             && (startLower.matcher(words[i + 1]).find() || startPunct.matcher(
-                words[i + 1]).find())) {
+                words[i + 1]).find()))) {
           // do not tokenize if (word contains a period and is alphabetic) OR
           // word is a non breaker OR (word is a non breaker and next is
           // (lowercase or starts with punctuation that is end of sentence
           // marker))
-        } else if (prefix.matches(NON_BREAKER_DIGITS) && i < words.length - 1
+        } else if (curWord.matches(NON_BREAKER_DIGITS) && i < words.length - 1
             && startDigit.matcher(words[i + 1]).find()) {
           // do not tokenize if word is a nonbreaker digit AND next word starts
           // with a digit
         } else {
-          words[i] = prefix + " .";
+          words[i] = curWord + " .";
         }
       }
       sb.append(words[i]).append(" ");
