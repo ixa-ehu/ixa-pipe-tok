@@ -145,7 +145,7 @@ public class RuleBasedTokenizer implements Tokenizer {
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([s])",
       Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * Tokenize apostrophes ocurring at the end of the string.
+   * Tokenize apostrophes occurring at the end of the string.
    */
   public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])("
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
@@ -185,7 +185,6 @@ public class RuleBasedTokenizer implements Tokenizer {
    * 
    * @see eus.ixa.ixa.pipe.tok.Tokenizer#tokenize(java.lang.String[])
    */
-  @Override
   public List<List<Token>> tokenize(final String[] sentences) {
     final long start = System.nanoTime();
     int noTokens = 0;
@@ -362,6 +361,10 @@ public class RuleBasedTokenizer implements Tokenizer {
     return line;
   }
   
+  /**
+   * Process the untokenizable CLI option.
+   * @param properties the configuration properties
+   */
   private void printUntokenizable(Properties properties) {
     String untokenizable = properties.getProperty("untokenizable");
     if (untokenizable.equalsIgnoreCase("yes")) {
@@ -369,9 +372,13 @@ public class RuleBasedTokenizer implements Tokenizer {
     } else {
       unTokenizable = false;
     }
-    
   }
   
+  /**
+   * Add tokens if certain conditions are met.
+   * @param curToken the token to be added
+   * @param tokens the list of tokens
+   */
   private void addTokens(Token curToken, List<Token> tokens) {
     if (curToken.tokenLength() != 0) {
       if (unTokenizable) {
@@ -382,7 +389,6 @@ public class RuleBasedTokenizer implements Tokenizer {
         }
       }
     }
-    
   }
 
   /**

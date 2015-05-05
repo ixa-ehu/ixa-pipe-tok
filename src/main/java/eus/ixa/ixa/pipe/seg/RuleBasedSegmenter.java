@@ -160,7 +160,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * 
    * @see eus.ixa.ixa.pipe.seg.SentenceSegmenter#segmentSentence()
    */
-  @Override
   public String[] segmentSentence() {
     if (DEBUG) {
       System.err.println("->Build:" + text);

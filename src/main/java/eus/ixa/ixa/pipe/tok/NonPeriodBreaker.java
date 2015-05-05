@@ -73,7 +73,9 @@ public class NonPeriodBreaker {
    * Any non white space followed by a period.
    */
   public static Pattern wordDot = Pattern.compile("^(\\S+)\\.$");
-  
+  /**
+   * Any alphabetic character.
+   */
   public static Pattern alphabetic = Pattern.compile("\\p{Alpha}", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Starts with a lowercase.
