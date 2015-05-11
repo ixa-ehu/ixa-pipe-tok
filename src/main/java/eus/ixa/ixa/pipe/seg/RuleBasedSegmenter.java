@@ -54,7 +54,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Initial punctuation in unicode.
    */
-  public static String INITIAL_PUNCT = "[\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
+  public static String INITIAL_PUNCT = "[\u0023\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
   /**
    * Final punctuation in unicode.
    */

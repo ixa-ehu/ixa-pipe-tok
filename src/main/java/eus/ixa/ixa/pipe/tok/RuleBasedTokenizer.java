@@ -57,7 +57,7 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   public static Pattern specials = Pattern
       .compile(
-          "([^\u0023\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])",
+          "([^\u0040\u0023\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])",
           Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Question and exclamation marks (do not separate if multiple).
