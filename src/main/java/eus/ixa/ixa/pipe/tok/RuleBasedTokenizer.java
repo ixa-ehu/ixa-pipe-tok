@@ -36,18 +36,28 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class RuleBasedTokenizer implements Tokenizer {
 
+  /**
+   * Unicode replacement character.
+   */
   public static Pattern replacement = Pattern.compile("\uFFFD", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
   /**
    * Non printable control characters.
    */
-  public static Pattern asciiHex = Pattern.compile("[\\x00-\\x19]");
+  public static Pattern asciiHex = Pattern.compile("[\u0000-\u0020\u007F-\u00A0]", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * Non printable punctuation characters.
+   */
+  public static Pattern generalBlankPunctuation = Pattern.compile("[\u2000-\u200F\u2028-\u202F\u205F-\u206F]", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * One or more spaces.
+   */
+  public static Pattern doubleSpaces = Pattern.compile("[\\  ]+");
   /**
    * Tokenize everything but these characters.
    */
   public static Pattern specials = Pattern
       .compile(
-          "([^\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])",
+          "([^\u0023\\p{Alnum}\\p{Space}\\.\u2014\u8212–\\-\\¿\\?\\¡\\!'`,/\u0027\u0091\u0092\u2019\u201A\u201B\u203A\u2018\u2039])",
           Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Question and exclamation marks (do not separate if multiple).
@@ -240,8 +250,6 @@ public class RuleBasedTokenizer implements Tokenizer {
     // these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
-    // remove ASCII stuff
-    line = asciiHex.matcher(line).replaceAll(" ");
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
@@ -384,8 +392,10 @@ public class RuleBasedTokenizer implements Tokenizer {
       if (unTokenizable) {
         tokens.add(curToken);
       } else if (!unTokenizable) {
-        if (!replacement.matcher(curToken.getTokenValue()).matches()) {
-         tokens.add(curToken); 
+        if (!replacement.matcher(curToken.getTokenValue()).matches()
+            || !asciiHex.matcher(curToken.getTokenValue()).matches()
+            || !generalBlankPunctuation.matcher(curToken.getTokenValue()).matches()) {
+         tokens.add(curToken);
         }
       }
     }
