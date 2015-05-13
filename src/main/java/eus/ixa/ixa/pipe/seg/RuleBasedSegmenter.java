@@ -51,7 +51,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Paragraph pattern.
    */
-  public static Pattern paragraph = Pattern.compile(PARAGRAPH);
+  public static Pattern paragraph = Pattern.compile("(" + PARAGRAPH + ")");
   /**
    * Initial punctuation in unicode.
    */
@@ -191,16 +191,15 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     String line = builtText.trim();
     line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
     
-    // end of sentence markers, paragraph mark and beginning of link
-    line = endPunctLinkPara.matcher(line).replaceAll("$1\n$2$3");
-    line = conventionalPara.matcher(line).replaceAll("$1\n$2$3");
-    line = endInsideQuotesPara.matcher(line).replaceAll("$1\n$3$4");
-    line = multiDotsParaStarters.matcher(line).replaceAll("$1\n$2$3");
     if (isHardParagraph) {
-      //convert spurious paragraphs in newlines and keep them
-      line = alphaNumParaLowerNum.matcher(line).replaceAll("$1\n$2$3");
-      line = spuriousParagraph.matcher(line).replaceAll("$1\n$2");
+      //convert every (spurious) paragraph in newlines and keep them
+      line = paragraph.matcher(line).replaceAll("\n$1");
     } else {
+      // end of sentence markers, paragraph mark and beginning of link
+      line = endPunctLinkPara.matcher(line).replaceAll("$1\n$2$3");
+      line = conventionalPara.matcher(line).replaceAll("$1\n$2$3");
+      line = endInsideQuotesPara.matcher(line).replaceAll("$1\n$3$4");
+      line = multiDotsParaStarters.matcher(line).replaceAll("$1\n$2$3");
       // remove spurious paragraphs
       line = alphaNumParaLowerNum.matcher(line).replaceAll("$1 $3");
       line = spuriousParagraph.matcher(line).replaceAll(" $2");
