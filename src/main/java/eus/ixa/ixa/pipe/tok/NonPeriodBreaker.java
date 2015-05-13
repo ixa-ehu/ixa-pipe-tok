@@ -38,37 +38,19 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class NonPeriodBreaker {
 
-  public static String SECTION = "\u00A7";
-  public static Pattern section = Pattern.compile(SECTION);
-  /**
-   * Segment everything not segmented in the SentenceSegmenter.
-   */
-  public static Pattern segmentAll = Pattern.compile("([\\p{Alnum}\\.-]*"
-      + RuleBasedSegmenter.FINAL_PUNCT + "*[\\.]+)[\\ ]*("
-      + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}])",
-      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern nonSegmentedWords = Pattern.compile("([\\p{Alnum}\\.\\-]*)(" +  RuleBasedSegmenter.FINAL_PUNCT + "*)(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not split dot after these words if followed by number.
    */
   public static String NON_BREAKER_DIGITS = "(al|[Aa]rt|ca|figs?|[Nn]os?|[Nn]rs?|op|p|pp|[Pp]ág)";
   /**
-   * Re-attach segmented dots after non breaker digits.
-   */
-  public static Pattern nonBreakerDigits = Pattern.compile("("
-      + NON_BREAKER_DIGITS + "[\\ ]*[\\.-]*)" + SECTION + "([\\ ]*\\p{Digit})",
-      Pattern.UNICODE_CHARACTER_CLASS);
-  /**
    * General acronyms.
    */
-  public static Pattern acronym = Pattern.compile(
-      "(\\p{Lu})(\\.(\u00A7)[\\ ]*\\p{Lu})+([\\.])",
-      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.
    */
-  public static Pattern numbers = Pattern.compile(
-      "(\\p{Digit}+[\\.])[\\ ]*[\u00A7][\\ ]*(\\p{Digit}+)",
-      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern numbers = Pattern.compile("(\\p{Digit}+[\\.])[\\ ]*(\\p{Digit}+)", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Any non white space followed by a period.
    */
@@ -80,18 +62,15 @@ public class NonPeriodBreaker {
   /**
    * Starts with a lowercase.
    */
-  public static Pattern startLower = Pattern.compile("^\\p{Lower}+",
-      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startLower = Pattern.compile("^\\p{Lower}+", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Starts with punctuation that is not beginning of sentence marker.
    */
-  public static Pattern startPunct = Pattern
-      .compile("^[\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~]");
+  public static Pattern startPunct = Pattern.compile("^[\\!#\\$%&\\(\\)\\*\\+,-\\/:;=>\\?@\\[\\\\\\]\\^\\{\\|\\}~]");
   /**
    * Starts with a digit.
    */
-  public static Pattern startDigit = Pattern.compile("^\\p{Digit}+",
-      Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern startDigit = Pattern.compile("^\\p{Digit}+", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Non breaker prefix read from the files in resources.
    */
@@ -179,7 +158,7 @@ public class NonPeriodBreaker {
    *          the text to be processed
    * @return segmented text (with newlines included)
    */
-  public String SegmenterNonBreaker(String line) {
+  /*public String SegmenterNonBreaker(String line) {
 
     // split everything not segmented in the SentenceSegmenter
     line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");
@@ -197,6 +176,51 @@ public class NonPeriodBreaker {
     // split any remaining section mark
     line = section.matcher(line).replaceAll("\n");
     return line;
+  }*/
+  
+  public String SegmenterNonBreaker(String line) {
+    
+    // these are fine because they do not affect offsets
+    line = line.trim();
+    line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
+    final StringBuilder sb = new StringBuilder();
+    String segmentedText = "";
+    int i;
+    final String[] words = line.split(" ");
+      for (i = 0; i < (words.length - 1); i++) {
+        Matcher nonSegmentedWordMatcher = nonSegmentedWords.matcher(words[i]);
+        if (nonSegmentedWordMatcher.find()) {
+          String curWord = nonSegmentedWordMatcher.replaceAll("$1");
+          if (words[i].contains(prefix) && dictMap.containsKey(prefix) && (dictMap.get(prefix) == "1") && !finalPunct.find()) {
+          // not breaking
+          } else if (upperAcro.find()) {
+            // non-breaking, upper case acronym
+          }
+  // the next word has a bunch of initial quotes, maybe a space,
+  // then either upper case or a number
+  else if (upper.find()) {
+  // literal implementation from unless in perl:
+  if (!(words[i].contains(prefix) && dictMap.containsKey(prefix)
+  && (dictMap.get(prefix) == "2") && !finalPunct.find() && startDigits
+  .find())) {
+  words[i] = words[i] + "\n";
+  }
+  // equivalent if-then applying De Morgan theorem:
+  /*
+  * if (!words[i].contains(prefix) || !dictMap.containsKey(prefix) ||
+  * (dictMap.get(prefix) != "2") || finalPunct.find() ||
+  * !startDigits.find()) { words[i] = words[i] + "\n"; }
+  */
+  // we always add a return for these unless we have a numeric
+  // non-breaker and a number start
+  }
+  }
+  sb.append(words[i]).append(" ");
+  segmentedText = sb.toString();
+  }
+  // add last index of words array removed for easy look ahead
+  segmentedText = segmentedText + words[i];
+  return segmentedText;
   }
 
   /**

@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import eus.ixa.ixa.pipe.tok.NonPeriodBreaker;
+import eus.ixa.ixa.pipe.tok.RuleBasedTokenizer;
 
 /**
  * Rule based SentenceSegmenter. It also removes possible spurious paragraphs
@@ -54,7 +55,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Initial punctuation in unicode.
    */
-  public static String INITIAL_PUNCT = "[\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
+  //TODO include more initial punctuation for more aggresive segmenting
+  public static String INITIAL_PUNCT = "[\u0023\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
   /**
    * Final punctuation in unicode.
    */
@@ -72,8 +74,8 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
       "([?!\\.])[\\ ]*(\u00B6\u00B6)+[\\ ]*(" + INITIAL_PUNCT + "*[\\p{Lu}])",
       Pattern.UNICODE_CHARACTER_CLASS);
   /**
-   * End of sentence marker, maybe a space, punctuation (quotes, brackets),
-   * space, maybe some more punctuation, maybe some space and uppercase.
+   * End of sentence marker, maybe one or more paragraph marks, final punctuation (quotes, brackets),
+   * two or more paragraph marks, maybe some initial punctuation, maybe some space and uppercase.
    */
   public static Pattern endInsideQuotesPara = Pattern.compile(
       "([?!\\.](\u00B6)*" + FINAL_PUNCT + "+)(\u00B6\u00B6)+(" + INITIAL_PUNCT
@@ -130,13 +132,14 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   public static Pattern endPunctLinkSpace = Pattern
       .compile("([?!\\.])[\\ ]*(http|www|ftp)");
 
-  private static Boolean DEBUG = false;
+  private static Boolean DEBUG = true;
 
   /**
    * The nonbreaker decides when to split strings followed by periods.
    */
   private NonPeriodBreaker nonBreaker;
   private final String text;
+  private boolean isHardParagraph = false;
 
   /**
    * Construct a RuleBasedSegmenter from a BufferedReader and the properties.
@@ -148,6 +151,10 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public RuleBasedSegmenter(final String originalText,
       final Properties properties) {
+    String hardParagraph = properties.getProperty("hardParagraph");
+    if (hardParagraph.equalsIgnoreCase("yes")) {
+      isHardParagraph = true;
+    }
     if (nonBreaker == null) {
       nonBreaker = new NonPeriodBreaker(properties);
     }
@@ -177,15 +184,21 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   private String[] segment(final String builtText) {
 
+    // these are fine because they do not affect offsets
+    String line = builtText.trim();
+    line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
+    //TODO remove untokenizable characters here
+    
     // end of sentence markers, paragraph mark and beginning of link
-    String line = endPunctLinkPara.matcher(builtText).replaceAll("$1\n$2$3");
+    line = endPunctLinkPara.matcher(line).replaceAll("$1\n$2$3");
     line = conventionalPara.matcher(line).replaceAll("$1\n$2$3");
     line = endInsideQuotesPara.matcher(line).replaceAll("$1\n$3$4");
     line = multiDotsParaStarters.matcher(line).replaceAll("$1\n$2$3");
-    // remove spurious paragraphs
-    line = alphaNumParaLowerNum.matcher(line).replaceAll("$1 $3");
-    line = spuriousParagraph.matcher(line).replaceAll(" $2");
-
+    if (!isHardParagraph) {
+      // remove spurious paragraphs
+      line = alphaNumParaLowerNum.matcher(line).replaceAll("$1 $3");
+      line = spuriousParagraph.matcher(line).replaceAll(" $2");
+    }
     // non-period end of sentence markers (?!) followed by sentence starters.
     line = noPeriodSpaceEnd.matcher(line).replaceAll("$1\n$2");
     // multi-dots followed by sentence starters
