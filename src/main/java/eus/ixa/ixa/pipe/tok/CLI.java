@@ -245,7 +245,6 @@ public class CLI {
         .setDefault("no")
         .required(false)
         .help("Do not segment paragraphs.\n");
-    // specify NAF version
     annotateParser.addArgument("--kafversion")
          .setDefault("v1.naf")
         .help("Set kaf document version.\n");

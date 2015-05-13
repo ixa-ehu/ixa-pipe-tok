@@ -55,8 +55,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * Initial punctuation in unicode.
    */
-  //TODO include more initial punctuation for more aggresive segmenting
-  public static String INITIAL_PUNCT = "[\u0023\\(\\[-\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
+  public static String INITIAL_PUNCT = "[\u0023\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
   /**
    * Final punctuation in unicode.
    */
@@ -125,6 +124,10 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public static Pattern punctSpaceUpper = Pattern.compile("([?!\\.])[\\ ]+("
       + INITIAL_PUNCT + "+[\\ ]*[\\p{Lu}])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
+   * - ( C
+   */
+  public static Pattern punctSpaceMultiPunct = Pattern.compile("([?!\\.])[\\ ]+([\\-\\(]+[\\ ]*[\\-\\(]*\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    * End of sentence punctuation, maybe spaces and link.
@@ -132,7 +135,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   public static Pattern endPunctLinkSpace = Pattern
       .compile("([?!\\.])[\\ ]*(http|www|ftp)");
 
-  private static Boolean DEBUG = true;
+  private static Boolean DEBUG = false;
 
   /**
    * The nonbreaker decides when to split strings followed by periods.
@@ -193,7 +196,11 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     line = conventionalPara.matcher(line).replaceAll("$1\n$2$3");
     line = endInsideQuotesPara.matcher(line).replaceAll("$1\n$3$4");
     line = multiDotsParaStarters.matcher(line).replaceAll("$1\n$2$3");
-    if (!isHardParagraph) {
+    if (isHardParagraph) {
+      //convert spurious paragraphs in newlines and keep them
+      line = alphaNumParaLowerNum.matcher(line).replaceAll("$1\n$2$3");
+      line = spuriousParagraph.matcher(line).replaceAll("$1\n$2");
+    } else {
       // remove spurious paragraphs
       line = alphaNumParaLowerNum.matcher(line).replaceAll("$1 $3");
       line = spuriousParagraph.matcher(line).replaceAll(" $2");
@@ -209,6 +216,9 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     // end of sentence markers, maybe space or paragraph mark and beginning of
     // link
     line = endPunctLinkSpace.matcher(line).replaceAll("$1\n$2");
+    
+    //special case of multi-punctuation
+    line = punctSpaceMultiPunct.matcher(line).replaceAll("$1\n$2");
 
     // non breaker segments everything else with some exceptions
     line = nonBreaker.SegmenterNonBreaker(line);

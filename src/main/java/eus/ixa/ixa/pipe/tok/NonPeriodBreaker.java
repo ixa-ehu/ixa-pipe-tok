@@ -50,7 +50,7 @@ public class NonPeriodBreaker {
    * General acronyms.
    */
   //public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
-  public static Pattern acronym = Pattern.compile("(\\.)[\\p{Lu}-)+([\\.]+$)", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern acronym = Pattern.compile("(\\.)[\\p{Lu}\\-]+([\\.]+)$", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.
    */
@@ -162,26 +162,6 @@ public class NonPeriodBreaker {
    *          the text to be processed
    * @return segmented text (with newlines included)
    */
-  /*public String SegmenterNonBreaker(String line) {
-
-    // split everything not segmented in the SentenceSegmenter
-    line = segmentAll.matcher(line).replaceAll("$1\u00A7$2");
-
-    // re-attached dots followed by numbers
-    line = nonBreakerDigits.matcher(line).replaceAll("$1$3");
-    // re-attached segmented dots preceded by a word in the non breaker list
-    final Pattern nonBreaker = Pattern.compile("([\\ ](" + NON_BREAKER
-        + ")[\\ ]*[\\.]*)[\\ ]*" + SECTION);
-    line = nonBreaker.matcher(line).replaceAll(" $1 ");
-    // acronyms
-    line = deSegmentAcronyms(line);
-    // de-segment 11.1. numbers
-    line = numbers.matcher(line).replaceAll("$1$2");
-    // split any remaining section mark
-    line = section.matcher(line).replaceAll("\n");
-    return line;
-  }*/
-  
   public String SegmenterNonBreaker(String line) {
 
     // these are fine because they do not affect offsets
@@ -191,13 +171,15 @@ public class NonPeriodBreaker {
     String segmentedText = "";
     int i;
     final String[] words = line.split(" ");
+    //iterate over the words
     for (i = 0; i < (words.length - 1); i++) {
       Matcher nonSegmentedWordMatcher = nonSegmentedWords.matcher(words[i]);
+      //candidate word to be segmented found:
       if (nonSegmentedWordMatcher.find()) {
         String curWord = nonSegmentedWordMatcher.replaceAll("$1");
         String finalPunct = nonSegmentedWordMatcher.replaceAll("$2");
-        if ((curWord != null) && curWord.matches("(" + NON_BREAKER + ")")
-            && (finalPunct == null)) {
+        if (!curWord.isEmpty() && curWord.matches("(" + NON_BREAKER + ")")
+            && finalPunct.isEmpty()) {
           // if current word is not empty and is a no breaker and there is not
           // final punctuation
         } else if (acronym.matcher(words[i]).find()) {
@@ -205,8 +187,8 @@ public class NonPeriodBreaker {
         } else if (nextCandidateWord.matcher(words[i + 1]).find()) {
           // if next word contains initial punctuation and then uppercase or
           // digit do:
-          if (!(curWord != null && curWord.matches(NON_BREAKER_DIGITS)
-              && (finalPunct == null) && (startDigit.matcher(words[i + 1])
+          if (!(!curWord.isEmpty() && curWord.matches(NON_BREAKER_DIGITS)
+              && (finalPunct.isEmpty()) && (startDigit.matcher(words[i + 1])
               .find()))) {
             // segment unless current word is a non breaker digit and next word
             // is not final punctuation or does not start with a number

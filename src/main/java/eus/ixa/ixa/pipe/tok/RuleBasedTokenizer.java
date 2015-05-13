@@ -251,8 +251,8 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
     //remove non printable stuff
-    line = asciiHex.matcher(line).replaceAll("");
-    line = generalBlankPunctuation.matcher(line).replaceAll("");
+    line = asciiHex.matcher(line).replaceAll(" ");
+    line = generalBlankPunctuation.matcher(line).replaceAll(" ");
     
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
