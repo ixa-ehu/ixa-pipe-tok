@@ -250,6 +250,10 @@ public class RuleBasedTokenizer implements Tokenizer {
     // these are fine because they do not affect offsets
     line = line.trim();
     line = doubleSpaces.matcher(line).replaceAll(" ");
+    //remove non printable stuff
+    line = asciiHex.matcher(line).replaceAll("");
+    line = generalBlankPunctuation.matcher(line).replaceAll("");
+    
     // separate question and exclamation marks
     line = qexc.matcher(line).replaceAll(" $1 ");
     // separate dash if before or after space
@@ -393,9 +397,7 @@ public class RuleBasedTokenizer implements Tokenizer {
       if (unTokenizable) {
         tokens.add(curToken);
       } else if (!unTokenizable) {
-        if (!replacement.matcher(curToken.getTokenValue()).matches()
-            || !asciiHex.matcher(curToken.getTokenValue()).matches()
-            || !generalBlankPunctuation.matcher(curToken.getTokenValue()).matches()) {
+        if (!replacement.matcher(curToken.getTokenValue()).matches()) {
          tokens.add(curToken);
         }
       }

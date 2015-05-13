@@ -39,6 +39,9 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
 public class NonPeriodBreaker {
 
   public static Pattern nonSegmentedWords = Pattern.compile("([\\p{Alnum}\\.\\-]*)(" +  RuleBasedSegmenter.FINAL_PUNCT + "*)(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
+  
+  //TODO we need more aggressive punctuation here
+  public static Pattern nextCandidateWord = Pattern.compile("([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not split dot after these words if followed by number.
    */
@@ -46,7 +49,8 @@ public class NonPeriodBreaker {
   /**
    * General acronyms.
    */
-  public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  //public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern acronym = Pattern.compile("(\\.)[\\p{Lu}-)+([\\.]+$)", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.
    */
@@ -179,7 +183,7 @@ public class NonPeriodBreaker {
   }*/
   
   public String SegmenterNonBreaker(String line) {
-    
+
     // these are fine because they do not affect offsets
     line = line.trim();
     line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
@@ -187,59 +191,35 @@ public class NonPeriodBreaker {
     String segmentedText = "";
     int i;
     final String[] words = line.split(" ");
-      for (i = 0; i < (words.length - 1); i++) {
-        Matcher nonSegmentedWordMatcher = nonSegmentedWords.matcher(words[i]);
-        if (nonSegmentedWordMatcher.find()) {
-          String curWord = nonSegmentedWordMatcher.replaceAll("$1");
-          if (words[i].contains(prefix) && dictMap.containsKey(prefix) && (dictMap.get(prefix) == "1") && !finalPunct.find()) {
-          // not breaking
-          } else if (upperAcro.find()) {
-            // non-breaking, upper case acronym
+    for (i = 0; i < (words.length - 1); i++) {
+      Matcher nonSegmentedWordMatcher = nonSegmentedWords.matcher(words[i]);
+      if (nonSegmentedWordMatcher.find()) {
+        String curWord = nonSegmentedWordMatcher.replaceAll("$1");
+        String finalPunct = nonSegmentedWordMatcher.replaceAll("$2");
+        if ((curWord != null) && curWord.matches("(" + NON_BREAKER + ")")
+            && (finalPunct == null)) {
+          // if current word is not empty and is a no breaker and there is not
+          // final punctuation
+        } else if (acronym.matcher(words[i]).find()) {
+          // if acronym
+        } else if (nextCandidateWord.matcher(words[i + 1]).find()) {
+          // if next word contains initial punctuation and then uppercase or
+          // digit do:
+          if (!(curWord != null && curWord.matches(NON_BREAKER_DIGITS)
+              && (finalPunct == null) && (startDigit.matcher(words[i + 1])
+              .find()))) {
+            // segment unless current word is a non breaker digit and next word
+            // is not final punctuation or does not start with a number
+            words[i] = words[i] + "\n";
           }
-  // the next word has a bunch of initial quotes, maybe a space,
-  // then either upper case or a number
-  else if (upper.find()) {
-  // literal implementation from unless in perl:
-  if (!(words[i].contains(prefix) && dictMap.containsKey(prefix)
-  && (dictMap.get(prefix) == "2") && !finalPunct.find() && startDigits
-  .find())) {
-  words[i] = words[i] + "\n";
-  }
-  // equivalent if-then applying De Morgan theorem:
-  /*
-  * if (!words[i].contains(prefix) || !dictMap.containsKey(prefix) ||
-  * (dictMap.get(prefix) != "2") || finalPunct.find() ||
-  * !startDigits.find()) { words[i] = words[i] + "\n"; }
-  */
-  // we always add a return for these unless we have a numeric
-  // non-breaker and a number start
-  }
-  }
-  sb.append(words[i]).append(" ");
-  segmentedText = sb.toString();
-  }
-  // add last index of words array removed for easy look ahead
-  segmentedText = segmentedText + words[i];
-  return segmentedText;
-  }
-
-  /**
-   * Removes wrongly introduce SECTION marks in acronyms.
-   * 
-   * @param line
-   *          the text
-   * @return the segmented text
-   */
-  public static String deSegmentAcronyms(String line) {
-    final Matcher linkMatcher = acronym.matcher(line);
-    final StringBuffer sb = new StringBuffer();
-    while (linkMatcher.find()) {
-      linkMatcher.appendReplacement(sb,
-          linkMatcher.group().replaceAll(SECTION, " "));
+        }
+      }
+      sb.append(words[i]).append(" ");
+      segmentedText = sb.toString();
     }
-    linkMatcher.appendTail(sb);
-    line = sb.toString();
-    return line;
+    // add last index of words array removed for easy look ahead
+    segmentedText = segmentedText + words[i];
+    return segmentedText;
   }
 
   /**

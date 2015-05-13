@@ -56,7 +56,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    * Initial punctuation in unicode.
    */
   //TODO include more initial punctuation for more aggresive segmenting
-  public static String INITIAL_PUNCT = "[\u0023\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
+  public static String INITIAL_PUNCT = "[\u0023\\(\\[-\'\"\\¿\\¡\u00AB\u003C\u0091\u0093\u201B\u201C\u201F\u2018\u2039]";
   /**
    * Final punctuation in unicode.
    */
@@ -187,7 +187,6 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     // these are fine because they do not affect offsets
     String line = builtText.trim();
     line = RuleBasedTokenizer.doubleSpaces.matcher(line).replaceAll(" ");
-    //TODO remove untokenizable characters here
     
     // end of sentence markers, paragraph mark and beginning of link
     line = endPunctLinkPara.matcher(line).replaceAll("$1\n$2$3");
