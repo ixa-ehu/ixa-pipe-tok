@@ -343,7 +343,6 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   private String treatContractions(String line) {
 
-    //TODO treat workers'
     line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");

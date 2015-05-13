@@ -38,9 +38,13 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  */
 public class NonPeriodBreaker {
 
+  /**
+   * Non segmented words, candidates for sentence breaking.
+   */
   public static Pattern nonSegmentedWords = Pattern.compile("([\\p{Alnum}\\.\\-]*)(" +  RuleBasedSegmenter.FINAL_PUNCT + "*)(\\.+)$", Pattern.UNICODE_CHARACTER_CLASS);
-  
-  //TODO we need more aggressive punctuation here
+  /**
+   * Next word wrt to the candidate to indicate sentence breaker.
+   */
   public static Pattern nextCandidateWord = Pattern.compile("([\\ ]*" + RuleBasedSegmenter.INITIAL_PUNCT + "*[\\ ]*[\\p{Lu}\\p{Digit}])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not split dot after these words if followed by number.
@@ -49,7 +53,6 @@ public class NonPeriodBreaker {
   /**
    * General acronyms.
    */
-  //public static Pattern acronym = Pattern.compile("(\\p{Lu})(\\.[\\ ]*\\p{Lu})+([\\.])", Pattern.UNICODE_CHARACTER_CLASS);
   public static Pattern acronym = Pattern.compile("(\\.)[\\p{Lu}\\-]+([\\.]+)$", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * Do not segment numbers like 11.1.

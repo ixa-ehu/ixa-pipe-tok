@@ -50,6 +50,7 @@ import org.jdom2.JDOMException;
  * it.
  * <li>inputkaf: take a NAF Document as input instead of plain text file.
  * <li>kafversion: specify the NAF version as parameter.
+ * <li>hardParagraph: never break paragraphs.
  * <li>eval: input reference corpus to evaluate a tokenizer.
  * </ol>
  * 
@@ -199,10 +200,6 @@ public class CLI {
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
     annotateParser
-        .addArgument("-t", "--tokenizer").choices("rule")
-        .required(false).setDefault("rule")
-        .help("Choose the tokenizer type.\n");
-    annotateParser
         .addArgument("-n", "--normalize")
         .choices("alpino", "ancora", "ctag", "default", "ptb", "tiger",
             "tutpenn")
@@ -244,7 +241,7 @@ public class CLI {
         .choices("yes", "no")
         .setDefault("no")
         .required(false)
-        .help("Do not segment paragraphs.\n");
+        .help("Do not segment paragraphs. Ever.\n");
     annotateParser.addArgument("--kafversion")
          .setDefault("v1.naf")
         .help("Set kaf document version.\n");

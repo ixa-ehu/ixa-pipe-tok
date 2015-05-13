@@ -127,7 +127,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
   /**
    * - ( C
    */
-  public static Pattern punctSpaceMultiPunct = Pattern.compile("([?!\\.])[\\ ]+([\\-\\(]+[\\ ]*[\\-\\(]*\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static Pattern punctSpaceMultiPunct = Pattern.compile("([?!\\.])[\\ ]+([\\-]+[\\ ]*[\\(]*\\p{Lu})", Pattern.UNICODE_CHARACTER_CLASS);
 
   /**
    * End of sentence punctuation, maybe spaces and link.
