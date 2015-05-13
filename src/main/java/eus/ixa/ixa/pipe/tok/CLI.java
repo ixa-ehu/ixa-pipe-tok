@@ -135,7 +135,8 @@ public class CLI {
     final String kafVersion = parsedArguments.getString("kafversion");
     final Boolean inputKafRaw = parsedArguments.getBoolean("inputkaf");
     final Boolean noTok = parsedArguments.getBoolean("notok");
-    final Properties properties = setAnnotateProperties(lang, normalize, untokenizable);
+    final String hardParagraph = parsedArguments.getString("hardParagraph");
+    final Properties properties = setAnnotateProperties(lang, normalize, untokenizable, hardParagraph);
 
     BufferedReader breader = null;
     final BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(
@@ -212,7 +213,7 @@ public class CLI {
                 + "brackets or forward slashes. See README for more details.\n");
     annotateParser
         .addArgument("-u","--untokenizable")
-        .choices("yes","no")
+        .choices("yes", "no")
         .setDefault("no")
         .required(false)
         .help("Print untokenizable characters.\n");
@@ -238,17 +239,24 @@ public class CLI {
         .action(Arguments.storeTrue())
         .help(
             "Build a KAF document from an already tokenized sentence per line file.\n");
+    annotateParser
+        .addArgument("--hardParagraph")
+        .choices("yes", "no")
+        .setDefault("no")
+        .required(false)
+        .help("Do not segment paragraphs.\n");
     // specify NAF version
     annotateParser.addArgument("--kafversion")
          .setDefault("v1.naf")
         .help("Set kaf document version.\n");
   }
 
-  private Properties setAnnotateProperties(final String lang, final String normalize, final String untokenizable) {
+  private Properties setAnnotateProperties(final String lang, final String normalize, final String untokenizable, final String hardParagraph) {
     final Properties annotateProperties = new Properties();
     annotateProperties.setProperty("language", lang);
     annotateProperties.setProperty("normalize", normalize);
     annotateProperties.setProperty("untokenizable", untokenizable);
+    annotateProperties.setProperty("hardParagraph", hardParagraph);
     return annotateProperties;
   }
 
