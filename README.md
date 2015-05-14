@@ -4,7 +4,7 @@ ixa-pipe-tok
 
 ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter.
 ixa-pipe-tok is part of IXA pipes, a set of multilingual NLP tools developed
-by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 1.8.1.**
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 1.8.2.**
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
 pipes tools but also for **official releases, including source code and binary
@@ -89,10 +89,10 @@ via standard input and outputs NAF through standard output. The NAF format speci
 
 There are several options to tokenize with ixa-pipe-tok:
 
-  + **lang**: choose language to create the lang attribute in KAF header
-  + **tokenizer**: choose tokenizer type. Currently only rule-based tokenizer is available.
+  + **lang**: choose language to create the lang attribute in KAF header.
   + **normalize**: choose normalization method (see Normalizer class).
   + **nokaf**: do not output NAF format.
+  + **hardParagraph**: do not detect spurious paragraphs.
   + **outputFormat**: if --nokaf is used, choose between oneline or conll format output.
     + If -o conll is chosen, it is possible to choose whether to print
       offset information (--offsets) or not.
@@ -115,7 +115,7 @@ this dependency to your pom.xml:
 <dependency>
     <groupId>eus.ixa</groupId>
     <artifactId>ixa-pipe-tok</artifactId>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
 </dependency>
 ````
 
