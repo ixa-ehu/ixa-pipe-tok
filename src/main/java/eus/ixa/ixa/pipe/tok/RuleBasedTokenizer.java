@@ -143,6 +143,12 @@ public class RuleBasedTokenizer implements Tokenizer {
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})",
       Pattern.UNICODE_CHARACTER_CLASS);
   /**
+   * Split English negative contractions.
+   */
+  public static Pattern englishNegations = Pattern.compile("(\\p{Alpha})(n"
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([t])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
    * Split English apostrophes.
    */
   public static Pattern englishApos = Pattern.compile("(\\p{Alpha})("
@@ -346,10 +352,15 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");
+    if (lang.equalsIgnoreCase("en")) {
+      line = englishNegations.matcher(line).replaceAll("$1 $2$3"); 
+    }
     line = englishApos.matcher(line).replaceAll("$1 $2$3");
     line = yearApos.matcher(line).replaceAll("$1 $2$3");
     // romance tokenization of apostrophes c' l'
-    line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
+    if (!lang.equalsIgnoreCase("en")) {
+      line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
+    }
     line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
     return line;
   }
