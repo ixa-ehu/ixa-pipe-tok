@@ -166,6 +166,10 @@ public class RuleBasedTokenizer implements Tokenizer {
   public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])("
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
   /**
+   * Detokenize wrongly tokenize n't English contractions.
+   */
+  public static Pattern deTokenEnglishNegation = Pattern.compile("([n])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")\\s+([t])", Pattern.UNICODE_CHARACTER_CLASS);
+  /**
    * De-tokenize paragraph marks.
    */
   public static Pattern detokenParagraphs = Pattern.compile(
@@ -277,7 +281,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = digitCommaNoDigit.matcher(line).replaceAll("$1 $2 $3");
     line = noDigitCommaDigit.matcher(line).replaceAll("$1 $2 $3");
 
-    // contractions it's, l'agila, c'est
+    // contractions it's, l'agila, c'est, don't
     line = treatContractions(line);
     // exceptions for period tokenization
     line = nonBreaker.TokenizerNonBreaker(line);
@@ -358,10 +362,9 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = englishApos.matcher(line).replaceAll("$1 $2$3");
     line = yearApos.matcher(line).replaceAll("$1 $2$3");
     // romance tokenization of apostrophes c' l'
-    if (!lang.equalsIgnoreCase("en")) {
-      line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
-    }
+    line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
     line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
+    line = deTokenEnglishNegation.matcher(line).replaceAll("$1$2$3");
     return line;
   }
 
