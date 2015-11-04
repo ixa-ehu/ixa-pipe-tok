@@ -343,7 +343,7 @@ public class CLI {
     serverParser.addArgument("-p", "--port")
         .required(true)
         .help("Port to be assigned to the server.\n");
- // specify language (for language dependent treatment of apostrophes)
+    // specify language (for language dependent treatment of apostrophes)
     serverParser
         .addArgument("-l", "--lang")
         .choices("de", "en", "es", "eu", "fr", "gl", "it", "nl")

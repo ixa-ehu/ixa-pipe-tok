@@ -43,19 +43,9 @@ public class RuleBasedTokenizerServer {
    * file.
    */
   private final String commit = CLI.class.getPackage().getSpecificationVersion();
-  /**
-   * The annotation output format, one of NAF (default), CoNLL 2002, CoNLL 2003
-   * and OpenNLP.
-   */
-  private String outputFormat = null;
-  private Boolean noTok = null;
-  private String lang = null;
-  private Boolean inputKafRaw = null;
-  private String kafVersion = null;
-  private Boolean offsets = null;
   
   /**
-   * Construct a NameFinder server.
+   * Construct a RuleBasedTokenizer server.
    * 
    * @param properties
    *          the properties
@@ -63,22 +53,14 @@ public class RuleBasedTokenizerServer {
   public RuleBasedTokenizerServer(Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
-    lang = properties.getProperty("lang");
-    outputFormat = properties.getProperty("outputFormat");
-    inputKafRaw = Boolean.valueOf(properties.getProperty("inputkaf"));
-    noTok = Boolean.valueOf(properties.getProperty("notok"));
-    kafVersion = properties.getProperty("kafversion");
-    offsets = Boolean.valueOf(properties.getProperty("offsets"));
-    
     ServerSocket socketServer = null;
 
     try {
-      Annotate annotator = new Annotate(properties);
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
       System.out.println("-> Connected and listening to port " + port);
+      
       while (true) {
-        
         try (Socket activeSocket = socketServer.accept();
             DataInputStream inFromClient = new DataInputStream(
                 activeSocket.getInputStream());
@@ -88,7 +70,7 @@ public class RuleBasedTokenizerServer {
           //get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
-          String kafToString = getAnnotations(annotator, stringFromClient);
+          String kafToString = getAnnotations(properties, stringFromClient);
           // send to server
           sendDataToServer(outToClient, kafToString);
         }
@@ -139,18 +121,17 @@ public class RuleBasedTokenizerServer {
     outToClient.write(kafByteArray);
   }
   
-  /**
-   * Named Entity annotator.
-   * @param annotator the annotator
-   * @param stringFromClient the string to be annotated
-   * @return the annotation result
-   * @throws IOException if io error
-   * @throws JDOMException if xml error
-   */
-  private String getAnnotations(Annotate annotator, String stringFromClient) throws IOException, JDOMException {
+  private String getAnnotations(Properties properties, String stringFromClient) throws IOException, JDOMException {
     
+    BufferedReader breader;
     KAFDocument kaf;
     String kafString = null;
+    String lang = properties.getProperty("language");
+    String outputFormat = properties.getProperty("outputFormat");
+    Boolean inputKafRaw = Boolean.valueOf(properties.getProperty("inputkaf"));
+    Boolean noTok = Boolean.valueOf(properties.getProperty("notok"));
+    String kafVersion = properties.getProperty("kafversion");
+    Boolean offsets = Boolean.valueOf(properties.getProperty("offsets"));
     if (noTok) {
       final BufferedReader noTokReader = new BufferedReader(new StringReader(stringFromClient));
       kaf = new KAFDocument(lang, kafVersion);
@@ -162,12 +143,17 @@ public class RuleBasedTokenizerServer {
       kafString = kaf.toString();
       noTokReader.close();
     } else {
-      breader = new BufferedReader(new StringReader(stringFromClient));
       if (inputKafRaw) {
-        kaf = KAFDocument.createFromStream(breader);
+        final BufferedReader kafReader = new BufferedReader(new StringReader(stringFromClient));
+        kaf = KAFDocument.createFromStream(kafReader);
+        final String text = kaf.getRawText();
+        final StringReader stringReader = new StringReader(text);
+        breader = new BufferedReader(stringReader);
       } else {
         kaf = new KAFDocument(lang, kafVersion);
+        breader = new BufferedReader(new StringReader(stringFromClient));
       }
+      final Annotate annotator = new Annotate(breader, properties);
       if (outputFormat.equalsIgnoreCase("conll")) {
         if (offsets) {
           kafString = annotator.tokenizeToCoNLL();
@@ -185,7 +171,7 @@ public class RuleBasedTokenizerServer {
         newLp.setEndTimestamp();
         kafString = kaf.toString();
       }
-      breader.close();
+      //breader.close();
     }
     return kafString;
   }
