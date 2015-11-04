@@ -77,8 +77,7 @@ public class Annotate {
         if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
         } else {
-          final WF wf = kaf.newWF(token.getTokenValue(), token.startOffset(),
-              noSents);
+          final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(), noSents);
           wf.setLength(token.tokenLength());
           wf.setPara(noParas);
         }
@@ -180,9 +179,9 @@ public class Annotate {
           }
         } else {
           // TODO add offset
-          final WF wf = kaf.newWF(token);
+          final WF wf = kaf.newWF(0, token, noSents);
           wf.setPara(noParas);
-          wf.setSent(noSents);
+          //wf.setSent(noSents);
         }
       }
     }

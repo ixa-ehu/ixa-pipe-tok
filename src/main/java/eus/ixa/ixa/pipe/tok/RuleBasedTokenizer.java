@@ -143,6 +143,12 @@ public class RuleBasedTokenizer implements Tokenizer {
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")(\\p{Alpha})",
       Pattern.UNICODE_CHARACTER_CLASS);
   /**
+   * Split English negative contractions.
+   */
+  public static Pattern englishNegations = Pattern.compile("(\\p{Alpha})(n"
+      + Normalizer.TO_ASCII_SINGLE_QUOTE + ")([t])",
+      Pattern.UNICODE_CHARACTER_CLASS);
+  /**
    * Split English apostrophes.
    */
   public static Pattern englishApos = Pattern.compile("(\\p{Alpha})("
@@ -159,6 +165,10 @@ public class RuleBasedTokenizer implements Tokenizer {
    */
   public static Pattern endOfSentenceApos = Pattern.compile("([^\\p{Alpha}])("
       + Normalizer.TO_ASCII_SINGLE_QUOTE + ")$");
+  /**
+   * Detokenize wrongly tokenize n't English contractions.
+   */
+  public static Pattern deTokenEnglishNegation = Pattern.compile("([n])(" + Normalizer.TO_ASCII_SINGLE_QUOTE + ")\\s+([t])", Pattern.UNICODE_CHARACTER_CLASS);
   /**
    * De-tokenize paragraph marks.
    */
@@ -271,7 +281,7 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = digitCommaNoDigit.matcher(line).replaceAll("$1 $2 $3");
     line = noDigitCommaDigit.matcher(line).replaceAll("$1 $2 $3");
 
-    // contractions it's, l'agila, c'est
+    // contractions it's, l'agila, c'est, don't
     line = treatContractions(line);
     // exceptions for period tokenization
     line = nonBreaker.TokenizerNonBreaker(line);
@@ -346,11 +356,15 @@ public class RuleBasedTokenizer implements Tokenizer {
     line = noAlphaAposNoAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = noAlphaDigitAposAlpha.matcher(line).replaceAll("$1 $2 $3");
     line = alphaAposNonAlpha.matcher(line).replaceAll("$1 $2 $3");
+    if (lang.equalsIgnoreCase("en")) {
+      line = englishNegations.matcher(line).replaceAll("$1 $2$3"); 
+    }
     line = englishApos.matcher(line).replaceAll("$1 $2$3");
     line = yearApos.matcher(line).replaceAll("$1 $2$3");
     // romance tokenization of apostrophes c' l'
     line = AlphaAposAlpha.matcher(line).replaceAll("$1$2 $3");
     line = endOfSentenceApos.matcher(line).replaceAll("$1 $2");
+    line = deTokenEnglishNegation.matcher(line).replaceAll("$1$2$3");
     return line;
   }
 
