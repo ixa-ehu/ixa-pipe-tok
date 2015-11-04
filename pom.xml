@@ -4,7 +4,7 @@
 	<groupId>eus.ixa</groupId>
 	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
-	<version>1.8.3</version>
+	<version>1.8.4</version>
 	<name>ixa-pipe-tok</name>
 	<description>The ixa pipes tokenizer (ixa2.si.ehu.es/ixa-pipes)</description>
 	<licenses>
