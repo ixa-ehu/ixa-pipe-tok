@@ -18,12 +18,8 @@ package eus.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -250,27 +246,28 @@ public class CLI {
             System.in, "UTF-8"));
         BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
             System.out, "UTF-8"));
-        DataOutputStream outToServer = new DataOutputStream(
-            socketClient.getOutputStream());
-        DataInputStream inFromServer = new DataInputStream(new BufferedInputStream(
-            socketClient.getInputStream()));) {
-      
+        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(
+            socketClient.getOutputStream(), "UTF-8"));
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
+            socketClient.getInputStream(), "UTF-8"));) {
+
       // send data to server socket
+      StringBuilder inText = new StringBuilder();
       String line;
       while ((line = inFromUser.readLine()) != null) {
-        outToServer.writeBoolean(false);
-        outToServer.writeUTF(line);
+        inText.append(line).append("\n");
       }
-      outToServer.writeBoolean(true);
-      //get data from server
-      byte[] kafArray = new byte[1024];
-      ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-      int count;
-      while ((count = inFromServer.read(kafArray)) > 0) {
-        byteArrayStream.write(kafArray, 0, count);
+      inText.append("<ENDOFDOCUMENT>").append("\n");
+      outToServer.write(inText.toString());
+      outToServer.flush();
+      
+      // get data from server
+      StringBuilder sb = new StringBuilder();
+      String kafString;
+      while ((kafString = inFromServer.readLine()) != null) {
+        sb.append(kafString).append("\n");
       }
-      String kafString = byteArrayStream.toString();
-      outToUser.write(kafString);
+      outToUser.write(sb.toString());
     } catch (IOException e) {
       e.printStackTrace();
     } catch (Exception e) {
