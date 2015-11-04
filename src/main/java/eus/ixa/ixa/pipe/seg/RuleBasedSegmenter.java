@@ -172,7 +172,7 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
    */
   public String[] segmentSentence() {
     if (DEBUG) {
-      System.err.println("->Build:" + text);
+      System.err.println("-> Build:" + text);
     }
     final String[] sentences = segment(text);
     return sentences;
@@ -219,8 +219,10 @@ public class RuleBasedSegmenter implements SentenceSegmenter {
     //special case of multi-punctuation
     line = punctSpaceMultiPunct.matcher(line).replaceAll("$1\n$2");
 
+    System.err.println("-> NonBreaker.....");
     // non breaker segments everything else with some exceptions
     line = nonBreaker.SegmenterNonBreaker(line);
+    System.err.println("-> Segmentation DONE!");
     final String[] sentences = line.split("\n");
     return sentences;
   }

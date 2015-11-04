@@ -177,6 +177,7 @@ public class NonPeriodBreaker {
     //iterate over the words
     for (i = 0; i < (words.length - 1); i++) {
       Matcher nonSegmentedWordMatcher = nonSegmentedWords.matcher(words[i]);
+      System.err.println("-> IF 01");
       //candidate word to be segmented found:
       if (nonSegmentedWordMatcher.find()) {
         String curWord = nonSegmentedWordMatcher.replaceAll("$1");
