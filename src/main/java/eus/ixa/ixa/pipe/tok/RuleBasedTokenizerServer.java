@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
@@ -45,7 +46,7 @@ public class RuleBasedTokenizerServer {
   private final String commit = CLI.class.getPackage().getSpecificationVersion();
   
   /**
-   * Construct a RuleBasedTokenizer server.
+   * Construct a NameFinder server.
    * 
    * @param properties
    *          the properties
@@ -53,28 +54,47 @@ public class RuleBasedTokenizerServer {
   public RuleBasedTokenizerServer(Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
+    String result;
     ServerSocket socketServer = null;
+    Socket activeSocket;
+    BufferedReader inFromClient = null;
+    BufferedWriter outToClient = null;
 
     try {
       System.out.println("-> Trying to listen port... " + port);
       socketServer = new ServerSocket(port);
       System.out.println("-> Connected and listening to port " + port);
       while (true) {
-        
-        try (Socket activeSocket = socketServer.accept();
-            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
-            BufferedWriter outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));) {
-          //System.err.println("-> Received a  connection from: " + activeSocket);
+        try {
+          activeSocket = socketServer.accept();
+          inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
+          outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));
           //get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
-          String kafToString = getAnnotations(properties, stringFromClient);
-          // send to server
-          sendDataToServer(outToClient, kafToString);
+          result = getAnnotations(properties, stringFromClient);
+        } catch (JDOMException e) {
+          result = "\n-> ERROR: Badly formatted NAF document!!\n";
+          sendDataToClient(outToClient, result);
+          continue;
+        } catch (UnsupportedEncodingException e) {
+          result = "\n-> ERROR: Encoding not valid UTF-8!!\n";
+          sendDataToClient(outToClient, result);
+          continue;
+        } catch (IOException e) {
+          result = "\n -> ERROR: Input data not correct!!\n";
+          sendDataToClient(outToClient, result);
+          continue;
         }
-      }
-    } catch (IOException | JDOMException e) {
+        //send data to server after all exceptions and close the outToClient
+        sendDataToClient(outToClient, result);
+        //close the resources
+        inFromClient.close();
+        activeSocket.close();
+      } //end of processing block
+    } catch (IOException e) {
       e.printStackTrace();
+      System.err.println("-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
     } finally {
       System.out.println("closing tcp socket...");
       try {
@@ -115,8 +135,9 @@ public class RuleBasedTokenizerServer {
    * @param kafToString the string to be processed
    * @throws IOException if io error
    */
-  private void sendDataToServer(BufferedWriter outToClient, String kafToString) throws IOException {
+  private void sendDataToClient(BufferedWriter outToClient, String kafToString) throws IOException {
     outToClient.write(kafToString);
+    outToClient.close();
   }
   
   /**
