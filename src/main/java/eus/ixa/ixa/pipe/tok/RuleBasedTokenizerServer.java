@@ -46,7 +46,7 @@ public class RuleBasedTokenizerServer {
   private final String commit = CLI.class.getPackage().getSpecificationVersion();
   
   /**
-   * Construct a NameFinder server.
+   * Construct a RuleBasedTokenizer server.
    * 
    * @param properties
    *          the properties
