@@ -4,7 +4,7 @@ ixa-pipe-tok
 
 ixa-pipe-tok is a multilingual rule-based tokenizer and sentence segmenter.
 ixa-pipe-tok is part of IXA pipes, a set of multilingual NLP tools developed
-by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 1.8.2.**
+by the IXA NLP Group [http://ixa2.si.ehu.es/ixa-pipes]. **Current version is 1.8.4.**
 
 Please go to [http://ixa2.si.ehu.es/ixa-pipes] for general information about the IXA
 pipes tools but also for **official releases, including source code and binary
@@ -21,7 +21,6 @@ for easy access to its API.
 ## TABLE OF CONTENTS
 
 1. [Overview of ixa-pipe-tok](#overview)
-  + [Available features](#features)
 2. [Usage of ixa-pipe-tok](#cli-usage)
   + [Tokenization](#tokenizing)
 3. [API via Maven Dependency](#api)
@@ -30,7 +29,7 @@ for easy access to its API.
 ## OVERVIEW
 
 This module provides Multilingual Sentence Segmentation and Tokenization for a number of languages,
-such as Dutch, German, English, French, Galician, Italian and Spanish.
+such as Basque, Dutch, German, English, French, Galician, Italian and Spanish.
 **ixa-pipe-tok outputs** tokenized and segmented text in **three formats**:
 
   + **NAF (default)**: NAF is used to represent tokenized text but also to
@@ -42,42 +41,37 @@ such as Dutch, German, English, French, Galician, Italian and Spanish.
   + **Conll**: one token per line, two newlines per sentence and markers for
     paragraphs (\*\<P\>\*) and offsets, if that option is chosen.
 
-ixa-pipe-tok also provides normalization functions to comply with annotation in corpora such as Penn Treebank for English and
-Ancora Corpus for Spanish, among others.
+ixa-pipe-tok also provides normalization functions to comply with annotation in corpora such as Penn Treebank for English and Ancora Corpus for Spanish, among others.
   + **multilingual treatment of apostrophes** for Catalan, French and Italian styles
     (l' aquila, c' est, etc.) possibly applying to other languages with the same
     rules for splitting apostrophes.
-  + **language-specific non-breaking exceptions** for Dutch, German, English, French, Galician, Italian and Spanish.
+  + **language-specific non-breaking exceptions** for Basque, Dutch, German, English, French, Galician, Italian and Spanish.
   + **Normalization** following several corpora conventions.
   + **paragraph tokenization**.
 
-### Features
-
-  + **default**: ptb3 minus (all types of) brackets and escapeForwardSlash normalizations.
-  + **ancora**: Ancora corpus based normalization. Like default, except that every
-    quote is normalized into ascii quotes.
-
 ## CLI-USAGE
 
-ixa-pipe-tok provides 2 basic functionalities:
+ixa-pipe-tok provides 3 basic functionalities:
 
 1. **tok**: reads a plain text or a NAF document containing a *raw* element and outputs
    tokens by sentences.
+2. **server**: starts a TCP service loading the model and required resources.
+3. **client**: sends a NAF document to a running TCP server.
 
-Each of these functionalities are accessible by adding tok as a
-subcommand to ixa-pipe-tok-$version.jar. Please read below and check the -help
-parameter:
+Each of these functionalities are accessible by adding (tok|server|client) as a
+subcommand to ixa-pipe-tok-1.8.4.jar. Please read below and check the -help
+parameter. For example:
 
 ````shell
-java -jar target/ixa-pipe-tok-$version.jar tok -help
+java -jar target/ixa-pipe-tok-1.8.4.jar tok -help
 ````
 
 ### Tokenizing
 
-If you are in hurry, just execute:
+If you are in hurry, [Download](http://ixa2.si.ehu.es/ixa-pipes/models/guardian.txt) or create a plain text file and use it like this:
 
 ````shell
-cat file.txt | java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
+cat guardian.txt | java -jar ixa-pipe-tok-1.8.4.jar tok -l en
 ````
 
 If you want to know more, please follow reading.
@@ -103,7 +97,7 @@ There are several options to tokenize with ixa-pipe-tok:
 **Example**:
 
 ````shell
-cat file.txt java -jar $PATH/target/ixa-pipe-tok-$version.jar tok -l $lang
+cat guardian.txt java -jar ixa-pipe-tok-1.8.4.jar tok -l en
 ````
 
 ## API
@@ -115,7 +109,7 @@ this dependency to your pom.xml:
 <dependency>
     <groupId>eus.ixa</groupId>
     <artifactId>ixa-pipe-tok</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
 </dependency>
 ````
 
@@ -145,19 +139,20 @@ Installing the ixa-pipe-tok requires the following steps:
 If you already have installed in your machine the Java 1.7+ and MAVEN 3, please go to step 3
 directly. Otherwise, follow these steps:
 
-### 1. Install JDK 1.7+
+### 1. Install JDK 1.7 or JDK 1.8
 
 If you do not install JDK 1.7+ in a default location, you will probably need to configure the PATH in .bashrc or .bash_profile:
 
 ````shell
-export JAVA_HOME=/yourpath/local/java7
+export JAVA_HOME=$pwd/java8
 export PATH=${JAVA_HOME}/bin:${PATH}
 ````
+Replacing $pwd with the full path given by typing the **pwd** inside the java directory.
 
 If you use tcsh you will need to specify it in your .login as follows:
 
 ````shell
-setenv JAVA_HOME /usr/java/java17
+setenv JAVA_HOME $pwd/java8
 setenv PATH ${JAVA_HOME}/bin:${PATH}
 ````
 
@@ -167,7 +162,7 @@ If you re-login into your shell and run the command
 java -version
 ````
 
-You should now see that your JDK is 1.7
+You should now see that your JDK is 1.7+
 
 ### 2. Install MAVEN 3
 
@@ -180,15 +175,15 @@ wget http://apache.rediris.es/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bi
 Now you need to configure the PATH. For Bash Shell:
 
 ````shell
-pwd
 export MAVEN_HOME=$pwd/apache-maven-3.0.5
 export PATH=${MAVEN_HOME}/bin:${PATH}
 ````
+Replacing $pwd with the full path given by typing the **pwd** inside the apache maven directory.
 
 For tcsh shell:
 
 ````shell
-setenv MAVEN3_HOME ~/local/apache-maven-3.0.5
+setenv MAVEN3_HOME $pwd/apache-maven-3.0.5
 setenv PATH ${MAVEN3}/bin:{PATH}
 ````
 
@@ -218,7 +213,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-pipe-tok-$version.jar
+ixa-pipe-tok-1.8.4.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.7 or newer installed.
