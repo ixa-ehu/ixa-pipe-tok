@@ -26,6 +26,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Properties;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -88,10 +91,22 @@ public class CLI {
    * The parser that manages the tagging sub-command.
    */
   private final Subparser annotateParser;
+  /**
+   * Parser to start TCP socket for server-client functionality.
+   */
+  private Subparser serverParser;
+  /**
+   * Sends queries to the serverParser for annotation.
+   */
+  private Subparser clientParser;
 
   public CLI() {
     annotateParser = subParsers.addParser("tok").help("Tagging CLI");
     loadAnnotateParameters();
+    serverParser = subParsers.addParser("server").help("Start TCP socket server");
+    loadServerParameters();
+    clientParser = subParsers.addParser("client").help("Send queries to the TCP socket server");
+    loadClientParameters();
   }
 
   public static void main(final String[] args) throws IOException,
@@ -118,11 +133,15 @@ public class CLI {
       System.err.println("CLI options: " + parsedArguments);
       if (args[0].equals("tok")) {
         annotate(System.in, System.out);
+      } else if (args[0].equals("server")) {
+        server();
+      } else if (args[0].equals("client")) {
+        client(System.in, System.out);
       }
     } catch (final ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-tok-" + version
-          + ".jar tok -help for details");
+          + ".jar (tok|server|client) -help for details");
       System.exit(1);
     }
   }
@@ -190,6 +209,81 @@ public class CLI {
     }
     bwriter.close();
   }
+  
+  /**
+   * Set up the TCP socket for annotation.
+   */
+  public final void server() {
+
+    // load parameters into a properties
+    final String port = parsedArguments.getString("port");
+    final String lang = parsedArguments.getString("lang");
+    final String normalize = parsedArguments.getString("normalize");
+    final String untokenizable = parsedArguments.getString("untokenizable");
+    final String kafversion = parsedArguments.getString("kafversion");
+    final String inputkaf = String.valueOf(parsedArguments.getBoolean("inputkaf"));
+    final String notok = String.valueOf(parsedArguments.getBoolean("notok"));
+    final String hardParagraph = parsedArguments.getString("hardParagraph");
+    final String offsets = String.valueOf(parsedArguments.getBoolean("offsets"));
+    final String outputFormat = parsedArguments.getString("outputFormat");
+    Properties serverProperties = setServerProperties(port, lang, normalize, untokenizable, kafversion, inputkaf, notok, outputFormat, offsets, hardParagraph);
+    new RuleBasedTokenizerServer(serverProperties);
+  }
+  
+  /**
+   * The client to query the TCP server for annotation.
+   * 
+   * @param inputStream
+   *          the stdin
+   * @param outputStream
+   *          stdout
+   */
+  public final void client(final InputStream inputStream,
+      final OutputStream outputStream) {
+
+    String host = parsedArguments.getString("host");
+    String port = parsedArguments.getString("port");
+    try (Socket socketClient = new Socket(host, Integer.parseInt(port));
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
+            System.in, "UTF-8"));
+        BufferedWriter outToUser = new BufferedWriter(new OutputStreamWriter(
+            System.out, "UTF-8"));
+        BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(
+            socketClient.getOutputStream(), "UTF-8"));
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(
+            socketClient.getInputStream(), "UTF-8"));) {
+
+      // send data to server socket
+      StringBuilder inText = new StringBuilder();
+      String line;
+      while ((line = inFromUser.readLine()) != null) {
+        inText.append(line).append("\n");
+      }
+      inText.append("<ENDOFDOCUMENT>").append("\n");
+      outToServer.write(inText.toString());
+      outToServer.flush();
+      
+      // get data from server
+      StringBuilder sb = new StringBuilder();
+      String kafString;
+      while ((kafString = inFromServer.readLine()) != null) {
+        sb.append(kafString).append("\n");
+      }
+      outToUser.write(sb.toString());
+    } catch (UnsupportedEncodingException e) {
+      //this cannot happen but...
+      throw new AssertionError("UTF-8 not supported");
+    } catch (UnknownHostException e) {
+      System.err.println("ERROR: Unknown hostname or IP address!");
+      System.exit(1);
+    } catch (NumberFormatException e) {
+      System.err.println("Port number not correct!");
+      System.exit(1);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 
   private void loadAnnotateParameters() {
     // specify language (for language dependent treatment of apostrophes)
@@ -246,6 +340,80 @@ public class CLI {
          .setDefault("v1.naf")
         .help("Set kaf document version.\n");
   }
+  
+  /**
+   * Create the available parameters for NER tagging.
+   */
+  private void loadServerParameters() {
+    
+    serverParser.addArgument("-p", "--port")
+        .required(true)
+        .help("Port to be assigned to the server.\n");
+    // specify language (for language dependent treatment of apostrophes)
+    serverParser
+        .addArgument("-l", "--lang")
+        .choices("de", "en", "es", "eu", "fr", "gl", "it", "nl")
+        .required(true)
+        .help(
+            "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
+    serverParser
+        .addArgument("-n", "--normalize")
+        .choices("alpino", "ancora", "ctag", "default", "ptb", "tiger",
+            "tutpenn")
+        .required(false)
+        .setDefault("default")
+        .help(
+            "Set normalization method according to corpus; the default option does not escape "
+                + "brackets or forward slashes. See README for more details.\n");
+    serverParser
+        .addArgument("-u","--untokenizable")
+        .choices("yes", "no")
+        .setDefault("no")
+        .required(false)
+        .help("Print untokenizable characters.\n");
+    serverParser
+        .addArgument("-o", "--outputFormat")
+        .choices("conll", "oneline", "naf")
+        .setDefault("naf")
+        .required(false)
+        .help(
+            "Choose output format; it defaults to NAF.\n");
+    serverParser
+        .addArgument("--offsets")
+        .action(Arguments.storeFalse())
+        .help(
+            "Do not print offset and lenght information of tokens in CoNLL format.\n");
+    serverParser
+        .addArgument("--inputkaf")
+        .action(Arguments.storeTrue())
+        .help(
+            "Use this option if input is a KAF/NAF document with <raw> layer.\n");
+    serverParser
+        .addArgument("--notok")
+        .action(Arguments.storeTrue())
+        .help(
+            "Build a KAF document from an already tokenized sentence per line file.\n");
+    serverParser
+        .addArgument("--hardParagraph")
+        .choices("yes", "no")
+        .setDefault("no")
+        .required(false)
+        .help("Do not segment paragraphs. Ever.\n");
+    serverParser.addArgument("--kafversion")
+         .setDefault("v1.naf")
+        .help("Set kaf document version.\n");
+  }
+  
+  private void loadClientParameters() {
+    
+    clientParser.addArgument("-p", "--port")
+        .required(true)
+        .help("Port of the TCP server.\n");
+    clientParser.addArgument("--host")
+        .required(false)
+        .setDefault("localhost")
+        .help("Hostname or IP where the TCP server is running.\n");
+  }
 
   private Properties setAnnotateProperties(final String lang, final String normalize, final String untokenizable, final String hardParagraph) {
     final Properties annotateProperties = new Properties();
@@ -254,6 +422,21 @@ public class CLI {
     annotateProperties.setProperty("untokenizable", untokenizable);
     annotateProperties.setProperty("hardParagraph", hardParagraph);
     return annotateProperties;
+  }
+    
+    private Properties setServerProperties(final String port, final String lang, final String normalize, final String untokenizable, final String kafversion, final String inputkaf, final String notok, final String outputFormat, final String offsets, final String hardParagraph) {
+      final Properties serverProperties = new Properties();
+      serverProperties.setProperty("port", port);
+      serverProperties.setProperty("language", lang);
+      serverProperties.setProperty("normalize", normalize);
+      serverProperties.setProperty("untokenizable", untokenizable);
+      serverProperties.setProperty("kafversion", kafversion);
+      serverProperties.setProperty("inputkaf", inputkaf);
+      serverProperties.setProperty("notok", notok);
+      serverProperties.setProperty("outputFormat", outputFormat);
+      serverProperties.setProperty("offsets", offsets);
+      serverProperties.setProperty("hardParagraph", hardParagraph);
+      return serverProperties;
   }
 
 }
