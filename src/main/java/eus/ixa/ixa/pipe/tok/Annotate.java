@@ -83,6 +83,9 @@ public class Annotate {
       for (final Token token : tokenizedSentence) {
         if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
+          if (noSents < noParas) {
+            ++noSents;
+          }
         } else {
           final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(), noSents);
           wf.setLength(token.tokenLength());
