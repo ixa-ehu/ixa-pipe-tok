@@ -87,6 +87,7 @@ public class Annotate {
       for (final Token token : tokenizedSentence) {
         if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
+          //TODO debug this
           if (noSents < noParas) {
             ++noSents;
           }
