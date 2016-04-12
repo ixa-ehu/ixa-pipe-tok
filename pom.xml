@@ -4,9 +4,9 @@
 	<groupId>eus.ixa</groupId>
 	<artifactId>ixa-pipe-tok</artifactId>
 	<packaging>jar</packaging>
-	<version>1.8.4</version>
+	<version>2.0.0</version>
 	<name>ixa-pipe-tok</name>
-	<description>The ixa pipes tokenizer (ixa2.si.ehu.es/ixa-pipes)</description>
+	<description>The IXA pipes tokenizer (ixa2.si.ehu.es/ixa-pipes)</description>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -52,6 +52,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>eus.ixa</groupId>
+			<artifactId>ixa-pipe-ml</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
@@ -171,6 +176,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+						<shadedArtifactAttached>true</shadedArtifactAttached>
+						<shadedClassifierName>exec</shadedClassifierName>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
