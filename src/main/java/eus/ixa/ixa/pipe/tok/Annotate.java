@@ -65,7 +65,6 @@ public class Annotate {
   public Annotate(final BufferedReader breader, final Properties properties) {
     System.err.println("-> TEXT START!!");
     final String text = StringUtils.readText(breader);
-    System.err.println("-> TEXT END!!");
     segmenter = new RuleBasedSegmenter(text, properties);
     System.err.println("-> SEGMENTER UP!!");
     toker = new RuleBasedTokenizer(text, properties);
