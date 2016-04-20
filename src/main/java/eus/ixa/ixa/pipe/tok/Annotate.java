@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import com.google.common.io.CharStreams;
 
-import eus.ixa.ixa.pipe.ml.seg.RuleBasedSegmenter;
+import eus.ixa.ixa.pipe.ml.tok.RuleBasedSegmenter;
 import eus.ixa.ixa.pipe.ml.tok.RuleBasedTokenizer;
 import eus.ixa.ixa.pipe.ml.tok.Token;
 import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
