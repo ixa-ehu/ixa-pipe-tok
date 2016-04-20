@@ -54,7 +54,6 @@ import org.jdom2.JDOMException;
  * <li>inputkaf: take a NAF Document as input instead of plain text file.
  * <li>kafversion: specify the NAF version as parameter.
  * <li>hardParagraph: never break paragraphs.
- * <li>eval: input reference corpus to evaluate a tokenizer.
  * </ol>
  * 
  * 
@@ -79,7 +78,7 @@ public class CLI {
 
   // create Argument Parser
   ArgumentParser argParser = ArgumentParsers.newArgumentParser(
-      "ixa-pipe-tok-" + version + ".jar").description(
+      "ixa-pipe-tok-" + version + "-exec.jar").description(
       "ixa-pipe-tok-" + version
           + " is a multilingual tokenizer developed by the IXA NLP Group.\n");
   /**
@@ -141,7 +140,7 @@ public class CLI {
     } catch (final ArgumentParserException e) {
       argParser.handleError(e);
       System.out.println("Run java -jar target/ixa-pipe-tok-" + version
-          + ".jar (tok|server|client) -help for details");
+          + "-exec.jar (tok|server|client) -help for details");
       System.exit(1);
     }
   }
@@ -352,7 +351,7 @@ public class CLI {
     // specify language (for language dependent treatment of apostrophes)
     serverParser
         .addArgument("-l", "--lang")
-        .choices("de", "en", "es", "eu", "fr", "gl", "it", "nl")
+        .choices("ca", "de", "en", "es", "eu", "fr", "gl", "it", "nl", "pt", "ru")
         .required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
