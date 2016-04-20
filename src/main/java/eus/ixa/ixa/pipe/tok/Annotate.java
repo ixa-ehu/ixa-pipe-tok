@@ -63,24 +63,18 @@ public class Annotate {
   private final RuleBasedSegmenter segmenter;
 
   public Annotate(final BufferedReader breader, final Properties properties) {
-    System.err.println("-> TEXT START!!");
     final String text = StringUtils.readText(breader);
     segmenter = new RuleBasedSegmenter(text, properties);
-    System.err.println("-> SEGMENTER UP!!");
     toker = new RuleBasedTokenizer(text, properties);
-    System.err.println("-> TOKENIZER UP!!");
   }
 
   public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
     
     int noSents = 0;
-    int  noParas = 1;
+    int noParas = 1;
 
-    System.err.println("-> Segmenting.....");
     final String[] sentences = segmenter.segmentSentence();
-    System.err.println("-> Tokenizing...");
     final List<List<Token>> tokens = toker.tokenize(sentences);
-    System.err.println("-> [DONE] segmenting and tokenizing!");
     for (final List<Token> tokenizedSentence : tokens) {
       noSents = noSents + 1;
       for (final Token token : tokenizedSentence) {
@@ -159,11 +153,8 @@ public class Annotate {
   public String tokenizeToText() {
 
     final StringBuilder sb = new StringBuilder();
-    System.err.println("-> Segmenting.....");
     final String[] sentences = segmenter.segmentSentence();
-    System.err.println("-> Tokenizing.....");
     final List<List<Token>> tokens = toker.tokenize(sentences);
-    System.err.println("-> [DONE] segmenting and tokenizing!");
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
         String tokenValue = token.getTokenValue();
