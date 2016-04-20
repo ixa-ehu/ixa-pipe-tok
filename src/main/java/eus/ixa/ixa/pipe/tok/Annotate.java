@@ -31,7 +31,6 @@ import eus.ixa.ixa.pipe.ml.tok.RuleBasedSegmenter;
 import eus.ixa.ixa.pipe.ml.tok.RuleBasedTokenizer;
 import eus.ixa.ixa.pipe.ml.tok.Token;
 import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
-import eus.ixa.ixa.pipe.ml.utils.StringUtils;
 
 /**
  * This class provides the annotation functions to output the tokenized text
@@ -63,7 +62,7 @@ public class Annotate {
   private final RuleBasedSegmenter segmenter;
 
   public Annotate(final BufferedReader breader, final Properties properties) {
-    final String text = StringUtils.readText(breader);
+    String text = RuleBasedSegmenter.readText(breader);
     segmenter = new RuleBasedSegmenter(text, properties);
     toker = new RuleBasedTokenizer(text, properties);
   }
