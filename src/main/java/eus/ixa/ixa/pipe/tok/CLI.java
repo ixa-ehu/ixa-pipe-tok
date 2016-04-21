@@ -57,7 +57,6 @@ import org.jdom2.JDOMException;
  * @author ragerri
  * @version 2016-04-20
  */
-
 public class CLI {
 
   /**
@@ -99,6 +98,7 @@ public class CLI {
    * Sends queries to the serverParser for annotation.
    */
   private Subparser clientParser;
+  
   /**
    * Reading the CLI.
    */
