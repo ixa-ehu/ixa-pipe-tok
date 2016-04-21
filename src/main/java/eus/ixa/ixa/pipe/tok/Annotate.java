@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Rodrigo Agerri
+ * Copyright 2016 Rodrigo Agerri
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -40,14 +40,12 @@ import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
  * <li>As running tokenized and segmented text
  * <li>CoNLL format, namely, one token per line and two newlines for each
  * sentence.
- * <li>Evaluate the tokenizer against a reference text.
  * </ol>
  * 
- * All these options are configurable by using the --nokaf boolean parameter and
- * the -outputFormat parameter of the CLI.
+ * All these options are configurable by using the parameters of the CLI.
  * 
  * @author ragerri
- * @version 2015-04-08
+ * @version 2016-04-20
  * 
  */
 public class Annotate {
@@ -67,6 +65,11 @@ public class Annotate {
     toker = new RuleBasedTokenizer(text, properties);
   }
 
+  /**
+   * Tokenize document to NAF.
+   * @param kaf the incoming naf document
+   * @throws IOException if io problems
+   */
   public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
     
     int noSents = 0;
@@ -168,6 +171,12 @@ public class Annotate {
     return sb.toString().trim();
   }
 
+  /**
+   * Read already tokenized text (one sentence per line) and builds a NAF document.
+   * @param breader the reader
+   * @param kaf the naf document
+   * @throws IOException if io problems
+   */
   public static void tokensToKAF(final Reader breader, final KAFDocument kaf)
       throws IOException {
     int noSents = 0;
