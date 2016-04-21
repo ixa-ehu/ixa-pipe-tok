@@ -1,5 +1,5 @@
 /*
- *Copyright 2015 Rodrigo Agerri
+ *Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.jdom2.JDOMException;
 
 /**
  * ixa-pipe-tok provides several configuration parameters:
- * 
  * <ol>
  * <li>lang: choose language to create the lang attribute in KAF header.
  * <li>normalize: choose normalization method.
@@ -55,8 +54,6 @@ import org.jdom2.JDOMException;
  * <li>kafversion: specify the NAF version as parameter.
  * <li>hardParagraph: never break paragraphs.
  * </ol>
- * 
- * 
  * @author ragerri
  * @version 2016-04-20
  */
@@ -74,9 +71,13 @@ public class CLI {
    */
   private final String commit = CLI.class.getPackage()
       .getSpecificationVersion();
+  /**
+   * The namespace.
+   */
   Namespace parsedArguments = null;
-
-  // create Argument Parser
+  /**
+   * Creating the argument parser.
+   */
   ArgumentParser argParser = ArgumentParsers.newArgumentParser(
       "ixa-pipe-tok-" + version + "-exec.jar").description(
       "ixa-pipe-tok-" + version
@@ -98,7 +99,9 @@ public class CLI {
    * Sends queries to the serverParser for annotation.
    */
   private Subparser clientParser;
-
+  /**
+   * Reading the CLI.
+   */
   public CLI() {
     annotateParser = subParsers.addParser("tok").help("Tagging CLI");
     loadAnnotateParameters();
@@ -110,6 +113,12 @@ public class CLI {
     loadClientParameters();
   }
 
+  /**
+   * Main method.
+   * @param args arguments
+   * @throws IOException if io exceptions
+   * @throws JDOMException if xml exceptions in the naf document
+   */
   public static void main(final String[] args) throws IOException,
       JDOMException {
 
@@ -119,7 +128,6 @@ public class CLI {
 
   /**
    * Parse the command interface parameters with the argParser.
-   * 
    * @param args
    *          the arguments passed through the CLI
    * @throws IOException
@@ -147,6 +155,13 @@ public class CLI {
     }
   }
 
+  /**
+   * Annotate method.
+   * @param inputStream the input stream
+   * @param outputStream the output stream
+   * @throws IOException if io exception
+   * @throws JDOMException if naf exceptions
+   */
   public final void annotate(final InputStream inputStream,
       final OutputStream outputStream) throws IOException, JDOMException {
     final String outputFormat = parsedArguments.getString("outputFormat");
@@ -238,7 +253,6 @@ public class CLI {
 
   /**
    * The client to query the TCP server for annotation.
-   * 
    * @param inputStream
    *          the stdin
    * @param outputStream
@@ -290,6 +304,9 @@ public class CLI {
     }
   }
 
+  /**
+   * Load the available parameters for annotation from the CLI.
+   */
   private void loadAnnotateParameters() {
     // specify language (for language dependent treatment of apostrophes)
     annotateParser
@@ -388,6 +405,9 @@ public class CLI {
         .help("Set kaf document version.\n");
   }
 
+  /**
+   * Load the parameters available from the CLI.
+   */
   private void loadClientParameters() {
 
     clientParser.addArgument("-p", "--port").required(true)
@@ -396,6 +416,14 @@ public class CLI {
         .help("Hostname or IP where the TCP server is running.\n");
   }
 
+  /**
+   * Set the properties for annotation.
+   * @param lang the language
+   * @param normalize which language convention used for normalization
+   * @param untokenizable print untokenizable characters
+   * @param hardParagraph maintain or tokenize hard paragraphs
+   * @return the properties object
+   */
   private Properties setAnnotateProperties(final String lang,
       final String normalize, final String untokenizable,
       final String hardParagraph) {

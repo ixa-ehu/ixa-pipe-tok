@@ -14,7 +14,6 @@
    limitations under the License.
  */
 
-
 package eus.ixa.ixa.pipe.tok;
 
 import ixa.kaflib.KAFDocument;
@@ -32,26 +31,32 @@ import java.util.Properties;
 
 import org.jdom2.JDOMException;
 
+/**
+ * The tokenizer TCP server class.
+ * @author ragerri
+ * @version 2016-04-20
+ */
 public class RuleBasedTokenizerServer {
-  
+
   /**
    * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
    * file.
    */
-  private final String version = CLI.class.getPackage().getImplementationVersion();
+  private final String version = CLI.class.getPackage()
+      .getImplementationVersion();
   /**
    * Get the git commit of the ixa-pipe-tok compiled by looking at the MANIFEST
    * file.
    */
-  private final String commit = CLI.class.getPackage().getSpecificationVersion();
-  
+  private final String commit = CLI.class.getPackage()
+      .getSpecificationVersion();
+
   /**
    * Construct a RuleBasedTokenizer server.
-   * 
    * @param properties
    *          the properties
    */
-  public RuleBasedTokenizerServer(Properties properties) {
+  public RuleBasedTokenizerServer(final Properties properties) {
 
     Integer port = Integer.parseInt(properties.getProperty("port"));
     String result;
@@ -67,9 +72,11 @@ public class RuleBasedTokenizerServer {
       while (true) {
         try {
           activeSocket = socketServer.accept();
-          inFromClient = new BufferedReader(new InputStreamReader(activeSocket.getInputStream(), "UTF-8"));
-          outToClient = new BufferedWriter(new OutputStreamWriter(activeSocket.getOutputStream(), "UTF-8"));
-          //get data from client
+          inFromClient = new BufferedReader(new InputStreamReader(
+              activeSocket.getInputStream(), "UTF-8"));
+          outToClient = new BufferedWriter(new OutputStreamWriter(
+              activeSocket.getOutputStream(), "UTF-8"));
+          // get data from client
           String stringFromClient = getClientData(inFromClient);
           // annotate
           result = getAnnotations(properties, stringFromClient);
@@ -86,15 +93,16 @@ public class RuleBasedTokenizerServer {
           sendDataToClient(outToClient, result);
           continue;
         }
-        //send data to server after all exceptions and close the outToClient
+        // send data to server after all exceptions and close the outToClient
         sendDataToClient(outToClient, result);
-        //close the resources
+        // close the resources
         inFromClient.close();
         activeSocket.close();
-      } //end of processing block
+      } // end of processing block
     } catch (IOException e) {
       e.printStackTrace();
-      System.err.println("-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
+      System.err
+          .println("-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
     } finally {
       System.out.println("closing tcp socket...");
       try {
@@ -104,13 +112,14 @@ public class RuleBasedTokenizerServer {
       }
     }
   }
-  
+
   /**
    * Read data from the client and output to a String.
-   * @param inFromClient the client inputstream
+   * @param inFromClient
+   *          the client inputstream
    * @return the string from the client
    */
-  private String getClientData(BufferedReader inFromClient) {
+  private String getClientData(final BufferedReader inFromClient) {
     StringBuilder stringFromClient = new StringBuilder();
     try {
       String line;
@@ -123,33 +132,42 @@ public class RuleBasedTokenizerServer {
           break;
         }
       }
-    }catch (IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
     return stringFromClient.toString();
   }
-  
+
   /**
    * Send data back to server after annotation.
-   * @param outToClient the outputstream to the client
-   * @param kafToString the string to be processed
-   * @throws IOException if io error
+   * @param outToClient
+   *          the outputstream to the client
+   * @param kafToString
+   *          the string to be processed
+   * @throws IOException
+   *           if io error
    */
-  private void sendDataToClient(BufferedWriter outToClient, String kafToString) throws IOException {
+  private void sendDataToClient(final BufferedWriter outToClient, final String kafToString)
+      throws IOException {
     outToClient.write(kafToString);
     outToClient.close();
   }
-  
+
   /**
    * Get tokens.
-   * @param properties the options
-   * @param stringFromClient the original string
+   * @param properties
+   *          the options
+   * @param stringFromClient
+   *          the original string
    * @return the tokenized string
-   * @throws IOException if io problems
-   * @throws JDOMException if NAF problems
+   * @throws IOException
+   *           if io problems
+   * @throws JDOMException
+   *           if NAF problems
    */
-  private String getAnnotations(Properties properties, String stringFromClient) throws IOException, JDOMException {
-    
+  private String getAnnotations(final Properties properties, final String stringFromClient)
+      throws IOException, JDOMException {
+
     BufferedReader breader;
     KAFDocument kaf;
     String kafString = null;
@@ -160,7 +178,8 @@ public class RuleBasedTokenizerServer {
     String kafVersion = properties.getProperty("kafversion");
     Boolean offsets = Boolean.valueOf(properties.getProperty("offsets"));
     if (noTok) {
-      final BufferedReader noTokReader = new BufferedReader(new StringReader(stringFromClient));
+      final BufferedReader noTokReader = new BufferedReader(new StringReader(
+          stringFromClient));
       kaf = new KAFDocument(lang, kafVersion);
       final KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(
           "text", "ixa-pipe-tok-notok-" + lang, version + "-" + commit);
@@ -171,7 +190,8 @@ public class RuleBasedTokenizerServer {
       noTokReader.close();
     } else {
       if (inputKafRaw) {
-        final BufferedReader kafReader = new BufferedReader(new StringReader(stringFromClient));
+        final BufferedReader kafReader = new BufferedReader(new StringReader(
+            stringFromClient));
         kaf = KAFDocument.createFromStream(kafReader);
         final String text = kaf.getRawText();
         final StringReader stringReader = new StringReader(text);
@@ -204,4 +224,3 @@ public class RuleBasedTokenizerServer {
   }
 
 }
-

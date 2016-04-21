@@ -41,12 +41,9 @@ import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
  * <li>CoNLL format, namely, one token per line and two newlines for each
  * sentence.
  * </ol>
- * 
  * All these options are configurable by using the parameters of the CLI.
- * 
  * @author ragerri
  * @version 2016-04-20
- * 
  */
 public class Annotate {
 
@@ -59,6 +56,11 @@ public class Annotate {
    */
   private final RuleBasedSegmenter segmenter;
 
+  /**
+   * Build an annotator from the reader and the properties object.
+   * @param breader
+   * @param properties
+   */
   public Annotate(final BufferedReader breader, final Properties properties) {
     String text = RuleBasedSegmenter.readText(breader);
     segmenter = new RuleBasedSegmenter(text, properties);
@@ -67,11 +69,13 @@ public class Annotate {
 
   /**
    * Tokenize document to NAF.
-   * @param kaf the incoming naf document
-   * @throws IOException if io problems
+   * @param kaf
+   *          the incoming naf document
+   * @throws IOException
+   *           if io problems
    */
   public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
-    
+
     int noSents = 0;
     int noParas = 1;
 
@@ -82,12 +86,13 @@ public class Annotate {
       for (final Token token : tokenizedSentence) {
         if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
-          //TODO debug this
+          // TODO debug this
           if (noSents < noParas) {
             ++noSents;
           }
         } else {
-          final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(), noSents);
+          final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(),
+              noSents);
           wf.setLength(token.tokenLength());
           wf.setPara(noParas);
         }
@@ -98,7 +103,6 @@ public class Annotate {
   /**
    * Tokenizes and segments input text. Outputs tokenized text in conll format:
    * one token per sentence and two newlines to divide sentences.
-   * 
    * @return String tokenized text
    */
   public String tokenizeToCoNLL() {
@@ -123,7 +127,6 @@ public class Annotate {
    * Tokenizes and segments input text. Outputs tokenized text in conll format:
    * one token per sentence and two newlines to divide sentences plus offsets
    * and lenght information about tokens.
-   * 
    * @return String tokenized text
    */
   public String tokenizeToCoNLLOffsets() {
@@ -137,9 +140,8 @@ public class Annotate {
         if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
           tokenValue = "*<P>*";
         }
-        sb.append(tokenValue.trim()).append(" ")
-            .append(token.startOffset()).append(" ")
-            .append(token.tokenLength()).append("\n");
+        sb.append(tokenValue.trim()).append(" ").append(token.startOffset())
+            .append(" ").append(token.tokenLength()).append("\n");
       }
       sb.append("\n");
     }
@@ -149,7 +151,6 @@ public class Annotate {
   /**
    * Tokenize and Segment input text. Outputs tokens in running text format one
    * sentence per line.
-   * 
    * @return String tokenized text
    */
   public String tokenizeToText() {
@@ -172,10 +173,14 @@ public class Annotate {
   }
 
   /**
-   * Read already tokenized text (one sentence per line) and builds a NAF document.
-   * @param breader the reader
-   * @param kaf the naf document
-   * @throws IOException if io problems
+   * Read already tokenized text (one sentence per line) and builds a NAF
+   * document.
+   * @param breader
+   *          the reader
+   * @param kaf
+   *          the naf document
+   * @throws IOException
+   *           if io problems
    */
   public static void tokensToKAF(final Reader breader, final KAFDocument kaf)
       throws IOException {
@@ -197,7 +202,7 @@ public class Annotate {
           // TODO add offset
           final WF wf = kaf.newWF(0, token, noSents);
           wf.setPara(noParas);
-          //wf.setSent(noSents);
+          // wf.setSent(noSents);
         }
       }
     }
