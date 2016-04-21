@@ -58,8 +58,8 @@ public class Annotate {
 
   /**
    * Build an annotator from the reader and the properties object.
-   * @param breader
-   * @param properties
+   * @param breader the reader
+   * @param properties the properties
    */
   public Annotate(final BufferedReader breader, final Properties properties) {
     String text = RuleBasedSegmenter.readText(breader);
