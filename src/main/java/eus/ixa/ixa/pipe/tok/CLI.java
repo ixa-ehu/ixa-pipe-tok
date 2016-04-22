@@ -42,7 +42,8 @@ import net.sourceforge.argparse4j.inf.Subparsers;
 import org.jdom2.JDOMException;
 
 /**
- * ixa-pipe-tok provides several configuration parameters:
+ * ixa-pipe-tok uses the tokenizer API from ixa-pipe-ml.
+ * This pipe provides several configuration parameters:
  * <ol>
  * <li>lang: choose language to create the lang attribute in KAF header.
  * <li>normalize: choose normalization method.
