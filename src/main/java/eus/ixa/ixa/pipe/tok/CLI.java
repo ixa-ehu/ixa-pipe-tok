@@ -1,5 +1,5 @@
 /*
- *Copyright 2015 Rodrigo Agerri
+ *Copyright 2016 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -32,13 +32,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 
 import org.jdom2.JDOMException;
 
 /**
- * ixa-pipe-tok provides several configuration parameters:
- *
+ * ixa-pipe-tok uses the tokenizer API from ixa-pipe-ml.
+ * This pipe provides several configuration parameters:
  * <ol>
  * <li>lang: choose language to create the lang attribute in KAF header.
  * <li>normalize: choose normalization method.
@@ -49,16 +51,12 @@ import org.jdom2.JDOMException;
  * <li>inputkaf: take a NAF Document as input instead of plain text file.
  * <li>kafversion: specify the NAF version as parameter.
  * <li>hardParagraph: never break paragraphs.
- * <li>eval: input reference corpus to evaluate a tokenizer.
  * </ol>
  *
- *
  * @author ragerri
- * @version 2015-04-08
+ * @version 2016-04-20
  */
-
 public class CLI {
-
     /**
      * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
      * file.
@@ -80,13 +78,12 @@ public class CLI {
 
     public static void main(final String[] args) throws IOException,
             JDOMException {
-
         final CLI cmdLine = new CLI();
         cmdLine.run(args);
     }
 
     /**
-     * Parse the command interface parameters and run the appropriate command.
+     * Run the appropriate command based on the command line parameters.
      *
      * @param args
      *          the arguments passed through the CLI
