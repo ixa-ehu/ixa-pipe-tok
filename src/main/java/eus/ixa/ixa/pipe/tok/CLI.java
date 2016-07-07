@@ -16,7 +16,7 @@
 
 package eus.ixa.ixa.pipe.tok;
 
-import eus.ixa.ixa.pipe.cli.Command;
+import eus.ixa.ixa.pipe.cli.Strategy;
 import eus.ixa.ixa.pipe.cli.Parameters;
 import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
 import ixa.kaflib.KAFDocument;
@@ -99,14 +99,14 @@ public class CLI {
             JDOMException {
         try {
             Parameters parameters = cliArgumentsParser.parse(args);
-            if (parameters.getCommand() == Command.TOKENIZE) {
+            if (parameters.getStrategy() == Strategy.TOKENIZE) {
                 annotate(parameters);
-            } else if (parameters.getCommand() == Command.SERVER) {
+            } else if (parameters.getStrategy() == Strategy.SERVER) {
                 server(parameters);
-            } else if (parameters.getCommand() == Command.CLIENT) {
+            } else if (parameters.getStrategy() == Strategy.CLIENT) {
                 client(parameters);
             } else {
-                System.out.println(String.format("Invalid sub-command [%s]. Sub-commands accepted are: (tok|server|client)", parameters.getCommandString()));
+                System.out.println(String.format("Invalid sub-command [%s]. Sub-commands accepted are: (tok|server|client)", parameters.getStrategyString()));
             }
         } catch (final ArgumentParserException e) {
             cliArgumentsParser.handleError(e);

@@ -4,8 +4,6 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.*;
 
-import java.util.HashMap;
-
 public class CLIArgumentsParser {
     // Software version
     private final String version;
@@ -38,20 +36,20 @@ public class CLIArgumentsParser {
     }
 
     public Parameters parse(String[] args) throws ArgumentParserException {
-        Command command = Commands.parse(args[0]);
+        Strategy strategy = Strategies.parse(args[0]);
         Namespace namespace;
-        switch (command) {
+        switch (strategy) {
             case TOKENIZE:
-                 namespace = this.annotateParser.parseArgs(args);
-                return new Parameters(args[0], command, namespace);
+                namespace = this.argParser.parseArgs(args);
+                return new Parameters(args[0], strategy, namespace);
             case SERVER:
-                namespace = this.serverParser.parseArgs(args);
-                return new Parameters(args[0], command, namespace);
+                namespace = this.argParser.parseArgs(args);
+                return new Parameters(args[0], strategy, namespace);
             case CLIENT:
-                namespace = this.clientParser.parseArgs(args);
-                return new Parameters(args[0], command, namespace);
+                namespace = this.argParser.parseArgs(args);
+                return new Parameters(args[0], strategy, namespace);
             default:
-                return new Parameters(args[0], Command.UNKNOWN);
+                return new Parameters(args[0], Strategy.UNKNOWN);
         }
     }
 

@@ -6,25 +6,25 @@ import java.util.Properties;
 
 public class Parameters {
     private final Namespace namespace;
-    private final String commandString;
-    private final Command command;
+    private final String strategyString;
+    private final Strategy strategy;
 
-    public Parameters(String commandString, Command command, Namespace namespace) {
-        this.commandString = commandString;
-        this.command = command;
+    public Parameters(String strategyString, Strategy strategy, Namespace namespace) {
+        this.strategyString = strategyString;
+        this.strategy = strategy;
         this.namespace = namespace;
     }
 
-    public Parameters(String commandString, Command command) {
-        this(commandString, command, null);
+    public Parameters(String strategyString, Strategy strategy) {
+        this(strategyString, strategy, null);
     }
 
-    public String getCommandString() {
-        return this.commandString;
+    public String getStrategyString() {
+        return this.strategyString;
     }
 
-    public Command getCommand() {
-        return this.command;
+    public Strategy getStrategy() {
+        return this.strategy;
     }
 
     public String getOutputFormat() {
