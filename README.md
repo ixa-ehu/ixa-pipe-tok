@@ -63,7 +63,7 @@ subcommand to ixa-pipe-tok-1.8.4.jar. Please read below and check the -help
 parameter. For example:
 
 ````shell
-java -jar target/ixa-pipe-tok-1.8.4.jar tok -help
+java -jar target/ixa-pipe-tok-1.8.5-exec.jar tok -help
 ````
 
 ### Tokenizing
@@ -71,7 +71,7 @@ java -jar target/ixa-pipe-tok-1.8.4.jar tok -help
 If you are in hurry, [Download](http://ixa2.si.ehu.es/ixa-pipes/models/guardian.txt) or create a plain text file and use it like this:
 
 ````shell
-cat guardian.txt | java -jar ixa-pipe-tok-1.8.4.jar tok -l en
+cat guardian.txt | java -jar target/ixa-pipe-tok-1.8.5-exec.jar tok -l en
 ````
 
 If you want to know more, please follow reading.
@@ -97,7 +97,7 @@ There are several options to tokenize with ixa-pipe-tok:
 **Example**:
 
 ````shell
-cat guardian.txt java -jar ixa-pipe-tok-1.8.4.jar tok -l en
+cat guardian.txt | java -jar target/ixa-pipe-tok-1.8.5-exec.jar tok -l en
 ````
 
 ## API
