@@ -213,7 +213,7 @@ mvn clean package
 This step will create a directory called target/ which contains various directories and files.
 Most importantly, there you will find the module executable:
 
-ixa-pipe-tok-1.8.4.jar
+ixa-pipe-tok-1.8.4-exec.jar
 
 This executable contains every dependency the module needs, so it is completely portable as long
 as you have a JVM 1.7 or newer installed.
