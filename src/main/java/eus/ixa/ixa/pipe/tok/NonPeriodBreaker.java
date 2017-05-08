@@ -17,6 +17,9 @@
 package eus.ixa.ixa.pipe.tok;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -96,19 +99,24 @@ public class NonPeriodBreaker {
   }
 
   private void loadNonBreaker(final Properties properties) {
-    final String lang = properties.getProperty("language");
     if (NON_BREAKER == null) {
-      createNonBreaker(lang);
+      final String lang = properties.getProperty("language");
+      final String resourcesDirectory = properties.getProperty("resourcesDirectory");
+      createNonBreaker(lang, resourcesDirectory);
     }
   }
 
-  private void createNonBreaker(final String lang) {
+  private void createNonBreaker(final String lang, final String resourcesDirectory) {
     final List<String> nonBreakerList = new ArrayList<String>();
 
-    final InputStream nonBreakerInputStream = getNonBreakerInputStream(lang);
+    final InputStream nonBreakerInputStream = resourcesDirectory == null
+      ? getNonBreakerInputStream(lang)
+      : getNonBreakerInputStreamFromDirectory(lang, resourcesDirectory);
+
     if (nonBreakerInputStream == null) {
+      final String resourcesLocation = resourcesDirectory == null ? "src/main/resources" : resourcesDirectory;
       System.err.println("ERROR: Not nonbreaker file for language " + lang
-          + " in src/main/resources!!");
+          + " in " + resourcesLocation + "!!");
       System.exit(1);
     }
     final BufferedReader breader = new BufferedReader(new InputStreamReader(
@@ -125,6 +133,14 @@ public class NonPeriodBreaker {
       e.printStackTrace();
     }
     NON_BREAKER = StringUtils.createDisjunctRegexFromList(nonBreakerList);
+  }
+
+  private final InputStream getNonBreakerInputStreamFromDirectory(final String lang, final String resourcesDirectory) {
+    try {
+      return new FileInputStream(new File(resourcesDirectory, lang.toLowerCase() + "-nonbreaker.txt"));
+    } catch (FileNotFoundException ex) {
+      return null;
+    }
   }
 
   private final InputStream getNonBreakerInputStream(final String lang) {
