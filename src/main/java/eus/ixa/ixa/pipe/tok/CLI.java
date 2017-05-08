@@ -16,11 +16,6 @@
 
 package eus.ixa.ixa.pipe.tok;
 
-import eus.ixa.ixa.pipe.cli.Strategy;
-import eus.ixa.ixa.pipe.cli.Parameters;
-import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
-import ixa.kaflib.KAFDocument;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -32,11 +27,13 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-import net.sourceforge.argparse4j.impl.Arguments;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-
 import org.jdom2.JDOMException;
+
+import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
+import eus.ixa.ixa.pipe.cli.Parameters;
+import eus.ixa.ixa.pipe.cli.Strategy;
+import ixa.kaflib.KAFDocument;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
 
 /**
  * ixa-pipe-tok uses the tokenizer API from ixa-pipe-ml.
