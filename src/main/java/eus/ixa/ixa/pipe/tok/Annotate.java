@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Rodrigo Agerri
+ * Copyright 2016 Rodrigo Agerri
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,12 +22,16 @@ import ixa.kaflib.WF;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import com.google.common.io.CharStreams;
 
-import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
+import eus.ixa.ixa.pipe.ml.tok.RuleBasedSegmenter;
+import eus.ixa.ixa.pipe.ml.tok.RuleBasedTokenizer;
+import eus.ixa.ixa.pipe.ml.tok.Token;
+import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
 
 /**
  * This class provides the annotation functions to output the tokenized text
@@ -37,15 +41,11 @@ import eus.ixa.ixa.pipe.seg.RuleBasedSegmenter;
  * <li>As running tokenized and segmented text
  * <li>CoNLL format, namely, one token per line and two newlines for each
  * sentence.
- * <li>Evaluate the tokenizer against a reference text.
  * </ol>
- * 
- * All these options are configurable by using the --nokaf boolean parameter and
- * the -outputFormat parameter of the CLI.
+ * All these options are configurable by using the parameters of the CLI.
  * 
  * @author ragerri
- * @version 2015-04-08
- * 
+ * @version 2016-04-20
  */
 public class Annotate {
 
@@ -57,37 +57,76 @@ public class Annotate {
    * The sentence splitter.
    */
   private final RuleBasedSegmenter segmenter;
+  private String text;
+  private boolean isNoSeg;
 
+  /**
+   * Build an annotator from the reader and the properties object.
+   * 
+   * @param breader
+   *          the reader
+   * @param properties
+   *          the properties
+   */
   public Annotate(final BufferedReader breader, final Properties properties) {
-    //System.err.println("-> TEXT START!!");
-    final String text = StringUtils.readText(breader);
-    //System.err.println("-> TEXT END!!");
-    segmenter = new RuleBasedSegmenter(text, properties);
-    //System.err.println("-> SEGMENTER UP!!");
-    toker = new RuleBasedTokenizer(text, properties);
-    //System.err.println("-> TOKENIZER UP!!");
+    isNoSeg = Boolean.valueOf(properties.getProperty("noseg"));
+    if (isNoSeg) {
+      text = buildString(breader);
+    }
+    String textSegment = RuleBasedSegmenter.readText(breader);
+    segmenter = new RuleBasedSegmenter(textSegment, properties);
+    toker = new RuleBasedTokenizer(textSegment, properties);
   }
 
-  public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
-    
-    int noSents = 0;
-    int  noParas = 1;
+  /**
+   * Reads standard input text from the BufferedReader.
+   * 
+   * @param breader
+   *          the buffered reader
+   * @return the input text in a string object
+   */
+  // TODO move to ixa-pipe-ml
+  private static String buildString(final BufferedReader breader) {
+    String line;
+    final StringBuilder sb = new StringBuilder();
+    try {
+      while ((line = breader.readLine()) != null) {
+        sb.append(line);
+      }
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+    String text = sb.toString();
+    return text;
+  }
 
-    //System.err.println("-> Segmenting.....");
+  /**
+   * Tokenize document to NAF.
+   * 
+   * @param kaf
+   *          the incoming naf document
+   * @throws IOException
+   *           if io problems
+   */
+  public void tokenizeToKAF(final KAFDocument kaf) throws IOException {
+
+    int noSents = 0;
+    int noParas = 1;
+
     final String[] sentences = segmenter.segmentSentence();
-    //System.err.println("-> Tokenizing...");
     final List<List<Token>> tokens = toker.tokenize(sentences);
-    //System.err.println("-> [DONE]!");
     for (final List<Token> tokenizedSentence : tokens) {
       noSents = noSents + 1;
       for (final Token token : tokenizedSentence) {
         if (token.getTokenValue().equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
+          // TODO debug this
           if (noSents < noParas) {
             ++noSents;
           }
         } else {
-          final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(), noSents);
+          final WF wf = kaf.newWF(token.startOffset(), token.getTokenValue(),
+              noSents);
           wf.setLength(token.tokenLength());
           wf.setPara(noParas);
         }
@@ -137,9 +176,8 @@ public class Annotate {
         if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
           tokenValue = "*<P>*";
         }
-        sb.append(tokenValue.trim()).append(" ")
-            .append(token.startOffset()).append(" ")
-            .append(token.tokenLength()).append("\n");
+        sb.append(tokenValue.trim()).append(" ").append(token.startOffset())
+            .append(" ").append(token.tokenLength()).append("\n");
       }
       sb.append("\n");
     }
@@ -155,25 +193,46 @@ public class Annotate {
   public String tokenizeToText() {
 
     final StringBuilder sb = new StringBuilder();
-    System.err.println("-> Segmenting.....");
-    final String[] sentences = segmenter.segmentSentence();
-    System.err.println("-> Tokenizing.....");
-    final List<List<Token>> tokens = toker.tokenize(sentences);
-    System.err.println("-> [DONE]!");
-    for (final List<Token> tokSentence : tokens) {
-      for (final Token token : tokSentence) {
-        String tokenValue = token.getTokenValue();
-        if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
-          sb.append("*<P>*").append("\n");
-        } else {
+    if (isNoSeg) {
+      List<String> token = new ArrayList<>();
+      token.add(text);
+      String[] sentences = token.toArray(new String[token.size()]);
+      final List<List<Token>> tokens = toker.tokenize(sentences);
+      for (final List<Token> tokSentence : tokens) {
+        for (final Token tok : tokSentence) {
+          String tokenValue = tok.getTokenValue();
           sb.append(tokenValue.trim()).append(" ");
         }
       }
-      sb.append("\n");
+    } else {
+      final String[] sentences = segmenter.segmentSentence();
+      final List<List<Token>> tokens = toker.tokenize(sentences);
+      for (final List<Token> tokSentence : tokens) {
+        for (final Token token : tokSentence) {
+          String tokenValue = token.getTokenValue();
+          if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
+            sb.append("*<P>*").append("\n");
+          } else {
+            sb.append(tokenValue.trim()).append(" ");
+          }
+        }
+        sb.append("\n");
+      }
     }
     return sb.toString().trim();
   }
 
+  /**
+   * Read already tokenized text (one sentence per line) and builds a NAF
+   * document.
+   * 
+   * @param breader
+   *          the reader
+   * @param kaf
+   *          the naf document
+   * @throws IOException
+   *           if io problems
+   */
   public static void tokensToKAF(final Reader breader, final KAFDocument kaf)
       throws IOException {
     int noSents = 0;
@@ -194,7 +253,7 @@ public class Annotate {
           // TODO add offset
           final WF wf = kaf.newWF(0, token, noSents);
           wf.setPara(noParas);
-          //wf.setSent(noSents);
+          // wf.setSent(noSents);
         }
       }
     }
