@@ -1,8 +1,5 @@
 package eus.ixa.ixa.pipe.cli;
 
 public enum Strategy {
-    TOKENIZE,
-    SERVER,
-    CLIENT,
-    UNKNOWN
+  TOKENIZE, SERVER, CLIENT, UNKNOWN
 }

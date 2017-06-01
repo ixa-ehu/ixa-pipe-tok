@@ -43,6 +43,7 @@ import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
  * sentence.
  * </ol>
  * All these options are configurable by using the parameters of the CLI.
+ * 
  * @author ragerri
  * @version 2016-04-20
  */
@@ -61,8 +62,11 @@ public class Annotate {
 
   /**
    * Build an annotator from the reader and the properties object.
-   * @param breader the reader
-   * @param properties the properties
+   * 
+   * @param breader
+   *          the reader
+   * @param properties
+   *          the properties
    */
   public Annotate(final BufferedReader breader, final Properties properties) {
     isNoSeg = Boolean.valueOf(properties.getProperty("noseg"));
@@ -73,7 +77,7 @@ public class Annotate {
     segmenter = new RuleBasedSegmenter(textSegment, properties);
     toker = new RuleBasedTokenizer(textSegment, properties);
   }
-  
+
   /**
    * Reads standard input text from the BufferedReader.
    * 
@@ -81,7 +85,7 @@ public class Annotate {
    *          the buffered reader
    * @return the input text in a string object
    */
-  //TODO move to ixa-pipe-ml
+  // TODO move to ixa-pipe-ml
   private static String buildString(final BufferedReader breader) {
     String line;
     final StringBuilder sb = new StringBuilder();
@@ -98,6 +102,7 @@ public class Annotate {
 
   /**
    * Tokenize document to NAF.
+   * 
    * @param kaf
    *          the incoming naf document
    * @throws IOException
@@ -132,6 +137,7 @@ public class Annotate {
   /**
    * Tokenizes and segments input text. Outputs tokenized text in conll format:
    * one token per sentence and two newlines to divide sentences.
+   * 
    * @return String tokenized text
    */
   public String tokenizeToCoNLL() {
@@ -156,6 +162,7 @@ public class Annotate {
    * Tokenizes and segments input text. Outputs tokenized text in conll format:
    * one token per sentence and two newlines to divide sentences plus offsets
    * and lenght information about tokens.
+   * 
    * @return String tokenized text
    */
   public String tokenizeToCoNLLOffsets() {
@@ -180,6 +187,7 @@ public class Annotate {
   /**
    * Tokenize and Segment input text. Outputs tokens in running text format one
    * sentence per line.
+   * 
    * @return String tokenized text
    */
   public String tokenizeToText() {
@@ -217,6 +225,7 @@ public class Annotate {
   /**
    * Read already tokenized text (one sentence per line) and builds a NAF
    * document.
+   * 
    * @param breader
    *          the reader
    * @param kaf
