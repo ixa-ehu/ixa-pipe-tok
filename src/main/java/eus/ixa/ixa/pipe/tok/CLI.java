@@ -45,6 +45,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
  * <li>untokenizable: print untokenizable (\uFFFD) characters.
  * <li>notok: take already tokenized text as input and create a KAFDocument with
  * it.
+ * <li>noseg: tokenize but do not segment sentences.
  * <li>inputkaf: take a NAF Document as input instead of plain text file.
  * <li>kafversion: specify the NAF version as parameter.
  * <li>hardParagraph: never break paragraphs.
@@ -175,7 +176,7 @@ public class CLI {
   /**
    * Set up the TCP socket for annotation.
    * 
-   * @param parameters
+   * @param parameters the parameters
    */
   public final void server(Parameters parameters) {
     Properties serverProperties = parameters.getServerProperties();
@@ -185,7 +186,7 @@ public class CLI {
   /**
    * The client to query the TCP server for annotation.
    * 
-   * @param parameters
+   * @param parameters the parameters
    */
   public final void client(Parameters parameters) {
     String host = parameters.getHost();
