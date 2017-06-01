@@ -22,6 +22,7 @@ import ixa.kaflib.WF;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -55,6 +56,8 @@ public class Annotate {
    * The sentence splitter.
    */
   private final RuleBasedSegmenter segmenter;
+  private String text;
+  private boolean isNoSeg;
 
   /**
    * Build an annotator from the reader and the properties object.
@@ -62,9 +65,35 @@ public class Annotate {
    * @param properties the properties
    */
   public Annotate(final BufferedReader breader, final Properties properties) {
-    String text = RuleBasedSegmenter.readText(breader);
-    segmenter = new RuleBasedSegmenter(text, properties);
-    toker = new RuleBasedTokenizer(text, properties);
+    isNoSeg = Boolean.valueOf(properties.getProperty("noseg"));
+    if (isNoSeg) {
+      text = buildString(breader);
+    }
+    String textSegment = RuleBasedSegmenter.readText(breader);
+    segmenter = new RuleBasedSegmenter(textSegment, properties);
+    toker = new RuleBasedTokenizer(textSegment, properties);
+  }
+  
+  /**
+   * Reads standard input text from the BufferedReader.
+   * 
+   * @param breader
+   *          the buffered reader
+   * @return the input text in a string object
+   */
+  //TODO move to ixa-pipe-ml
+  private static String buildString(final BufferedReader breader) {
+    String line;
+    final StringBuilder sb = new StringBuilder();
+    try {
+      while ((line = breader.readLine()) != null) {
+        sb.append(line);
+      }
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+    String text = sb.toString();
+    return text;
   }
 
   /**
@@ -156,18 +185,31 @@ public class Annotate {
   public String tokenizeToText() {
 
     final StringBuilder sb = new StringBuilder();
-    final String[] sentences = segmenter.segmentSentence();
-    final List<List<Token>> tokens = toker.tokenize(sentences);
-    for (final List<Token> tokSentence : tokens) {
-      for (final Token token : tokSentence) {
-        String tokenValue = token.getTokenValue();
-        if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
-          sb.append("*<P>*").append("\n");
-        } else {
+    if (isNoSeg) {
+      List<String> token = new ArrayList<>();
+      token.add(text);
+      String[] sentences = token.toArray(new String[token.size()]);
+      final List<List<Token>> tokens = toker.tokenize(sentences);
+      for (final List<Token> tokSentence : tokens) {
+        for (final Token tok : tokSentence) {
+          String tokenValue = tok.getTokenValue();
           sb.append(tokenValue.trim()).append(" ");
         }
       }
-      sb.append("\n");
+    } else {
+      final String[] sentences = segmenter.segmentSentence();
+      final List<List<Token>> tokens = toker.tokenize(sentences);
+      for (final List<Token> tokSentence : tokens) {
+        for (final Token token : tokSentence) {
+          String tokenValue = token.getTokenValue();
+          if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
+            sb.append("*<P>*").append("\n");
+          } else {
+            sb.append(tokenValue.trim()).append(" ");
+          }
+        }
+        sb.append("\n");
+      }
     }
     return sb.toString().trim();
   }

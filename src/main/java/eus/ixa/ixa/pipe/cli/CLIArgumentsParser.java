@@ -105,6 +105,10 @@ public class CLIArgumentsParser {
                 .help(
                         "Build a KAF document from an already tokenized sentence per line file.\n");
         result
+                .addArgument("--noseg")
+                .action(Arguments.storeTrue())
+                .help("Tokenize without segmenting sentences.\n");
+        result
                 .addArgument("--hardParagraph")
                 .choices("yes", "no")
                 .setDefault("no")

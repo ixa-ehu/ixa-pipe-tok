@@ -54,6 +54,10 @@ public class Parameters {
     public boolean getNoTok() {
         return namespace.getBoolean("notok");
     }
+    
+    public boolean getNoSeg() {
+      return namespace.getBoolean("noseg");
+    }
 
     public String getHardParagraph() {
         return namespace.getString("hardParagraph");
@@ -77,6 +81,7 @@ public class Parameters {
         annotateProperties.setProperty("normalize", getNormalize());
         annotateProperties.setProperty("untokenizable", getUntokenizable());
         annotateProperties.setProperty("hardParagraph", getHardParagraph());
+        annotateProperties.setProperty("noseg", String.valueOf(getNoSeg()));
 
         return annotateProperties;
     }
