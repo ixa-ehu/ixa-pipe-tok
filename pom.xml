@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>com.github.ixa-ehu</groupId>
 			<artifactId>kaflib-naf</artifactId>
-			<version>1.1.15</version>
+			<version>1.1.19</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>eus.ixa</groupId>
 			<artifactId>ixa-pipe-ml</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.7</version>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
