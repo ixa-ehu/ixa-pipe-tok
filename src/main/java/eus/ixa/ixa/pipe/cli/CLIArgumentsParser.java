@@ -64,7 +64,7 @@ public class CLIArgumentsParser {
 
     // specify language (for language dependent treatment of apostrophes)
     result.addArgument("-l", "--lang")
-        .choices("de", "en", "es", "eu", "fr", "gl", "it", "nl").required(true)
+        .choices("ca","de", "en", "es", "eu", "fr", "gl", "it", "nl").required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
     result.addArgument("-n", "--normalize")
@@ -101,7 +101,7 @@ public class CLIArgumentsParser {
         .help("Port to be assigned to the server.\n");
     // specify language (for language dependent treatment of apostrophes)
     result.addArgument("-l", "--lang")
-        .choices("de", "en", "es", "eu", "fr", "gl", "it", "nl").required(true)
+        .choices("ca" ,"de", "en", "es", "eu", "fr", "gl", "it", "nl").required(true)
         .help(
             "It is REQUIRED to choose a language to perform annotation with ixa-pipe-tok.\n");
     result.addArgument("-n", "--normalize")
