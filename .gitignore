@@ -13,5 +13,5 @@ octave-core
 *.project
 *.pydevproject
 *.settings
-
+.idea
 *.iml

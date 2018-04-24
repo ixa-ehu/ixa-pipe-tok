@@ -1,5 +1,5 @@
 /*
- *Copyright 2016 Rodrigo Agerri
+ *Copyright 2016, 2018 Rodrigo Agerri
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.JDOMException;
-
 import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
 import eus.ixa.ixa.pipe.cli.Parameters;
 import eus.ixa.ixa.pipe.cli.Strategy;
@@ -55,6 +55,9 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
  * @version 2016-04-20
  */
 public class CLI {
+
+  private static final Logger LOG = LogManager.getLogger(CLI.class);
+
   /**
    * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
    * file.
@@ -222,13 +225,13 @@ public class CLI {
       // this cannot happen but...
       throw new AssertionError("UTF-8 not supported");
     } catch (UnknownHostException e) {
-      System.err.println("ERROR: Unknown hostname or IP address!");
+      LOG.error("ERROR: Unknown hostname or IP address!");
       System.exit(1);
     } catch (NumberFormatException e) {
-      System.err.println("Port number not correct!");
+      LOG.error("Port number not correct!");
       System.exit(1);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Exception", e);
     }
   }
 }
