@@ -26,9 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.jdom2.JDOMException;
+
 import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
 import eus.ixa.ixa.pipe.cli.Parameters;
 import eus.ixa.ixa.pipe.cli.Strategy;
@@ -55,8 +55,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
  * @version 2016-04-20
  */
 public class CLI {
-
-  private static final Logger LOG = LogManager.getLogger(CLI.class);
   /**
    * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
    * file.
@@ -79,7 +77,6 @@ public class CLI {
   public static void main(final String[] args)
       throws IOException, JDOMException {
     final CLI cmdLine = new CLI();
-    LOG.info("Starting...");
     cmdLine.run(args);
   }
 
@@ -103,12 +100,13 @@ public class CLI {
       } else if (parameters.getStrategy() == Strategy.CLIENT) {
         client(parameters);
       } else {
-        LOG.error("Invalid sub-command {}. Sub-commands accepted are: (tok|server|client)",
-                  parameters.getStrategyString());
+        System.out.println(String.format(
+            "Invalid sub-command [%s]. Sub-commands accepted are: (tok|server|client)",
+            parameters.getStrategyString()));
       }
     } catch (final ArgumentParserException e) {
       cliArgumentsParser.handleError(e);
-      LOG.error("Run java -jar target/ixa-pipe-tok-" + VERSION
+      System.out.println("Run java -jar target/ixa-pipe-tok-" + VERSION
           + ".jar (tok|server|client) -help for details");
       System.exit(1);
     }
@@ -224,10 +222,10 @@ public class CLI {
       // this cannot happen but...
       throw new AssertionError("UTF-8 not supported");
     } catch (UnknownHostException e) {
-      LOG.error("ERROR: Unknown hostname or IP address!");
+      System.err.println("ERROR: Unknown hostname or IP address!");
       System.exit(1);
     } catch (NumberFormatException e) {
-      LOG.error("Port number not correct!");
+      System.err.println("Port number not correct!");
       System.exit(1);
     } catch (IOException e) {
       e.printStackTrace();
