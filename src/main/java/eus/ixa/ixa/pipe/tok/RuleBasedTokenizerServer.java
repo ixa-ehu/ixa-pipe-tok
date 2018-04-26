@@ -29,6 +29,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.JDOMException;
 
 /**
@@ -38,6 +40,8 @@ import org.jdom2.JDOMException;
  * @version 2016-04-20
  */
 public class RuleBasedTokenizerServer {
+
+  private static final Logger LOG = LogManager.getLogger(RuleBasedTokenizerServer.class);
 
   /**
    * Get dynamically the version of ixa-pipe-tok by looking at the MANIFEST
@@ -68,9 +72,9 @@ public class RuleBasedTokenizerServer {
     BufferedWriter outToClient = null;
 
     try {
-      System.out.println("-> Trying to listen port... " + port);
+      LOG.info("-> Trying to listen {}... ", port);
       socketServer = new ServerSocket(port);
-      System.out.println("-> Connected and listening to port " + port);
+      LOG.info("-> Connected and listening to port {}", port);
       while (true) {
         try {
           activeSocket = socketServer.accept();
@@ -102,15 +106,13 @@ public class RuleBasedTokenizerServer {
         activeSocket.close();
       } // end of processing block
     } catch (IOException e) {
-      e.printStackTrace();
-      System.err.println(
-          "-> IOException due to failing to create the TCP socket or to wrongly provided model path.");
+      LOG.error("-> IOException due to failing to create the TCP socket or to wrongly provided model path", e);
     } finally {
-      System.out.println("closing tcp socket...");
+      LOG.info("closing tcp socket...");
       try {
         socketServer.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        LOG.error("IOException", e);
       }
     }
   }
@@ -136,7 +138,7 @@ public class RuleBasedTokenizerServer {
         }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("IOException", e);
     }
     return stringFromClient.toString();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Rodrigo Agerri
+ * Copyright 2016, 2018 Rodrigo Agerri
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import java.util.Properties;
 
 import com.google.common.io.CharStreams;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import eus.ixa.ixa.pipe.ml.tok.RuleBasedSegmenter;
 import eus.ixa.ixa.pipe.ml.tok.RuleBasedTokenizer;
 import eus.ixa.ixa.pipe.ml.tok.Token;
@@ -48,6 +50,8 @@ import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
  * @version 2016-04-20
  */
 public class Annotate {
+
+  private static final Logger LOG = LogManager.getLogger(Annotate.class);
 
   /**
    * The tokenizer.
@@ -94,7 +98,7 @@ public class Annotate {
         sb.append(line);
       }
     } catch (final IOException e) {
-      e.printStackTrace();
+      LOG.error("IOException", e);
     }
     String text = sb.toString();
     return text;
