@@ -51,12 +51,16 @@ import eus.ixa.ixa.pipe.ml.tok.Tokenizer;
  */
 public class Annotate {
 
+  private static String DELIMITER = " ";
+  private static String LINE_BREAK = "\n";
+  private static String DEFAULT_TOKEN_VALUE = "*<P>*";
+
   private static final Logger LOG = LogManager.getLogger(Annotate.class);
 
   /**
    * The tokenizer.
    */
-  private final Tokenizer toker;
+  private final Tokenizer tokenizer;
   /**
    * The sentence splitter.
    */
@@ -79,7 +83,7 @@ public class Annotate {
     }
     String textSegment = RuleBasedSegmenter.readText(breader);
     segmenter = new RuleBasedSegmenter(textSegment, properties);
-    toker = new RuleBasedTokenizer(textSegment, properties);
+    tokenizer = new RuleBasedTokenizer(textSegment, properties);
   }
 
   /**
@@ -100,8 +104,7 @@ public class Annotate {
     } catch (final IOException e) {
       LOG.error("IOException", e);
     }
-    String text = sb.toString();
-    return text;
+    return sb.toString();
   }
 
   /**
@@ -118,7 +121,7 @@ public class Annotate {
     int noParas = 1;
 
     final String[] sentences = segmenter.segmentSentence();
-    final List<List<Token>> tokens = toker.tokenize(sentences);
+    final List<List<Token>> tokens = tokenizer.tokenize(sentences);
     for (final List<Token> tokenizedSentence : tokens) {
       noSents = noSents + 1;
       for (final Token token : tokenizedSentence) {
@@ -148,16 +151,16 @@ public class Annotate {
 
     final StringBuilder sb = new StringBuilder();
     final String[] sentences = segmenter.segmentSentence();
-    final List<List<Token>> tokens = toker.tokenize(sentences);
+    final List<List<Token>> tokens = tokenizer.tokenize(sentences);
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
         String tokenValue = token.getTokenValue();
         if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
-          tokenValue = "*<P>*";
+          tokenValue = DEFAULT_TOKEN_VALUE;
         }
-        sb.append(tokenValue.trim()).append("\n");
+        sb.append(tokenValue.trim()).append(LINE_BREAK);
       }
-      sb.append("\n");
+      sb.append(LINE_BREAK);
     }
     return sb.toString();
   }
@@ -173,17 +176,17 @@ public class Annotate {
 
     final StringBuilder sb = new StringBuilder();
     final String[] sentences = segmenter.segmentSentence();
-    final List<List<Token>> tokens = toker.tokenize(sentences);
+    final List<List<Token>> tokens = tokenizer.tokenize(sentences);
     for (final List<Token> tokSentence : tokens) {
       for (final Token token : tokSentence) {
         String tokenValue = token.getTokenValue();
         if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
-          tokenValue = "*<P>*";
+          tokenValue = DEFAULT_TOKEN_VALUE;
         }
-        sb.append(tokenValue.trim()).append(" ").append(token.startOffset())
-            .append(" ").append(token.tokenLength()).append("\n");
+        sb.append(tokenValue.trim()).append(DELIMITER).append(token.startOffset())
+            .append(DELIMITER).append(token.tokenLength()).append(LINE_BREAK);
       }
-      sb.append("\n");
+      sb.append(LINE_BREAK);
     }
     return sb.toString();
   }
@@ -201,26 +204,26 @@ public class Annotate {
       List<String> token = new ArrayList<>();
       token.add(text);
       String[] sentences = token.toArray(new String[token.size()]);
-      final List<List<Token>> tokens = toker.tokenize(sentences);
+      final List<List<Token>> tokens = tokenizer.tokenize(sentences);
       for (final List<Token> tokSentence : tokens) {
         for (final Token tok : tokSentence) {
           String tokenValue = tok.getTokenValue();
-          sb.append(tokenValue.trim()).append(" ");
+          sb.append(tokenValue.trim()).append(DELIMITER);
         }
       }
     } else {
       final String[] sentences = segmenter.segmentSentence();
-      final List<List<Token>> tokens = toker.tokenize(sentences);
+      final List<List<Token>> tokens = tokenizer.tokenize(sentences);
       for (final List<Token> tokSentence : tokens) {
         for (final Token token : tokSentence) {
           String tokenValue = token.getTokenValue();
           if (tokenValue.equals(RuleBasedSegmenter.PARAGRAPH)) {
-            sb.append("*<P>*").append("\n");
+            sb.append(DEFAULT_TOKEN_VALUE).append(LINE_BREAK);
           } else {
-            sb.append(tokenValue.trim()).append(" ");
+            sb.append(tokenValue.trim()).append(DELIMITER);
           }
         }
-        sb.append("\n");
+        sb.append(LINE_BREAK);
       }
     }
     return sb.toString().trim();
@@ -244,7 +247,7 @@ public class Annotate {
     final List<String> sentences = CharStreams.readLines(breader);
     for (final String sentence : sentences) {
       noSents = noSents + 1;
-      final String[] tokens = sentence.split(" ");
+      final String[] tokens = sentence.split(DELIMITER);
       for (final String token : tokens) {
         if (token.equals(RuleBasedSegmenter.PARAGRAPH)) {
           ++noParas;
@@ -262,5 +265,4 @@ public class Annotate {
       }
     }
   }
-
 }
