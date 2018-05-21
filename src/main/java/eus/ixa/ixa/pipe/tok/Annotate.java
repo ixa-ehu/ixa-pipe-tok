@@ -65,7 +65,7 @@ public class Annotate {
    * The sentence splitter.
    */
   private final RuleBasedSegmenter segmenter;
-  private String text;
+  private List<String> text;
   private boolean isNoSeg;
 
   /**
@@ -79,7 +79,7 @@ public class Annotate {
   public Annotate(final BufferedReader breader, final Properties properties) {
     isNoSeg = Boolean.valueOf(properties.getProperty("noseg"));
     if (isNoSeg) {
-      text = buildString(breader);
+      text = buildSegmentedSentences(breader);
     }
     String textSegment = RuleBasedSegmenter.readText(breader);
     segmenter = new RuleBasedSegmenter(textSegment, properties);
@@ -94,17 +94,17 @@ public class Annotate {
    * @return the input text in a string object
    */
   // TODO move to ixa-pipe-ml
-  private static String buildString(final BufferedReader breader) {
+  private static List<String> buildSegmentedSentences(final BufferedReader breader) {
     String line;
-    final StringBuilder sb = new StringBuilder();
+    List<String> sentences = new ArrayList<>();
     try {
       while ((line = breader.readLine()) != null) {
-        sb.append(line);
+        sentences.add(line);
       }
     } catch (final IOException e) {
       LOG.error("IOException", e);
     }
-    return sb.toString();
+    return sentences;
   }
 
   /**
@@ -119,9 +119,16 @@ public class Annotate {
 
     int noSents = 0;
     int noParas = 1;
+    
+    List<List<Token>> tokens;
 
-    final String[] sentences = segmenter.segmentSentence();
-    final List<List<Token>> tokens = tokenizer.tokenize(sentences);
+    if (isNoSeg) {
+      String[] sentences = text.toArray(new String[text.size()]);
+      tokens = tokenizer.tokenize(sentences);
+    } else {
+      final String[] sentences = segmenter.segmentSentence();
+      tokens = tokenizer.tokenize(sentences);
+    }
     for (final List<Token> tokenizedSentence : tokens) {
       noSents = noSents + 1;
       for (final Token token : tokenizedSentence) {
@@ -201,15 +208,14 @@ public class Annotate {
 
     final StringBuilder sb = new StringBuilder();
     if (isNoSeg) {
-      List<String> token = new ArrayList<>();
-      token.add(text);
-      String[] sentences = token.toArray(new String[token.size()]);
+      String[] sentences = text.toArray(new String[text.size()]);
       final List<List<Token>> tokens = tokenizer.tokenize(sentences);
       for (final List<Token> tokSentence : tokens) {
         for (final Token tok : tokSentence) {
           String tokenValue = tok.getTokenValue();
           sb.append(tokenValue.trim()).append(DELIMITER);
         }
+        sb.append(LINE_BREAK);
       }
     } else {
       final String[] sentences = segmenter.segmentSentence();
