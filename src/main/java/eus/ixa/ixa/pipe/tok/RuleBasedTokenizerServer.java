@@ -16,6 +16,7 @@
 
 package eus.ixa.ixa.pipe.tok;
 
+import eus.ixa.ixa.pipe.cli.CLI;
 import ixa.kaflib.KAFDocument;
 
 import java.io.BufferedReader;

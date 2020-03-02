@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package eus.ixa.ixa.pipe.tok;
+package eus.ixa.ixa.pipe.cli;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,12 +26,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
+
+import eus.ixa.ixa.pipe.tok.Annotate;
+import eus.ixa.ixa.pipe.tok.RuleBasedTokenizerServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jdom2.JDOMException;
-import eus.ixa.ixa.pipe.cli.CLIArgumentsParser;
-import eus.ixa.ixa.pipe.cli.Parameters;
-import eus.ixa.ixa.pipe.cli.Strategy;
 import ixa.kaflib.KAFDocument;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 
